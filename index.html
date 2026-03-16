@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>FindYourCyster · PCOS community that gets you</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.5;
+            overflow-x: hidden;
+            background: linear-gradient(180deg, #fce4e6 0%, #f8d9de 100%);
+            color: #2e2e2e;
+        }
+
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #fce4e6;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #e8c1c5, #d4a2a8);
+            border-radius: 20px;
+            border: 3px solid #fce4e6;
+        }
+
+        /* Mobile responsive styles */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 48px !important;
+            }
+            h2 {
+                font-size: 36px !important;
+            }
+            section {
+                padding: 60px 20px !important;
+            }
+            .grid-2 {
+                grid-template-columns: 1fr !important;
+                gap: 40px !important;
+            }
+            .grid-3 {
+                grid-template-columns: 1fr !important;
+                gap: 20px !important;
+            }
+            .grid-2-cols {
+                grid-template-columns: 1fr !important;
+            }
+            .nav-links {
+                display: none !important;
+            }
+            .mobile-menu-btn {
+                display: block !important;
+            }
+            .hero-cta {
+                flex-direction: column !important;
+                gap: 15px !important;
+            }
+            .hero-cta a {
+                width: 100% !important;
+                text-align: center !important;
+            }
+            .footer-content {
+                flex-direction: column !important;
+                gap: 30px !important;
+                text-align: center !important;
+            }
+            .footer-links {
+                flex-wrap: wrap !important;
+                justify-content: center !important;
+                gap: 20px !important;
+            }
+            .testimonials-grid {
+                grid-template-columns: 1fr !important;
+            }
+            .challenges-grid {
+                grid-template-columns: 1fr !important;
+            }
+            .community-stats {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+            }
+            .mockup-container {
+                transform: none !important;
+                max-width: 100% !important;
+            }
+            
+            /* mobile card adjustments */
+            .fan-card {
+                width: 180px !important;
+                height: 260px !important;
+                padding: 12px !important;
+            }
+            .fan-card > div > div:last-child {
+                padding: 12px 10px !important;
+            }
+            .fan-card [style*="width: 52px"] {
+                width: 44px !important;
+                height: 44px !important;
+                font-size: 18px !important;
+            }
+            .fan-card [style*="font-size: 16px"] {
+                font-size: 14px !important;
+            }
+            .fan-card [style*="font-size: 12px"] {
+                font-size: 10px !important;
+            }
+            #fanMatchLabel {
+                font-size: 14px !important;
+                padding: 8px 16px !important;
+                bottom: -20px !important;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1024px) {
+            h1 {
+                font-size: 56px !important;
+            }
+            section {
+                padding: 80px 40px !important;
+            }
+            .grid-3 {
+                gap: 20px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav style="position: fixed; top: 16px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 1300px; background: #2e2e2e; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 100px; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; box-shadow: 0 10px 40px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.08);">
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <img src="assets/logo.png" alt="FindYourCyster Logo" style="height: 32px; width: 32px; object-fit: contain; display: inline-block; vertical-align: middle;" onerror="this.style.display='none';" />
+        <span style="font-size: 24px; font-weight: 800; letter-spacing: -0.03em; color: #e8c1c5;">FindYourCyster</span>
+    </div>
+    
+    <!-- Desktop Navigation -->
+    <div class="nav-links" style="display: flex; gap: 30px; align-items: center;">
+        <a href="#" style="text-decoration: none; color: #e8c1c5; font-weight: 500; font-size: 16px;">How it works</a>
+        <a href="#" style="text-decoration: none; color: #e8c1c5; font-weight: 500; font-size: 16px;">Community</a>
+        <a href="#" style="text-decoration: none; color: #e8c1c5; font-weight: 500; font-size: 16px;">Challenges</a>
+        <a href="#" style="background: #e8c1c5; color: #2e2e2e; padding: 10px 24px; border-radius: 40px; text-decoration: none; font-weight: 600; font-size: 15px; box-shadow: 0 8px 20px rgba(46, 46, 46, 0.15);">Join waitlist</a>
+    </div>
+    
+    <!-- Mobile Menu Button -->
+    <div class="mobile-menu-btn" style="display: none; font-size: 24px; cursor: pointer;">☰</div>
+</nav>
+
+<!-- Hero Section with Two Columns - PERFECTLY CENTERED -->
+<section style="min-height: 100vh; display: flex; align-items: center; padding: 0 60px; position: relative; overflow: hidden; padding-top: 100px;">
+    <!-- Background blobs -->
+    <div style="position: absolute; top: -20%; right: -10%; width: 800px; height: 800px; background: radial-gradient(circle, rgba(232, 193, 197, 0.4) 0%, rgba(252, 228, 230, 0) 70%); border-radius: 50%; filter: blur(60px);"></div>
+    <div style="position: absolute; bottom: -10%; left: -5%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(248, 217, 222, 0.5) 0%, rgba(252, 228, 230, 0) 70%); border-radius: 50%; filter: blur(60px);"></div>
+
+    <!-- Two column layout - PERFECT ALIGNMENT -->
+    <div class="grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; max-width: 1300px; margin: 0 auto; position: relative; z-index: 10; align-items: center;">
+        <!-- Left column - perfectly aligned with text -->
+        <div style="padding-right: 20px;">
+            <h1 style="font-size: 72px; font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 24px;">
+                Your PCOS is unique… but you're not alone.
+            </h1>
+            <p style="font-size: 20px; color: #4a4a4a; margin-bottom: 40px; max-width: 500px; line-height: 1.6;">
+                PCOS shows up differently for everyone — from cystic acne to insulin resistance. FindYourCyster connects you with the one who actually share your symptoms, struggles, and wins.
+            </p>
+            
+            <!-- CTA buttons -->
+            <div class="hero-cta" style="display: flex; gap: 20px; margin-bottom: 50px; flex-wrap: wrap;">
+                <a href="#" style="background: #2e2e2e; color: white; text-decoration: none; padding: 18px 42px; border-radius: 60px; font-weight: 600; font-size: 18px; display: inline-block; box-shadow: 0 20px 30px rgba(46, 46, 46, 0.2); transition: all 0.3s;">Find your cyster →</a>
+                <a href="pcosdetection.html" style="background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px); border: 1px solid rgba(46, 46, 46, 0.2); color: #2e2e2e; text-decoration: none; padding: 18px 42px; border-radius: 60px; font-weight: 600; font-size: 18px; transition: all 0.3s;">Explore Community</a>
+            </div>
+            
+            <!-- Community avatars -->
+            <div class="community-stats" style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                <div style="display: flex;">
+                    <div style="width: 48px; height: 48px; background: #2e2e2e; border-radius: 50%; border: 3px solid white; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px;">✨</div>
+                    <div style="width: 48px; height: 48px; background: #e8c1c5; border-radius: 50%; border: 3px solid white; margin-left: -12px; display: flex; align-items: center; justify-content: center;">🌸</div>
+                    <div style="width: 48px; height: 48px; background: #fce4e6; border-radius: 50%; border: 3px solid white; margin-left: -12px; display: flex; align-items: center; justify-content: center;">🫧</div>
+                    <div style="width: 48px; height: 48px; background: #2e2e2e; border-radius: 50%; border: 3px solid white; margin-left: -12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px;">+2k</div>
+                </div>
+                <span style="font-size: 18px; font-weight: 500;">12,000+ cysters already here</span>
+            </div>
+        </div>
+        
+        <!-- HERO FAN MATCHMAKING ANIMATION - IMPROVED VERTICAL CARDS -->
+        <div class="mockup-container" style="position: relative; min-height: 580px; margin-top: 0%; display: flex; align-items: flex-start; justify-content: center; width: 100%;">
+            <!-- Fan wrapper with perspective - perfectly centered -->
+                <div style="position: relative; width: 100%; max-width: 550px; height: 520px; display: flex; align-items: center; justify-content: center; perspective: 1200px; margin: -40px auto 0;">
+                <!-- soft glow behind fan - centered -->
+                <div style="position: absolute; width: 100%; height: 300px; background: radial-gradient(ellipse at center, rgba(232,193,197,0.45) 0%, transparent 70%); bottom: 40px; left: 0; filter: blur(40px); z-index: 0;"></div>
+                
+                <!-- fan container with fixed bottom origin - perfect centering -->
+                <div id="fanContainer" style="position: relative; width: 100%; height: 100%; display: flex; align-items: flex-end; justify-content: center; transform-origin: bottom center; z-index: 5;">
+                    
+                    <!-- ALL CARDS IDENTICAL SIZE - VERTICAL PORTRAIT ASPECT RATIO 3:4 -->
+                    <!-- Card 1 - Sarah (left) 95% match card -->
+                    <div id="cardFan1" class="fan-card" data-profile="sarah" style="position: absolute; bottom: 20px; left: 50%; width: 240px; height: 340px; background: linear-gradient(145deg, #ffffff, #fce4e6); border-radius: 36px; padding: 18px; box-shadow: 0 25px 35px rgba(0,0,0,0.25); border: 1px solid rgba(255, 255, 255, 0.8); transition: transform 0.9s cubic-bezier(0.2,0,0,1), box-shadow 0.6s; transform-origin: bottom center; will-change: transform; backface-visibility: hidden; z-index: 2; opacity: 0.9; transform: translateX(calc(-50% - 70px)) rotate(-14deg) scale(0.95);">
+                        <div style="background: white; border-radius: 28px; overflow: hidden; height: 100%; display: flex; flex-direction: column;">
+                            <div style="background: #fce4e6; padding: 12px; display: flex; gap: 6px;">
+                                <div style="width: 8px; height: 8px; background: #e8c1c5; border-radius: 50%;"></div>
+                                <div style="width: 8px; height: 8px; background: #e8c1c5; border-radius: 50%; opacity: 0.7;"></div>
+                                <div style="width: 8px; height: 8px; background: #e8c1c5; border-radius: 50%; opacity: 0.4;"></div>
+                            </div>
+                            <div style="padding: 20px 16px; flex: 1; display: flex; flex-direction: column;">
+                                <div style="display: flex; gap: 12px; margin-bottom: 18px; align-items: center;">
+                                    <div style="width: 52px; height: 52px; background: #e8c1c5; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 22px;">👤</div>
+                                    <div>
+                                        <div style="font-weight: 700; font-size: 16px;">Sarah, 24</div>
+                                        <div style="color: #666; font-size: 12px;">✨ similar symptoms</div>
+                                    </div>
+                                </div>
+                                <div style="background: #f8f8f8; border-radius: 18px; padding: 16px; margin-bottom: 18px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                        <span style="font-weight: 600; font-size: 13px;">Acne severity</span>
+                                        <span style="color: #e8c1c5; letter-spacing: 2px; font-size: 13px;">●●●●○</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 13px;">
+                                        <span style="font-weight: 600;">Cycle length</span>
+                                        <span>35-40 days</span>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto;">
+                                    <span style="background: #fce4e6; padding: 6px 14px; border-radius: 40px; font-size: 12px; font-weight: 500;">🔥 95% match</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Card 2 - Emma (center) 92% match -->
+                    <div id="cardFan2" class="fan-card" data-profile="emma" style="position: absolute; bottom: 20px; left: 50%; width: 240px; height: 340px; background: linear-gradient(145deg, #ffffff, #fce4e6); border-radius: 36px; padding: 18px; box-shadow: 0 35px 45px rgba(0,0,0,0.35); border: 1px solid rgba(255, 255, 255, 0.9); transition: transform 0.9s cubic-bezier(0.2,0,0,1), box-shadow 0.6s; transform-origin: bottom center; will-change: transform; backface-visibility: hidden; z-index: 3; transform: translateX(-50%) rotate(0deg) scale(1.06);">
+                        <div style="background: white; border-radius: 28px; overflow: hidden; height: 100%; display: flex; flex-direction: column;">
+                            <div style="background: #fce4e6; padding: 12px; display: flex; gap: 6px;">
+                                <div style="width: 8px; height: 8px; background: #e8c1c5; border-radius: 50%;"></div>
+                                <div style="width: 8px; height: 8px; background: #e8c1c5; border-radius: 50%; opacity: 0.7;"></div>
+                                <div style="width: 8px; height: 8px; background: #e8c1c5; border-radius: 50%; opacity: 0.4;"></div>
+                            </div>
+                            <div style="padding: 20px 16px; flex: 1; display: flex; flex-direction: column;">
+                                <div style="display: flex; gap: 12px; margin-bottom: 18px; align-items: center;">
+                                    <div style="width: 52px; height: 52px; background: #e8c1c5; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 22px;">👤</div>
+                                    <div>
+                                        <div style="font-weight: 700; font-size: 16px;">Emma, 26</div>
+                                        <div style="color: #666; font-size: 12px;">✨ insulin resistance</div>
+                                    </div>
+                                </div>
+                                <div style="background: #f8f8f8; border-radius: 18px; padding: 16px; margin-bottom: 18px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                        <span style="font-weight: 600; font-size: 13px;">Insulin resist.</span>
+                                        <span style="color: #e8c1c5; letter-spacing: 2px; font-size: 13px;">●●●○○</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 13px;">
+                                        <span style="font-weight: 600;">Cycle length</span>
+                                        <span>38-42 days</span>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto;">
+                                    <span style="background: #fce4e6; padding: 6px 14px; border-radius: 40px; font-size: 12px; font-weight: 500;">🔥 92% match</span>
+                                    <span style="background: #fce4e6; padding: 6px 14px; border-radius: 40px; font-size: 12px; font-weight: 500;">🧁 cravings</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Card 3 - Maya (right) 94% match -->
+                    <div id="cardFan3" class="fan-card" data-profile="maya" style="position: absolute; bottom: 20px; left: 50%; width: 240px; height: 340px; background: linear-gradient(145deg, #ffffff, #fce4e6); border-radius: 36px; padding: 18px; box-shadow: 0 25px 35px rgba(0,0,0,0.25); border: 1px solid rgba(255, 255, 255, 0.8); transition: transform 0.9s cubic-bezier(0.2,0,0,1), box-shadow 0.6s; transform-origin: bottom center; will-change: transform; backface-visibility: hidden; z-index: 2; opacity: 0.9; transform: translateX(calc(-50% + 70px)) rotate(14deg) scale(0.95);">
+                        <div style="background: white; border-radius: 28px; overflow: hidden; height: 100%; display: flex; flex-direction: column;">
+                            <div style="background: #fce4e6; padding: 12px; display: flex; gap: 6px;">
+                                <div style="width: 8px; height: 8px; background: #e8c1c5; border-radius: 50%;"></div>
+                                <div style="width: 8px; height: 8px; background: #e8c1c5; border-radius: 50%; opacity: 0.7;"></div>
+                                <div style="width: 8px; height: 8px; background: #e8c1c5; border-radius: 50%; opacity: 0.4;"></div>
+                            </div>
+                            <div style="padding: 20px 16px; flex: 1; display: flex; flex-direction: column;">
+                                <div style="display: flex; gap: 12px; margin-bottom: 18px; align-items: center;">
+                                    <div style="width: 52px; height: 52px; background: #e8c1c5; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 22px;">👤</div>
+                                    <div>
+                                        <div style="font-weight: 700; font-size: 16px;">Maya, 23</div>
+                                        <div style="color: #666; font-size: 12px;">✨ irregular cycle</div>
+                                    </div>
+                                </div>
+                                <div style="background: #f8f8f8; border-radius: 18px; padding: 16px; margin-bottom: 18px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                        <span style="font-weight: 600; font-size: 13px;">Irregularity</span>
+                                        <span style="color: #e8c1c5; letter-spacing: 2px; font-size: 13px;">●●●●●</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 13px;">
+                                        <span style="font-weight: 600;">Cycle length</span>
+                                        <span>34-39 days</span>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto;">
+                                    <span style="background: #fce4e6; padding: 6px 14px; border-radius: 40px; font-size: 12px; font-weight: 500;">🔥 94% match</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Match label - ONLY appears when Sarah (95% match) is center -->
+                <div id="fanMatchLabel" style="position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); background: #2e2e2e; color: #e8c1c5; padding: 10px 24px; border-radius: 60px; font-weight: 700; font-size: 18px; box-shadow: 0 0 30px rgba(232,193,197,0.8); border: 1px solid rgba(255,255,255,0.2); opacity: 0; transition: opacity 0.6s ease, transform 0.5s ease; white-space: nowrap; z-index: 20; pointer-events: none; backdrop-filter: blur(4px);">
+                    ✨ It's a Match · 95% compatibility
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How it works section -->
+<section style="padding: 120px 60px; background: #2e2e2e; position: relative; overflow: hidden;">
+    <div style="position: absolute; top: -20%; right: -10%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(232, 193, 197, 0.15) 0%, transparent 70%); border-radius: 50%;"></div>
+    
+    <div style="max-width: 1300px; margin: 0 auto; position: relative; z-index: 2;">
+        <h2 style="font-size: 48px; font-weight: 700; color: white; margin-bottom: 20px; letter-spacing: -0.02em;">three steps to your ✨<br><span style="color: #e8c1c5;">pcos bestie</span></h2>
+        
+        <div class="grid-3" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 60px;">
+            <!-- Card 1 -->
+            <div style="background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border-radius: 32px; padding: 40px 30px; border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s;">
+                <div style="font-size: 48px; margin-bottom: 30px;">🧁</div>
+                <h3 style="font-size: 28px; font-weight: 700; color: white; margin-bottom: 15px;">create profile</h3>
+                <p style="color: rgba(255, 255, 255, 0.7); font-size: 18px; line-height: 1.6;">Answer 5 quick questions about your symptoms, cycle, and lifestyle.</p>
+            </div>
+            
+            <!-- Card 2 -->
+            <div style="background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border-radius: 32px; padding: 40px 30px; border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s;">
+                <div style="font-size: 48px; margin-bottom: 30px;">🫧</div>
+                <h3 style="font-size: 28px; font-weight: 700; color: white; margin-bottom: 15px;">find your match</h3>
+                <p style="color: rgba(255, 255, 255, 0.7); font-size: 18px; line-height: 1.6;">We connect you with cysters who share your exact PCOS type and struggles.</p>
+            </div>
+            
+            <!-- Card 3 -->
+            <div style="background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border-radius: 32px; padding: 40px 30px; border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s;">
+                <div style="font-size: 48px; margin-bottom: 30px;">🌱</div>
+                <h3 style="font-size: 28px; font-weight: 700; color: white; margin-bottom: 15px;">grow together</h3>
+                <p style="color: rgba(255, 255, 255, 0.7); font-size: 18px; line-height: 1.6;">Join challenges, share wins, and support each other daily.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Community Section with Avatars -->
+<section style="padding: 120px 60px; background: linear-gradient(180deg, #fce4e6 0%, #f6d7dc 100%);">
+    <div style="max-width: 1300px; margin: 0 auto;">
+        <div class="grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;">
+            <div>
+                <h2 style="font-size: 48px; font-weight: 700; margin-bottom: 30px; line-height: 1.2;">find your people in <span style="color: #2e2e2e; background: #e8c1c5; padding: 0 15px; border-radius: 60px; display: inline-block;">micro-communities</span></h2>
+                <p style="font-size: 20px; color: #4a4a4a; margin-bottom: 40px; line-height: 1.6;">From hormonal acne warriors to insulin-resistance besties — discover your exact match.</p>
+                
+                <!-- Stats with avatars -->
+                <div style="display: flex; flex-direction: column; gap: 25px;">
+                    <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+                        <div style="display: flex;">
+                            <div style="width: 44px; height: 44px; background: #2e2e2e; border-radius: 50%; border: 2px solid white;"></div>
+                            <div style="width: 44px; height: 44px; background: #e8c1c5; border-radius: 50%; border: 2px solid white; margin-left: -12px;"></div>
+                        </div>
+                        <div>
+                            <div style="font-weight: 700; font-size: 20px;">Hormonal acne · 2.4k members</div>
+                            <div style="color: #666;">🔥 98% match rate</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+                        <div style="display: flex;">
+                            <div style="width: 44px; height: 44px; background: #2e2e2e; border-radius: 50%; border: 2px solid white;"></div>
+                            <div style="width: 44px; height: 44px; background: #e8c1c5; border-radius: 50%; border: 2px solid white; margin-left: -12px;"></div>
+                        </div>
+                        <div>
+                            <div style="font-weight: 700; font-size: 20px;">Cycle irregularity · 1.8k members</div>
+                            <div style="color: #666;">🌸 95% match rate</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Community cards grid -->
+            <div class="grid-2-cols" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                <div style="background: white; border-radius: 32px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.05);">
+                    <div style="font-size: 32px; margin-bottom: 15px;">⚡</div>
+                    <h4 style="font-weight: 700; font-size: 22px; margin-bottom: 8px;">Insulin Resistance</h4>
+                    <p style="color: #666;">3.1k cysters</p>
+                </div>
+                <div style="background: white; border-radius: 32px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.05);">
+                    <div style="font-size: 32px; margin-bottom: 15px;">🌙</div>
+                    <h4 style="font-weight: 700; font-size: 22px; margin-bottom: 8px;">Hormone Balance</h4>
+                    <p style="color: #666;">2.7k cysters</p>
+                </div>
+                <div style="background: white; border-radius: 32px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.05);">
+                    <div style="font-size: 32px; margin-bottom: 15px;">💫</div>
+                    <h4 style="font-weight: 700; font-size: 22px; margin-bottom: 8px;">Mental Health</h4>
+                    <p style="color: #666;">1.9k cysters</p>
+                </div>
+                <div style="background: white; border-radius: 32px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.05);">
+                    <div style="font-size: 32px; margin-bottom: 15px;">🏃</div>
+                    <h4 style="font-weight: 700; font-size: 22px; margin-bottom: 8px;">Movement Streak</h4>
+                    <p style="color: #666;">2.2k cysters</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Challenges with Progress Rings -->
+<section style="padding: 120px 60px; background: #2e2e2e;">
+    <div style="max-width: 1300px; margin: 0 auto;">
+        <h2 style="font-size: 48px; font-weight: 700; color: white; margin-bottom: 60px; text-align: center;">30-day challenges ✨<br><span style="color: #e8c1c5; font-size: 20px; display: block; margin-top: 15px;">grow stronger together</span></h2>
+        
+        <div class="challenges-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px;">
+            <!-- Challenge 1 with progress ring -->
+            <div style="background: rgba(255, 255, 255, 0.05); border-radius: 40px; padding: 40px 30px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.1);">
+                <div style="width: 120px; height: 120px; margin: 0 auto 30px; position: relative;">
+                    <svg width="120" height="120" viewBox="0 0 120 120">
+                        <circle cx="60" cy="60" r="54" fill="none" stroke="#4a4a4a" stroke-width="8"/>
+                        <circle cx="60" cy="60" r="54" fill="none" stroke="#e8c1c5" stroke-width="8" stroke-dasharray="339.292" stroke-dashoffset="101.7876" transform="rotate(-90 60 60)"/>
+                    </svg>
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 24px; font-weight: 700; color: white;">70%</div>
+                </div>
+                <h3 style="font-size: 24px; font-weight: 700; color: white; margin-bottom: 15px;">Hormone Balance</h3>
+                <p style="color: #e8c1c5; font-size: 16px;">248 cysters participating</p>
+            </div>
+            
+            <!-- Challenge 2 -->
+            <div style="background: rgba(255, 255, 255, 0.05); border-radius: 40px; padding: 40px 30px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.1);">
+                <div style="width: 120px; height: 120px; margin: 0 auto 30px; position: relative;">
+                    <svg width="120" height="120" viewBox="0 0 120 120">
+                        <circle cx="60" cy="60" r="54" fill="none" stroke="#4a4a4a" stroke-width="8"/>
+                        <circle cx="60" cy="60" r="54" fill="none" stroke="#e8c1c5" stroke-width="8" stroke-dasharray="339.292" stroke-dashoffset="186.6106" transform="rotate(-90 60 60)"/>
+                    </svg>
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 24px; font-weight: 700; color: white;">45%</div>
+                </div>
+                <h3 style="font-size: 24px; font-weight: 700; color: white; margin-bottom: 15px;">Movement Streak</h3>
+                <p style="color: #e8c1c5; font-size: 16px;">162 cysters participating</p>
+            </div>
+            
+            <!-- Challenge 3 -->
+            <div style="background: rgba(255, 255, 255, 0.05); border-radius: 40px; padding: 40px 30px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.1);">
+                <div style="width: 120px; height: 120px; margin: 0 auto 30px; position: relative;">
+                    <svg width="120" height="120" viewBox="0 0 120 120">
+                        <circle cx="60" cy="60" r="54" fill="none" stroke="#4a4a4a" stroke-width="8"/>
+                        <circle cx="60" cy="60" r="54" fill="none" stroke="#e8c1c5" stroke-width="8" stroke-dasharray="339.292" stroke-dashoffset="61.07256" transform="rotate(-90 60 60)"/>
+                    </svg>
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 24px; font-weight: 700; color: white;">82%</div>
+                </div>
+                <h3 style="font-size: 24px; font-weight: 700; color: white; margin-bottom: 15px;">Sleep Reset</h3>
+                <p style="color: #e8c1c5; font-size: 16px;">337 cysters participating</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials as Chat Bubbles -->
+<section style="padding: 120px 60px; background: linear-gradient(180deg, #fce4e6 0%, #f6d7dc 100%);">
+    <div style="max-width: 1300px; margin: 0 auto;">
+        <h2 style="font-size: 48px; font-weight: 700; text-align: center; margin-bottom: 60px;">real cysters, <span style="color: #2e2e2e;">real connections</span> 🫧</h2>
+        
+        <div class="testimonials-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; max-width: 1000px; margin: 0 auto;">
+            <!-- Testimonial 1 -->
+            <div style="background: #2e2e2e; border-radius: 40px 40px 40px 20px; padding: 35px;">
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                    <div style="width: 60px; height: 60px; background: #e8c1c5; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px;">🌸</div>
+                    <div>
+                        <div style="font-weight: 700; font-size: 18px; color: white;">maddy, 24</div>
+                        <div style="color: #e8c1c5; font-size: 14px;">found her match 3 months ago</div>
+                    </div>
+                </div>
+                <p style="color: white; font-size: 18px; line-height: 1.6; font-style: italic;">"Finding someone with the same PCOS symptoms changed everything. We text every single day."</p>
+            </div>
+            
+            <!-- Testimonial 2 -->
+            <div style="background: #2e2e2e; border-radius: 40px 40px 20px 40px; padding: 35px;">
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                    <div style="width: 60px; height: 60px; background: #e8c1c5; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px;">✨</div>
+                    <div>
+                        <div style="font-weight: 700; font-size: 18px; color: white;">jasmin, 27</div>
+                        <div style="color: #e8c1c5; font-size: 14px;">insulin-resistance bestie</div>
+                    </div>
+                </div>
+                <p style="color: white; font-size: 18px; line-height: 1.6; font-style: italic;">"Finally I don't feel alone. My cyster gets the cravings, the fatigue, everything."</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Final CTA - Strong Visual -->
+<section style="padding: 140px 40px; background: #2e2e2e; text-align: center; position: relative; overflow: hidden;">
+    <!-- Glowing background effect -->
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 800px; height: 800px; background: radial-gradient(circle, rgba(232, 193, 197, 0.2) 0%, transparent 70%); border-radius: 50%;"></div>
+    
+    <div style="max-width: 900px; margin: 0 auto; position: relative; z-index: 2;">
+        <h2 style="font-size: 56px; font-weight: 800; color: white; margin-bottom: 30px; line-height: 1.2; letter-spacing: -0.02em;">
+            Find the women who understand your PCOS journey.
+        </h2>
+        <p style="font-size: 20px; color: rgba(255, 255, 255, 0.8); margin-bottom: 40px;">Join 12,000+ cysters already supporting each other.</p>
+        
+        <a href="#" style="background: linear-gradient(135deg, #e8c1c5, #f6d7dc); color: #2e2e2e; text-decoration: none; padding: 20px 60px; border-radius: 80px; font-weight: 700; font-size: 24px; display: inline-block; box-shadow: 0 0 40px rgba(232, 193, 197, 0.5); transition: all 0.3s; border: 1px solid rgba(255, 255, 255, 0.3);">
+            find your cyster 🫧
+        </a>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer style="padding: 60px 40px; background: #fce4e6; border-top: 1px solid rgba(46, 46, 46, 0.1);">
+    <div class="footer-content" style="max-width: 1300px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 30px;">
+        <div>
+            <span style="font-size: 24px; font-weight: 800; letter-spacing: -0.02em; color: #2e2e2e;">FindYourCyster</span>
+            <p style="margin-top: 10px; color: #666; font-size: 14px;">© 2026 · pcos besties forever</p>
+        </div>
+        <div class="footer-links" style="display: flex; gap: 40px; flex-wrap: wrap;">
+            <a href="#" style="text-decoration: none; color: #2e2e2e; font-size: 16px;">About</a>
+            <a href="#" style="text-decoration: none; color: #2e2e2e; font-size: 16px;">Privacy</a>
+            <a href="#" style="text-decoration: none; color: #2e2e2e; font-size: 16px;">Community</a>
+            <a href="#" style="text-decoration: none; color: #2e2e2e; font-size: 16px;">Careers</a>
+        </div>
+    </div>
+</footer>
+
+<!-- Animation styles -->
+<style>
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-8px) rotate(1deg); }
+    }
+    
+    /* Card hover effects */
+    [style*="border-radius: 32px;"]:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 30px 60px rgba(0,0,0,0.12);
+        transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+    }
+    
+    /* Button hover effects */
+    [style*="border-radius: 60px;"]:hover {
+        transform: scale(1.05);
+        box-shadow: 0 30px 40px rgba(46, 46, 46, 0.25);
+    }
+    
+    /* Nav link hover */
+    nav a:hover {
+        opacity: 0.8;
+        transform: translateY(-2px);
+    }
+    
+    /* Fade in on scroll */
+    section {
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 0.8s ease forwards;
+    }
+    
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Stagger children animations */
+    [style*="grid-template-columns: repeat(3, 1fr);"] > div,
+    [style*="grid-template-columns: repeat(2, 1fr);"] > div {
+        opacity: 0;
+        animation: fadeIn 0.6s ease forwards;
+    }
+    
+    [style*="grid-template-columns: repeat(3, 1fr);"] > div:nth-child(1) { animation-delay: 0.2s; }
+    [style*="grid-template-columns: repeat(3, 1fr);"] > div:nth-child(2) { animation-delay: 0.4s; }
+    [style*="grid-template-columns: repeat(3, 1fr);"] > div:nth-child(3) { animation-delay: 0.6s; }
+    
+    [style*="grid-template-columns: repeat(2, 1fr);"] > div:nth-child(1) { animation-delay: 0.3s; }
+    [style*="grid-template-columns: repeat(2, 1fr);"] > div:nth-child(2) { animation-delay: 0.5s; }
+    
+    @keyframes fadeIn {
+        to { opacity: 1; }
+    }
+    
+    /* soft floating for the whole fan container */
+    #fanContainer {
+        animation: float 6s infinite ease-in-out;
+    }
+</style>
+
+<!-- Parallax scroll effect and fan matchmaking animation - UPDATED: only shows match for 95% card -->
+<script>
+    (function() {
+        // Parallax effect for floating elements
+        window.addEventListener('scroll', function() {
+            const scrolled = window.pageYOffset;
+            const nav = document.querySelector('nav');
+            if (scrolled > 100) {
+                nav.style.background = '#2e2e2e';
+                nav.style.backdropFilter = 'blur(20px)';
+            } else {
+                nav.style.background = '#2e2e2e';
+            }
+        });
+        
+        // Intersection Observer for fade-in effects
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        document.querySelectorAll('section').forEach(section => {
+            observer.observe(section);
+        });
+
+        // Mobile menu toggle
+        const menuBtn = document.querySelector('.mobile-menu-btn');
+        const navLinks = document.querySelector('.nav-links');
+        
+        if (menuBtn && navLinks) {
+            menuBtn.addEventListener('click', function() {
+                if (navLinks.style.display === 'flex') {
+                    navLinks.style.display = 'none';
+                } else {
+                    navLinks.style.display = 'flex';
+                    navLinks.style.flexDirection = 'column';
+                    navLinks.style.position = 'absolute';
+                    navLinks.style.top = '80px';
+                    navLinks.style.left = '20px';
+                    navLinks.style.right = '20px';
+                    navLinks.style.background = 'white';
+                    navLinks.style.padding = '20px';
+                    navLinks.style.borderRadius = '20px';
+                    navLinks.style.boxShadow = '0 10px 30px rgba(0,0,0,0.1)';
+                }
+            });
+        }
+
+        // ---------- FAN SHUFFLE ANIMATION - UPDATED: match label only for Sarah (95%) ----------
+        const card1 = document.getElementById('cardFan1'); // Sarah - 95% match
+        const card2 = document.getElementById('cardFan2'); // Emma - 92% match
+        const card3 = document.getElementById('cardFan3'); // Maya - 94% match
+        const matchLabel = document.getElementById('fanMatchLabel');
+
+        function applyFanState(centerIndex) {
+            const cards = [card1, card2, card3];
+            cards.forEach(c => c.style.transition = 'transform 0.9s cubic-bezier(0.2,0,0,1), box-shadow 0.6s, opacity 0.6s');
+            
+            if (centerIndex === 0) { // Sarah center (95% match)
+                card1.style.transform = 'translateX(-50%) rotate(0deg) scale(1.06)';
+                card1.style.zIndex = '3';
+                card1.style.boxShadow = '0 45px 55px rgba(0,0,0,0.4)';
+                card1.style.opacity = '1';
+                
+                card2.style.transform = 'translateX(calc(-50% + 70px)) rotate(14deg) scale(0.95)';
+                card2.style.zIndex = '2';
+                card2.style.boxShadow = '0 25px 35px rgba(0,0,0,0.25)';
+                card2.style.opacity = '0.9';
+                
+                card3.style.transform = 'translateX(calc(-50% - 70px)) rotate(-14deg) scale(0.95)';
+                card3.style.zIndex = '2';
+                card3.style.boxShadow = '0 25px 35px rgba(0,0,0,0.25)';
+                card3.style.opacity = '0.9';
+            } else if (centerIndex === 1) { // Emma center (92% match)
+                card1.style.transform = 'translateX(calc(-50% - 70px)) rotate(-14deg) scale(0.95)';
+                card1.style.zIndex = '2';
+                card1.style.boxShadow = '0 25px 35px rgba(0,0,0,0.25)';
+                card1.style.opacity = '0.9';
+                
+                card2.style.transform = 'translateX(-50%) rotate(0deg) scale(1.06)';
+                card2.style.zIndex = '3';
+                card2.style.boxShadow = '0 45px 55px rgba(0,0,0,0.4)';
+                card2.style.opacity = '1';
+                
+                card3.style.transform = 'translateX(calc(-50% + 70px)) rotate(14deg) scale(0.95)';
+                card3.style.zIndex = '2';
+                card3.style.boxShadow = '0 25px 35px rgba(0,0,0,0.25)';
+                card3.style.opacity = '0.9';
+            } else if (centerIndex === 2) { // Maya center (94% match)
+                card1.style.transform = 'translateX(calc(-50% + 70px)) rotate(14deg) scale(0.95)';
+                card1.style.zIndex = '2';
+                card1.style.boxShadow = '0 25px 35px rgba(0,0,0,0.25)';
+                card1.style.opacity = '0.9';
+                
+                card2.style.transform = 'translateX(calc(-50% - 70px)) rotate(-14deg) scale(0.95)';
+                card2.style.zIndex = '2';
+                card2.style.boxShadow = '0 25px 35px rgba(0,0,0,0.25)';
+                card2.style.opacity = '0.9';
+                
+                card3.style.transform = 'translateX(-50%) rotate(0deg) scale(1.06)';
+                card3.style.zIndex = '3';
+                card3.style.boxShadow = '0 45px 55px rgba(0,0,0,0.4)';
+                card3.style.opacity = '1';
+            }
+        }
+
+        // initial fan: Emma center (index 1)
+        applyFanState(1);
+
+        // sequence: Emma (1) -> Maya (2) -> Sarah (0) -> repeat
+        let step = 0;
+        const sequence = [1, 2, 0];
+
+        function runShuffleCycle() {
+            const nextCenter = sequence[step % sequence.length];
+            applyFanState(nextCenter);
+            
+            setTimeout(() => {
+                // ONLY show match label when Sarah (index 0, 95% match) is center
+                if (nextCenter === 0) {
+                    matchLabel.style.opacity = '1';
+                    matchLabel.style.transform = 'translateX(-50%) translateY(-10px)';
+                    
+                    // extra glow for Sarah
+                    card1.style.boxShadow = '0 55px 75px rgba(232,193,197,0.6)';
+                    card1.style.transition = 'box-shadow 0.4s';
+                }
+                
+                // after 2.5 seconds, hide label (if visible) and move to next
+                setTimeout(() => {
+                    if (nextCenter === 0) {
+                        matchLabel.style.opacity = '0';
+                        matchLabel.style.transform = 'translateX(-50%) translateY(0)';
+                        card1.style.boxShadow = '0 45px 55px rgba(0,0,0,0.4)';
+                    }
+                    
+                    step++;
+                    setTimeout(() => {
+                        runShuffleCycle();
+                    }, 300);
+                    
+                }, 2500); // match label visible for 2.5 seconds when Sarah is center
+                
+            }, 1000); // wait for shuffle to complete
+        }
+
+        // start loop after 1s delay
+        setTimeout(() => {
+            runShuffleCycle();
+        }, 1000);
+        
+    })();
+</script>
+
+<!-- Smooth scroll for anchor links -->
+<script>
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+</script>
+
+</body>
+</html>
