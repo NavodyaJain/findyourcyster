@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FindYourCyster Hero — Redesigned</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(180deg, #fce4e6 0%, #f8d9de 100%);
+            color: #2e2e2e;
+            overflow-x: hidden;
+        }
+
+        /* ═══════════════════════════════════════════════════
+           HERO SECTION
+        ═══════════════════════════════════════════════════ */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 100px 60px 80px;
+            overflow: hidden;
+        }
+
+        /* Background texture and pattern layer */
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(46, 46, 46, 0.03) 2px,
+                    rgba(46, 46, 46, 0.03) 4px
+                ),
+                radial-gradient(circle at 2px 2px, rgba(232, 193, 197, 0.03) 2px, transparent 2px);
+            background-size: 100% 100%, 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Right column soft radial glow */
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: 10%;
+            right: -15%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(232, 193, 197, 0.25) 0%, transparent 70%);
+            filter: blur(80px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Horizontal editorial rule above CTAs */
+        .hero-divider {
+            position: absolute;
+            left: 60px;
+            right: 60px;
+            height: 1px;
+            background: rgba(232, 193, 197, 0.2);
+            width: calc(55% - 30px);
+            bottom: 240px;
+        }
+
+        .hero-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 55% 45%;
+            gap: 60px;
+            align-items: flex-start;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ─────────────────────────────────────────
+           ZONE 1 — LEFT COLUMN (HEADLINE & CTA)
+        ───────────────────────────────────────── */
+        .hero-left {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .hero-eyebrow {
+            font-size: 11px;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: #d4a2a8;
+            font-weight: 700;
+            margin-bottom: 24px;
+            display: block;
+        }
+
+        /* Kinetic headline container */
+        .hero-headline {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(64px, 8vw, 96px);
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            line-height: 1.05;
+            margin-bottom: 20px;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        .headline-line {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.15em;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: headlineIn 0.8s cubic-bezier(0.2, 0, 0, 1) forwards;
+            min-height: 1.2em;
+        }
+
+        .headline-line.active {
+            animation: headlineIn 0.8s cubic-bezier(0.2, 0, 0, 1) forwards;
+        }
+
+        @keyframes headlineIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .headline-line.exit {
+            animation: headlineOut 0.8s cubic-bezier(0.4, 0, 1, 1) forwards;
+        }
+
+        @keyframes headlineOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+
+        .headline-word {
+            display: inline-block;
+            opacity: 0;
+            animation: wordFadeIn 0.4s ease-out forwards;
+        }
+
+        /* Stagger effect for words */
+        .headline-word:nth-child(1) { animation-delay: 0ms; }
+        .headline-word:nth-child(2) { animation-delay: 60ms; }
+        .headline-word:nth-child(3) { animation-delay: 120ms; }
+        .headline-word:nth-child(4) { animation-delay: 180ms; }
+
+        @keyframes wordFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .headline-accent {
+            color: #d4a2a8;
+            font-style: italic;
+            font-weight: 900;
+        }
+
+        /* Sub-line below headline */
+        .hero-subline {
+            font-size: 19px;
+            font-weight: 500;
+            color: #4a4a4a;
+            max-width: 420px;
+            line-height: 1.5;
+            margin-bottom: 40px;
+            margin-top: 12px;
+        }
+
+        /* CTA Row */
+        .hero-cta-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            padding-top: 20px;
+        }
+
+        .btn-primary {
+            background: #2e2e2e;
+            color: white;
+            padding: 18px 48px;
+            border-radius: 100px;
+            font-size: 18px;
+            font-weight: 800;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+            box-shadow: 0 10px 30px rgba(46, 46, 46, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(46, 46, 46, 0.25);
+        }
+
+        .btn-primary .arrow {
+            display: inline-block;
+            transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
+        }
+
+        .btn-primary:hover .arrow {
+            animation: arrowPulse 0.6s ease-in-out infinite;
+        }
+
+        @keyframes arrowPulse {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(6px); }
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1.5px solid rgba(46, 46, 46, 0.15);
+            color: #2e2e2e;
+            padding: 18px 48px;
+            border-radius: 100px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.8);
+            transform: translateY(-2px);
+            border-color: rgba(46, 46, 46, 0.3);
+        }
+
+        /* ─────────────────────────────────────────
+           ZONE 2 — RIGHT COLUMN (SYMPTOM SELECTOR)
+        ───────────────────────────────────────── */
+        .hero-right {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            padding-top: 20px;
+        }
+
+        .symptom-pills-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            max-width: 380px;
+        }
+
+        .symptom-pill {
+            background: white;
+            border: 2px solid #e8c1c5;
+            border-radius: 60px;
+            padding: 14px 20px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.2, 0, 0, 1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+            transform: rotate(var(--rotation, 0deg));
+            animation: float var(--float-duration, 4s) ease-in-out infinite;
+            animation-delay: var(--float-delay, 0s);
+            user-select: none;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(var(--rotation, 0deg)); }
+            50% { transform: translateY(-8px) rotate(calc(var(--rotation, 0deg) + 1deg)); }
+        }
+
+        .symptom-pill:hover {
+            transform: scale(1.05) translateY(-4px) rotate(var(--rotation, 0deg));
+            background: #e8c1c5;
+            box-shadow: 0 12px 30px rgba(232, 193, 197, 0.3);
+            border-color: #d4a2a8;
+        }
+
+        .symptom-pill.selected {
+            background: #2e2e2e;
+            color: white;
+            border-color: #2e2e2e;
+        }
+
+        .symptom-pill.selected::after {
+            content: ' ✓';
+            display: inline;
+            font-weight: 900;
+        }
+
+        /* Match card */
+        .match-card {
+            background: white;
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 20px 50px rgba(232, 193, 197, 0.2);
+            position: relative;
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            opacity: 0;
+            transform: translateX(40px);
+            animation: slideIn 0.4s cubic-bezier(0.2, 0, 0, 1) forwards;
+            max-width: 340px;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .match-card::before {
+            content: '';
+            position: absolute;
+            inset: -20px;
+            background: radial-gradient(circle, rgba(232, 193, 197, 0.3) 0%, transparent 70%);
+            border-radius: 24px;
+            filter: blur(30px);
+            z-index: -1;
+        }
+
+        .match-count {
+            font-size: 14px;
+            color: #e8c1c5;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 16px;
+        }
+
+        .match-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .match-avatar {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #e8c1c5, #fce4e6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .match-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .match-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #2e2e2e;
+        }
+
+        .match-meta {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .match-percentage {
+            font-size: 14px;
+            font-weight: 700;
+            color: #d4a2a8;
+        }
+
+        /* ─────────────────────────────────────────
+           MOBILE RESPONSIVE
+        ───────────────────────────────────────── */
+        @media (max-width: 768px) {
+            .hero {
+                padding: 80px 24px 60px;
+            }
+
+            .hero::after {
+                width: 400px;
+                height: 400px;
+                right: -20%;
+            }
+
+            .hero-divider {
+                display: none;
+            }
+
+            .hero-container {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .hero-headline {
+                font-size: clamp(44px, 10vw, 60px);
+                min-height: 140px;
+            }
+
+            .hero-subline {
+                font-size: 18px;
+                max-width: 100%;
+                margin-bottom: 30px;
+            }
+
+            .hero-cta-row {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .btn-primary, .btn-secondary {
+                width: 100%;
+                justify-content: center;
+                padding: 16px 32px;
+                font-size: 16px;
+            }
+
+            .symptom-pills-grid {
+                grid-template-columns: repeat(2, 1fr);
+                max-width: 100%;
+            }
+
+            .symptom-pill {
+                font-size: 14px;
+                padding: 12px 16px;
+            }
+
+            .match-card {
+                max-width: 100%;
+                padding: 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero {
+                padding: 60px 16px 40px;
+            }
+
+            .symptom-pills-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-headline {
+                font-size: clamp(36px, 12vw, 52px);
+                min-height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     HERO SECTION
+═══════════════════════════════════════════════════ -->
+<section class="hero">
+    <div class="hero-divider"></div>
+    
+    <div class="hero-container">
+        <!-- ZONE 1: LEFT COLUMN -->
+        <div class="hero-left">
+            <span class="hero-eyebrow">for women with PCOS</span>
+            
+            <!-- Kinetic Headline -->
+            <div class="hero-headline" id="kinematicHeadline">
+                <div class="headline-line" data-line="0">
+                    <span class="headline-word">Your</span>
+                    <span class="headline-word">PCOS</span>
+                    <span class="headline-word">is</span>
+                    <span class="headline-word not"><span class="headline-accent">not</span></span>
+                </div>
+                <div class="headline-line" data-line="0">
+                    <span class="headline-word"><span class="headline-accent">everyone's.</span></span>
+                </div>
+            </div>
+
+            <p class="hero-subline">
+                Because your PCOS doesn't look like anyone else's — and your support shouldn't either.
+            </p>
+
+            <!-- CTAs -->
+            <div class="hero-cta-row">
+                <button class="btn-primary" onclick="window.location.href='findyourcyster.html'">
+                    Find Your Cyster
+                    <span class="arrow">→</span>
+                </button>
+                <button class="btn-secondary" onclick="window.location.href='pcosdetection_updated.html'">
+                    Check my PCOS patterns
+                </button>
+            </div>
+        </div>
+
+        <!-- ZONE 2: RIGHT COLUMN — INTERACTIVE SYMPTOM SELECTOR -->
+        <div class="hero-right">
+            <div class="symptom-pills-grid">
+                <button class="symptom-pill" 
+                    data-symptom="Irregular cycles" 
+                    data-count="3847" 
+                    data-emoji="🌙"
+                    style="--rotation: -2deg; --float-duration: 5s; --float-delay: 0s;">
+                    🌙 Irregular cycles
+                </button>
+                <button class="symptom-pill" 
+                    data-symptom="Hormonal acne" 
+                    data-count="4206" 
+                    data-emoji="🔥"
+                    style="--rotation: 1deg; --float-duration: 5.5s; --float-delay: 0.1s;">
+                    🔥 Hormonal acne
+                </button>
+                <button class="symptom-pill" 
+                    data-symptom="Insulin resistance" 
+                    data-count="3421" 
+                    data-emoji="⚡"
+                    style="--rotation: -1deg; --float-duration: 6s; --float-delay: 0.2s;">
+                    ⚡ Insulin resistance
+                </button>
+                <button class="symptom-pill" 
+                    data-symptom="Hair thinning" 
+                    data-count="2863" 
+                    data-emoji="💇"
+                    style="--rotation: 2deg; --float-duration: 5.8s; --float-delay: 0.15s;">
+                    💇 Hair thinning
+                </button>
+                <button class="symptom-pill" 
+                    data-symptom="Fatigue & brain fog" 
+                    data-count="4534" 
+                    data-emoji="😴"
+                    style="--rotation: -1.5deg; --float-duration: 6.2s; --float-delay: 0.25s;">
+                    😴 Fatigue & brain fog
+                </button>
+            </div>
+
+            <!-- Match Card (appears on symptom selection) -->
+            <div id="matchCard" class="match-card" style="display: none;">
+                <div class="match-count" id="matchCount"></div>
+                <div class="match-profile">
+                    <div class="match-avatar" id="matchAvatar">✨</div>
+                    <div class="match-info">
+                        <div class="match-name" id="matchName">Meera, 23</div>
+                        <div class="match-meta" id="matchMeta">Delhi</div>
+                    </div>
+                    <div class="match-percentage" id="matchPercent">94%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    // ═══════════════════════════════════════════════════
+    // KINETIC HEADLINE ANIMATION
+    // ═══════════════════════════════════════════════════
+    
+    const headlineLines = [
+        { line1: ['Your', 'PCOS', 'is'], line2_accent: 'not'},
+        { line1: ['Your', 'PCOS', 'is'], line2: 'everyone\'s.' },
+        { line1: ['The', 'advice', 'is', 'always'], line2_accent: 'generic.' },
+        { line1: ['Find', 'the', 'one', 'who'], line2_accent: 'gets it.' }
+    ];
+
+    const headlineContainer = document.getElementById('kinematicHeadline');
+    let lineIndex = 0;
+
+    function renderHeadlineLine(index) {
+        const lines = headlineContainer.querySelectorAll('.headline-line');
+        
+        // Remove existing lines
+        lines.forEach((line, idx) => {
+            line.classList.add('exit');
+            setTimeout(() => line.remove(), 300);
+        });
+
+        // Get current data
+        const data = headlineLines[index % headlineLines.length];
+        
+        setTimeout(() => {
+            // First line
+            const line1 = document.createElement('div');
+            line1.className = 'headline-line active';
+            line1.dataset.line = '0';
+            
+            data.line1.forEach(word => {
+                const span = document.createElement('span');
+                span.className = 'headline-word';
+                span.textContent = word;
+                line1.appendChild(span);
+            });
+            
+            // Second line with accent
+            const line2 = document.createElement('div');
+            line2.className = 'headline-line active';
+            line2.dataset.line = '1';
+            
+            const accentWord = data.line2_accent || data.line2;
+            const span2 = document.createElement('span');
+            span2.className = 'headline-word';
+            
+            if (data.line2_accent) {
+                const accent = document.createElement('span');
+                accent.className = 'headline-accent';
+                accent.textContent = accentWord;
+                span2.appendChild(accent);
+            } else {
+                span2.textContent = accentWord;
+            }
+            
+            line2.appendChild(span2);
+            
+            headlineContainer.appendChild(line1);
+            headlineContainer.appendChild(line2);
+            
+            // Trigger animation
+            requestAnimationFrame(() => {
+                line1.classList.add('active');
+                line2.classList.add('active');
+            });
+        }, 300);
+    }
+
+    // Initialize headline
+    renderHeadlineLine(0);
+    
+    // Cycle headline every 4 seconds
+    setInterval(() => {
+        lineIndex++;
+        renderHeadlineLine(lineIndex);
+    }, 4000);
+
+    // ═══════════════════════════════════════════════════
+    // SYMPTOM PILL INTERACTION
+    // ═══════════════════════════════════════════════════
+
+    const symptomPills = document.querySelectorAll('.symptom-pill');
+    const matchCard = document.getElementById('matchCard');
+    const matchCount = document.getElementById('matchCount');
+    const matchName = document.getElementById('matchName');
+    const matchMeta = document.getElementById('matchMeta');
+    const matchPercent = document.getElementById('matchPercent');
+    const matchAvatar = document.getElementById('matchAvatar');
+
+    // Sample profile data
+    const profiles = {
+        'Irregular cycles': { name: 'Meera, 23', city: 'Delhi', emoji: '✨', percent: '94%' },
+        'Hormonal acne': { name: 'Priya, 25', city: 'Bangalore', emoji: '🌸', percent: '97%' },
+        'Insulin resistance': { name: 'Aisha, 24', city: 'Mumbai', emoji: '⚡', percent: '91%' },
+        'Hair thinning': { name: 'Sofia, 22', city: 'Lisbon', emoji: '💫', percent: '89%' },
+        'Fatigue & brain fog': { name: 'Luna, 26', city: 'Berlin', emoji: '😴', percent: '93%' }
+    };
+
+    symptomPills.forEach(pill => {
+        pill.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            const symptom = pill.dataset.symptom;
+            const count = pill.dataset.count;
+            const profile = profiles[symptom];
+
+            // Toggle selection
+            pill.classList.toggle('selected');
+
+            // If any pill is selected, show match card
+            if (document.querySelector('.symptom-pill.selected')) {
+                matchCard.style.display = 'flex';
+                matchCount.textContent = `${count} cysters share this`;
+                matchName.textContent = profile.name;
+                matchMeta.textContent = profile.city;
+                matchPercent.textContent = profile.percent;
+                matchAvatar.textContent = profile.emoji;
+            } else {
+                matchCard.style.display = 'none';
+            }
+        });
+    });
+
+    // Show match card on first pill click
+    if (symptomPills.length > 0) {
+        const firstPill = symptomPills[0];
+        const profile = profiles[firstPill.dataset.symptom];
+        const count = firstPill.dataset.count;
+
+        // Pre-populate match card for demo (optional)
+        matchCount.textContent = `${count} cysters share this`;
+        matchName.textContent = profile.name;
+        matchMeta.textContent = profile.city;
+        matchPercent.textContent = profile.percent;
+        matchAvatar.textContent = profile.emoji;
+    }
+</script>
+
+</body>
+</html>

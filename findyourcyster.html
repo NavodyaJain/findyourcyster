@@ -1,0 +1,1701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FindYourCyster · Find Your Match</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ─── CSS Variables ─── */
+  :root {
+    --blush: #e8c1c5;
+    --blush-light: #fce4e6;
+    --blush-mid: #f6d7dc;
+    --dark: #2e2e2e;
+    --dark-muted: #4a4a4a;
+    --white: #ffffff;
+    --glass: rgba(255,255,255,0.55);
+    --shadow-soft: 0 20px 60px rgba(46,46,46,0.10);
+    --shadow-card: 0 8px 32px rgba(46,46,46,0.12);
+    --radius: 28px;
+    --radius-pill: 999px;
+    --font-display: 'Fraunces', serif;
+    --font-body: 'DM Sans', sans-serif;
+    --transition: all 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* ─── Reset ─── */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--blush-light);
+    color: var(--dark);
+    min-height: 100vh;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ─── Background Organic Blobs ─── */
+  .bg-blob {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: 0;
+    animation: blobDrift 18s ease-in-out infinite alternate;
+  }
+  .bg-blob-1 { width: 700px; height: 700px; background: radial-gradient(circle, rgba(232,193,197,0.5) 0%, transparent 70%); top: -200px; right: -100px; animation-duration: 20s; }
+  .bg-blob-2 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(248,217,222,0.6) 0%, transparent 70%); bottom: -100px; left: -150px; animation-duration: 25s; animation-delay: -5s; }
+  .bg-blob-3 { width: 300px; height: 300px; background: radial-gradient(circle, rgba(232,193,197,0.4) 0%, transparent 70%); top: 40%; left: 40%; animation-duration: 15s; animation-delay: -8s; }
+
+  @keyframes blobDrift {
+    0% { transform: translate(0,0) scale(1); }
+    100% { transform: translate(30px, 40px) scale(1.15); }
+  }
+
+  /* ─── Screen System ─── */
+  .screen {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(24px);
+    transition: opacity 0.55s cubic-bezier(0.22,1,0.36,1), transform 0.55s cubic-bezier(0.22,1,0.36,1);
+    overflow-y: auto;
+    padding: 20px;
+  }
+  .screen.active {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateY(0);
+  }
+  .screen.exit {
+    opacity: 0;
+    transform: translateY(-20px);
+    pointer-events: none;
+  }
+
+  /* ─── Card Base ─── */
+  .card {
+    background: var(--glass);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255,255,255,0.7);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-soft);
+  }
+
+  /* ─── Logo / Nav Header ─── */
+  .top-logo {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--dark);
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(16px);
+    padding: 10px 28px;
+    border-radius: var(--radius-pill);
+    border: 1px solid rgba(255,255,255,0.9);
+    box-shadow: 0 4px 20px rgba(46,46,46,0.08);
+    letter-spacing: -0.3px;
+  }
+  .top-logo span { color: var(--blush); }
+
+
+  /* ════════════════════════════════════════
+     SCREEN 1 · PROFILE CREATION
+  ════════════════════════════════════════ */
+  #screen-profile .profile-card {
+    width: min(540px, 100%);
+    padding: 48px;
+    margin-top: 60px;
+  }
+
+  .screen-eyebrow {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--blush);
+    margin-bottom: 12px;
+  }
+
+  .screen-title {
+    font-family: var(--font-display);
+    font-size: 36px;
+    font-weight: 900;
+    line-height: 1.15;
+    color: var(--dark);
+    margin-bottom: 8px;
+  }
+
+  .screen-sub {
+    font-size: 15px;
+    color: var(--dark-muted);
+    margin-bottom: 36px;
+    line-height: 1.6;
+  }
+
+  .section-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 14px;
+  }
+
+  /* Symptom Pills */
+  .pills-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border-radius: var(--radius-pill);
+    font-size: 14px;
+    font-weight: 500;
+    border: 1.5px solid rgba(232,193,197,0.4);
+    background: rgba(255,255,255,0.6);
+    color: var(--dark);
+    cursor: pointer;
+    transition: var(--transition);
+    user-select: none;
+    white-space: nowrap;
+  }
+  .pill:hover {
+    border-color: var(--blush);
+    background: rgba(232,193,197,0.12);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(232,193,197,0.25);
+  }
+  .pill.selected {
+    background: var(--blush);
+    border-color: var(--blush);
+    color: var(--dark);
+    box-shadow: 0 8px 20px rgba(232,193,197,0.4);
+    transform: translateY(-2px) scale(1.02);
+  }
+  .pill .pill-emoji { font-size: 15px; }
+
+  /* Optional Row */
+  .optional-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .select-field {
+    appearance: none;
+    background: rgba(255,255,255,0.6);
+    border: 1.5px solid rgba(232,193,197,0.3);
+    border-radius: 16px;
+    padding: 12px 18px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--dark);
+    cursor: pointer;
+    outline: none;
+    transition: var(--transition);
+    width: 100%;
+  }
+  .select-field:focus {
+    border-color: var(--blush);
+    box-shadow: 0 0 0 3px rgba(232,193,197,0.2);
+  }
+
+  /* Primary CTA Button */
+  .btn-primary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 18px 32px;
+    border-radius: var(--radius-pill);
+    background: var(--dark);
+    color: white;
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: 0 12px 35px rgba(46,46,46,0.25);
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 100%);
+    border-radius: inherit;
+  }
+  .btn-primary:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 20px 45px rgba(46,46,46,0.3);
+  }
+  .btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .btn-secondary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 16px 32px;
+    border-radius: var(--radius-pill);
+    background: var(--blush);
+    color: var(--dark);
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: 0 10px 30px rgba(232,193,197,0.35);
+  }
+  .btn-secondary:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 18px 40px rgba(232,193,197,0.5);
+  }
+
+  /* Selection warning */
+  .select-hint {
+    font-size: 13px;
+    color: #aaa;
+    text-align: center;
+    margin-top: 12px;
+    min-height: 20px;
+    transition: var(--transition);
+  }
+  .select-hint.warn { color: #c0777c; }
+
+
+  /* ════════════════════════════════════════
+     SCREEN 2 · MATCHING ANIMATION
+  ════════════════════════════════════════ */
+  #screen-matching {
+    background: var(--dark);
+    z-index: 20;
+  }
+
+  .matching-inner {
+    text-align: center;
+    position: relative;
+    z-index: 5;
+  }
+
+  .matching-orb-container {
+    position: relative;
+    width: 240px;
+    height: 240px;
+    margin: 0 auto 48px;
+  }
+
+  /* Pulsing rings */
+  .ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid rgba(232,193,197,0.3);
+    animation: ringPulse 2.4s ease-in-out infinite;
+  }
+  .ring:nth-child(2) { animation-delay: 0.6s; inset: -20px; border-color: rgba(232,193,197,0.2); }
+  .ring:nth-child(3) { animation-delay: 1.2s; inset: -40px; border-color: rgba(232,193,197,0.1); }
+
+  @keyframes ringPulse {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.05); opacity: 0.4; }
+  }
+
+  /* Central orb */
+  .orb-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #f6d7dc, #e8c1c5, #d4a2a8);
+    box-shadow: 0 0 60px rgba(232,193,197,0.5), 0 0 120px rgba(232,193,197,0.2);
+    animation: orbBreath 3s ease-in-out infinite;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+  }
+
+  @keyframes orbBreath {
+    0%, 100% { transform: translate(-50%,-50%) scale(1); box-shadow: 0 0 60px rgba(232,193,197,0.5); }
+    50% { transform: translate(-50%,-50%) scale(1.06); box-shadow: 0 0 90px rgba(232,193,197,0.7); }
+  }
+
+  /* Floating dots */
+  .float-dot {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--blush);
+    animation: dotOrbit 4s linear infinite;
+  }
+  .float-dot:nth-child(5) { animation-delay: 0s; animation-duration: 3.5s; }
+  .float-dot:nth-child(6) { animation-delay: -1.2s; animation-duration: 4s; }
+  .float-dot:nth-child(7) { animation-delay: -2.4s; animation-duration: 3.8s; background: #f6d7dc; }
+
+  @keyframes dotOrbit {
+    from { transform: rotate(0deg) translateX(105px) rotate(0deg) scale(1); opacity: 1; }
+    to   { transform: rotate(360deg) translateX(105px) rotate(-360deg) scale(0.7); opacity: 0.5; }
+  }
+
+  .matching-text {
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 300;
+    font-style: italic;
+    color: white;
+    margin-bottom: 14px;
+    min-height: 42px;
+    transition: opacity 0.4s ease;
+  }
+
+  .matching-sub {
+    font-size: 14px;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* Connecting line animation */
+  .dna-line {
+    width: 2px;
+    height: 0;
+    background: linear-gradient(180deg, transparent, var(--blush), transparent);
+    margin: 30px auto;
+    animation: lineGrow 2s ease forwards 0.5s;
+  }
+  @keyframes lineGrow {
+    to { height: 60px; }
+  }
+
+
+  /* ════════════════════════════════════════
+     SCREEN 3 · MATCH RESULT
+  ════════════════════════════════════════ */
+  #screen-match .match-card {
+    width: min(440px, 100%);
+    padding: 0;
+    overflow: hidden;
+    background: white;
+    margin-top: 60px;
+  }
+
+  .match-card-top {
+    background: linear-gradient(135deg, var(--blush-light), var(--blush-mid));
+    padding: 48px 40px 36px;
+    text-align: center;
+    position: relative;
+  }
+
+  /* Match badge */
+  .match-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--dark);
+    color: var(--blush);
+    padding: 7px 18px;
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    margin-bottom: 24px;
+    animation: badgePop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
+  }
+  @keyframes badgePop {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  /* Avatar */
+  .match-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f6d7dc, var(--blush));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 44px;
+    margin: 0 auto 16px;
+    border: 4px solid white;
+    box-shadow: 0 12px 40px rgba(232,193,197,0.4);
+    animation: avatarFloat 5s ease-in-out infinite;
+  }
+  @keyframes avatarFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .match-name {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--dark);
+    margin-bottom: 4px;
+  }
+  .match-tagline { font-size: 14px; color: #888; }
+
+  /* Glow ring around avatar */
+  .avatar-glow {
+    position: absolute;
+    top: 40px; left: 50%;
+    transform: translateX(-50%);
+    width: 130px; height: 130px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(232,193,197,0.5) 0%, transparent 70%);
+    filter: blur(20px);
+    animation: glowPulse 3s ease-in-out infinite;
+  }
+  @keyframes glowPulse {
+    0%, 100% { opacity: 0.5; transform: translateX(-50%) scale(1); }
+    50% { opacity: 0.9; transform: translateX(-50%) scale(1.15); }
+  }
+
+  .match-card-body {
+    padding: 28px 40px 36px;
+  }
+
+  .shared-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #aaa;
+    margin-bottom: 14px;
+    text-align: center;
+  }
+
+  .shared-symptoms {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 28px;
+  }
+
+  .shared-pill {
+    background: var(--blush-light);
+    border: 1px solid rgba(232,193,197,0.5);
+    color: var(--dark);
+    padding: 7px 16px;
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .compatibility-bar-wrapper {
+    background: #f5f5f5;
+    border-radius: var(--radius-pill);
+    height: 8px;
+    margin-bottom: 6px;
+    overflow: hidden;
+  }
+  .compatibility-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--blush), #d4a2a8);
+    border-radius: var(--radius-pill);
+    width: 0;
+    transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.6s;
+  }
+  .compat-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #aaa;
+    margin-bottom: 24px;
+  }
+  .compat-label strong { color: var(--blush); font-size: 13px; }
+
+
+  /* ════════════════════════════════════════
+     SCREEN 4 · CHAT + DASHBOARD
+  ════════════════════════════════════════ */
+  #screen-chat {
+    align-items: stretch;
+    padding: 0;
+    z-index: 5;
+  }
+
+  .chat-layout {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    width: 100%;
+    height: 100vh;
+    max-width: 1100px;
+    margin: 0 auto;
+    gap: 0;
+    padding: 80px 20px 20px;
+  }
+
+  /* LEFT: Chat panel */
+  .chat-panel {
+    display: flex;
+    flex-direction: column;
+    background: rgba(255,255,255,0.5);
+    backdrop-filter: blur(20px);
+    border-radius: var(--radius) 0 0 var(--radius);
+    border: 1px solid rgba(255,255,255,0.7);
+    border-right: none;
+    overflow: hidden;
+    height: calc(100vh - 100px);
+  }
+
+  /* Chat header */
+  .chat-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(232,193,197,0.2);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(255,255,255,0.6);
+    flex-shrink: 0;
+  }
+
+  .chat-header-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--blush-mid), var(--blush));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .chat-header-info { flex: 1; }
+  .chat-header-name { font-weight: 600; font-size: 15px; }
+  .chat-header-status {
+    font-size: 12px; color: #5db85d;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .chat-header-status::before {
+    content: '';
+    width: 7px; height: 7px;
+    background: #5db85d;
+    border-radius: 50%;
+  }
+
+  /* Messages area */
+  .messages-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    scroll-behavior: smooth;
+  }
+
+  .messages-area::-webkit-scrollbar { width: 4px; }
+  .messages-area::-webkit-scrollbar-thumb { background: rgba(232,193,197,0.4); border-radius: 4px; }
+
+  /* Message bubbles */
+  .msg {
+    display: flex;
+    flex-direction: column;
+    max-width: 78%;
+    animation: msgIn 0.35s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg.sent { align-self: flex-end; align-items: flex-end; }
+  .msg.received { align-self: flex-start; align-items: flex-start; }
+
+  .msg-bubble {
+    padding: 12px 18px;
+    border-radius: 20px;
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  .msg.sent .msg-bubble {
+    background: var(--dark);
+    color: white;
+    border-bottom-right-radius: 6px;
+  }
+
+  .msg.received .msg-bubble {
+    background: white;
+    color: var(--dark);
+    border-bottom-left-radius: 6px;
+    box-shadow: 0 4px 16px rgba(46,46,46,0.08);
+  }
+
+  .msg-time {
+    font-size: 11px;
+    color: #bbb;
+    margin-top: 4px;
+    padding: 0 4px;
+  }
+
+  /* Typing indicator */
+  .typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 14px 18px;
+    background: white;
+    border-radius: 20px;
+    border-bottom-left-radius: 6px;
+    width: 68px;
+    box-shadow: 0 4px 16px rgba(46,46,46,0.08);
+  }
+  .typing-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--blush);
+    animation: typingBounce 1.2s ease-in-out infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typingBounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-6px); }
+  }
+
+  /* Chat input area */
+  .chat-input-area {
+    padding: 16px 20px;
+    border-top: 1px solid rgba(232,193,197,0.2);
+    background: rgba(255,255,255,0.7);
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    flex-shrink: 0;
+  }
+
+  .chat-input {
+    flex: 1;
+    border: 1.5px solid rgba(232,193,197,0.3);
+    border-radius: 20px;
+    padding: 12px 18px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    background: white;
+    color: var(--dark);
+    outline: none;
+    resize: none;
+    min-height: 48px;
+    max-height: 120px;
+    transition: var(--transition);
+    line-height: 1.5;
+  }
+  .chat-input:focus {
+    border-color: var(--blush);
+    box-shadow: 0 0 0 3px rgba(232,193,197,0.15);
+  }
+
+  .send-btn {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--dark);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: var(--transition);
+    flex-shrink: 0;
+  }
+  .send-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 20px rgba(46,46,46,0.25);
+  }
+
+  /* RIGHT: Dashboard panel */
+  .dashboard-panel {
+    background: white;
+    border-radius: 0 var(--radius) var(--radius) 0;
+    border: 1px solid rgba(232,193,197,0.2);
+    border-left: none;
+    overflow-y: auto;
+    height: calc(100vh - 100px);
+    display: flex;
+    flex-direction: column;
+  }
+  .dashboard-panel::-webkit-scrollbar { width: 4px; }
+  .dashboard-panel::-webkit-scrollbar-thumb { background: rgba(232,193,197,0.3); border-radius: 4px; }
+
+  .dashboard-header {
+    padding: 20px 22px 16px;
+    border-bottom: 1px solid rgba(232,193,197,0.15);
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 2;
+    flex-shrink: 0;
+  }
+  .dashboard-header h3 {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .dashboard-header p { font-size: 12px; color: #aaa; margin-top: 2px; }
+
+  .dashboard-body { padding: 16px 22px; display: flex; flex-direction: column; gap: 18px; }
+
+  /* Dashboard widgets */
+  .widget {
+    background: #fafafa;
+    border: 1px solid rgba(232,193,197,0.2);
+    border-radius: 20px;
+    padding: 18px;
+  }
+
+  .widget-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #aaa;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* Tips list */
+  .tip-item {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 9px 0;
+    border-bottom: 1px solid rgba(232,193,197,0.15);
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--dark-muted);
+  }
+  .tip-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .tip-dot {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--blush-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* Challenge card */
+  .challenge-card {
+    background: linear-gradient(135deg, var(--dark) 0%, #3d3d3d 100%);
+    border-radius: 18px;
+    padding: 20px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  .challenge-card::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 120px; height: 120px;
+    background: radial-gradient(circle, rgba(232,193,197,0.3) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .challenge-emoji { font-size: 28px; margin-bottom: 10px; display: block; }
+  .challenge-name { font-weight: 700; font-size: 16px; margin-bottom: 4px; }
+  .challenge-desc { font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 16px; line-height: 1.5; }
+
+  .btn-challenge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 18px;
+    border-radius: var(--radius-pill);
+    background: var(--blush);
+    color: var(--dark);
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  .btn-challenge:hover { transform: scale(1.05); box-shadow: 0 8px 20px rgba(232,193,197,0.5); }
+
+  /* Streak widget */
+  .streak-display {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .streak-count {
+    font-family: var(--font-display);
+    font-size: 42px;
+    font-weight: 900;
+    color: var(--dark);
+    line-height: 1;
+  }
+  .streak-count span { font-size: 28px; }
+  .streak-flames { font-size: 22px; letter-spacing: -2px; }
+
+  .streak-days {
+    display: flex;
+    gap: 5px;
+    margin-top: 4px;
+  }
+  .streak-day {
+    width: 32px; height: 32px;
+    border-radius: 10px;
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: var(--transition);
+  }
+  .streak-day.active {
+    background: var(--blush);
+    box-shadow: 0 4px 12px rgba(232,193,197,0.4);
+    animation: dayPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes dayPop {
+    from { transform: scale(0.5); }
+    to { transform: scale(1); }
+  }
+
+  /* ─── Upload Modal (Streak) ─── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(8px);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    padding: 20px;
+  }
+  .modal-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .modal-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 40px;
+    width: min(400px, 100%);
+    text-align: center;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.25);
+    transform: scale(0.9) translateY(20px);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .modal-overlay.open .modal-card {
+    transform: scale(1) translateY(0);
+  }
+
+  .modal-emoji { font-size: 52px; margin-bottom: 16px; display: block; }
+  .modal-title { font-family: var(--font-display); font-size: 26px; font-weight: 900; margin-bottom: 8px; }
+  .modal-sub { font-size: 14px; color: #888; margin-bottom: 28px; line-height: 1.6; }
+
+  .upload-zone {
+    border: 2px dashed rgba(232,193,197,0.5);
+    border-radius: 20px;
+    padding: 32px;
+    margin-bottom: 20px;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+  }
+  .upload-zone:hover { border-color: var(--blush); background: rgba(232,193,197,0.05); }
+  .upload-zone input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer;
+  }
+  .upload-icon { font-size: 36px; margin-bottom: 10px; display: block; }
+  .upload-label { font-size: 14px; color: #aaa; }
+
+  /* Streak celebration */
+  .streak-celebration {
+    text-align: center;
+    display: none;
+  }
+  .streak-celebration.show { display: block; }
+  .streak-big-emoji { font-size: 64px; display: block; animation: celebBounce 0.6s cubic-bezier(0.34,1.56,0.64,1); }
+  @keyframes celebBounce {
+    from { transform: scale(0) rotate(-10deg); }
+    to { transform: scale(1) rotate(0deg); }
+  }
+  .streak-msg { font-family: var(--font-display); font-size: 28px; font-weight: 900; margin: 12px 0 6px; }
+  .streak-sub { font-size: 14px; color: #888; }
+
+  /* Confetti particles */
+  .confetti {
+    position: fixed;
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 300;
+    animation: confettiFall 2.5s ease-out forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 768px) {
+    .chat-layout {
+      grid-template-columns: 1fr;
+      padding: 70px 0 0;
+    }
+    .dashboard-panel { display: none; }
+    .chat-panel { border-radius: 0; height: calc(100vh - 70px); border: none; }
+    #screen-profile .profile-card { padding: 32px 24px; }
+    .screen-title { font-size: 28px; }
+    .optional-row { grid-template-columns: 1fr; }
+    .match-card-body { padding: 24px 28px 32px; }
+    .match-card-top { padding: 36px 28px 28px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Background blobs -->
+<div class="bg-blob bg-blob-1"></div>
+<div class="bg-blob bg-blob-2"></div>
+<div class="bg-blob bg-blob-3"></div>
+
+<!-- Logo header (hidden on chat screen) -->
+<div class="top-logo" id="topLogo">FindYour<span>Cyster</span></div>
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN 1 · PROFILE CREATION
+══════════════════════════════════════════ -->
+<div class="screen active" id="screen-profile">
+  <div class="card profile-card">
+    <p class="screen-eyebrow">Step 1 of 3 · Your Pattern</p>
+    <h1 class="screen-title">What does your PCOS look like?</h1>
+    <p class="screen-sub">No two cysters are the same. Tell us your symptoms so we can find your closest match.</p>
+
+    <p class="section-label">Your symptoms · select all that apply</p>
+    <div class="pills-grid" id="symptomsGrid">
+      <!-- Injected by JS -->
+    </div>
+
+    <div class="optional-row">
+      <select class="select-field" id="ageGroup">
+        <option value="">Age group</option>
+        <option value="teen">16–19</option>
+        <option value="early20">20–24</option>
+        <option value="mid20">25–29</option>
+        <option value="30plus">30+</option>
+      </select>
+      <select class="select-field" id="severity">
+        <option value="">Severity</option>
+        <option value="mild">Mild</option>
+        <option value="moderate">Moderate</option>
+        <option value="severe">Severe</option>
+      </select>
+    </div>
+
+    <button class="btn-primary" id="findCysterBtn" onclick="startMatching()" disabled>
+      <span>Find my Cyster</span>
+      <span>✨</span>
+    </button>
+    <p class="select-hint" id="selectHint">Select at least 1 symptom to continue</p>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN 2 · MATCHING ANIMATION
+══════════════════════════════════════════ -->
+<div class="screen" id="screen-matching">
+  <div class="matching-inner">
+    <!-- Animated orb with orbiting dots -->
+    <div class="matching-orb-container">
+      <div class="ring"></div>
+      <div class="ring"></div>
+      <div class="ring"></div>
+      <div class="orb-center">🌸</div>
+      <div class="float-dot"></div>
+      <div class="float-dot"></div>
+      <div class="float-dot"></div>
+    </div>
+
+    <div class="dna-line"></div>
+    <p class="matching-text" id="matchingText">Finding someone who gets you…</p>
+    <p class="matching-sub" id="matchingSub">analyzing your pattern</p>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN 3 · MATCH RESULT
+══════════════════════════════════════════ -->
+<div class="screen" id="screen-match">
+  <div class="card match-card">
+    <!-- Top section with avatar -->
+    <div class="match-card-top">
+      <div class="avatar-glow"></div>
+      <div class="match-badge">✨ It's a match!</div>
+      <div class="match-avatar">🌸</div>
+      <h2 class="match-name">Aanya, 22</h2>
+      <p class="match-tagline">Just figuring it out, one day at a time 🌿</p>
+    </div>
+
+    <!-- Body with shared symptoms + compatibility -->
+    <div class="match-card-body">
+      <p class="shared-label">You both share</p>
+      <div class="shared-symptoms" id="sharedSymptoms">
+        <!-- Injected by JS -->
+      </div>
+
+      <!-- Compatibility bar -->
+      <div class="compatibility-bar-wrapper">
+        <div class="compatibility-bar" id="compatBar"></div>
+      </div>
+      <div class="compat-label">
+        <span>Symptom match</span>
+        <strong id="compatPct">—</strong>
+      </div>
+
+      <!-- Quote from match -->
+      <div style="background: #fafafa; border-radius: 16px; padding: 16px; margin-bottom: 24px; border-left: 3px solid var(--blush);">
+        <p style="font-size: 13px; color: #666; line-height: 1.6; font-style: italic;">"The fatigue hits me every afternoon — no one around me really understands why I can't just push through it."</p>
+        <p style="font-size: 12px; color: #aaa; margin-top: 8px;">— Aanya, on her PCOS journey</p>
+      </div>
+
+      <button class="btn-secondary" onclick="openChat()">
+        <span>Start Chat</span>
+        <span>💬</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SCREEN 4 · CHAT + DASHBOARD
+══════════════════════════════════════════ -->
+<div class="screen" id="screen-chat" style="padding: 0; overflow: hidden;">
+  <div class="chat-layout">
+
+    <!-- ── LEFT: Chat Panel ── -->
+    <div class="chat-panel">
+      <!-- Header -->
+      <div class="chat-header">
+        <div class="chat-header-avatar">🌸</div>
+        <div class="chat-header-info">
+          <div class="chat-header-name">Aanya</div>
+          <div class="chat-header-status">Online now</div>
+        </div>
+        <!-- Shared symptom chip -->
+        <div style="background: var(--blush-light); padding: 6px 14px; border-radius: var(--radius-pill); font-size: 12px; font-weight: 500; color: var(--dark); border: 1px solid rgba(232,193,197,0.4);">🔥 Match</div>
+      </div>
+
+      <!-- Messages -->
+      <div class="messages-area" id="messagesArea">
+        <!-- System message -->
+        <div style="text-align: center; font-size: 12px; color: #bbb; padding: 8px 16px; background: rgba(255,255,255,0.5); border-radius: var(--radius-pill); align-self: center; border: 1px solid rgba(232,193,197,0.2);">
+          You matched with Aanya today ✨
+        </div>
+        <!-- Simulated initial messages injected by JS -->
+      </div>
+
+      <!-- Input area -->
+      <div class="chat-input-area">
+        <textarea class="chat-input" id="chatInput" placeholder="Say something to Aanya…" rows="1"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"
+          oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
+        <button class="send-btn" onclick="sendMessage()">↑</button>
+      </div>
+    </div>
+
+    <!-- ── RIGHT: Dashboard Panel ── -->
+    <div class="dashboard-panel">
+      <div class="dashboard-header">
+        <h3>Your Dashboard</h3>
+        <p>Personalized for your pattern</p>
+      </div>
+
+      <div class="dashboard-body">
+
+        <!-- Streak Widget -->
+        <div class="widget">
+          <div class="widget-title"><span>🔥</span> Your Streak</div>
+          <div class="streak-display">
+            <div>
+              <div class="streak-count"><span id="streakNum">0</span><span>d</span></div>
+              <div style="font-size: 12px; color: #aaa; margin-top: 2px;">active streak</div>
+            </div>
+            <div class="streak-flames" id="streakFlames"></div>
+          </div>
+          <div class="streak-days" id="streakDays">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+
+        <!-- Today's Challenge -->
+        <div class="widget">
+          <div class="widget-title"><span>⚡</span> Today's Challenge</div>
+          <div class="challenge-card" id="challengeCard">
+            <span class="challenge-emoji" id="challengeEmoji">🚶‍♀️</span>
+            <div class="challenge-name" id="challengeName">10 min walk after lunch</div>
+            <div class="challenge-desc" id="challengeDesc">Light movement after meals helps regulate blood sugar — especially effective for insulin resistance.</div>
+            <button class="btn-challenge" id="startChallengeBtn" onclick="openUploadModal()">
+              <span>Start Challenge</span>
+              <span>→</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Personalized Tips -->
+        <div class="widget">
+          <div class="widget-title"><span>💡</span> For Your Pattern</div>
+          <div id="tipsContainer">
+            <!-- Injected by JS based on selected symptoms -->
+          </div>
+        </div>
+
+        <!-- Community Vibe -->
+        <div class="widget" style="margin-bottom: 4px;">
+          <div class="widget-title"><span>🌸</span> Community Pulse</div>
+          <div style="font-size: 13px; color: #888; line-height: 1.7;">
+            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f0f0f0;">
+              <span>Cysters online now</span>
+              <strong style="color: var(--dark);">1,248</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f0f0f0;">
+              <span>Challenges completed today</span>
+              <strong style="color: var(--dark);">342</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 6px 0;">
+              <span>Experiences shared</span>
+              <strong style="color: var(--dark);">89</strong>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /dashboard-body -->
+    </div><!-- /dashboard-panel -->
+
+  </div><!-- /chat-layout -->
+</div><!-- /screen-chat -->
+
+
+<!-- ══════════════════════════════════════════
+     UPLOAD / STREAK MODAL
+══════════════════════════════════════════ -->
+<div class="modal-overlay" id="uploadModal">
+  <div class="modal-card">
+    <!-- Upload view -->
+    <div id="uploadView">
+      <span class="modal-emoji">📸</span>
+      <h3 class="modal-title">Log your challenge</h3>
+      <p class="modal-sub">Snap a photo or screenshot to count today's challenge toward your streak!</p>
+
+      <div class="upload-zone" onclick="simulateUpload()">
+        <input type="file" accept="image/*" onchange="simulateUpload()" />
+        <span class="upload-icon">🌿</span>
+        <p class="upload-label">Tap to upload a photo</p>
+        <p style="font-size: 12px; color: #ccc; margin-top: 4px;">or drag and drop here</p>
+      </div>
+
+      <button class="btn-primary" onclick="simulateUpload()" style="margin-bottom: 12px;">
+        <span>Upload & Log Streak</span>
+        <span>🔥</span>
+      </button>
+      <div style="font-size: 13px; color: #ccc; cursor: pointer;" onclick="closeModal()">Cancel</div>
+    </div>
+
+    <!-- Celebration view -->
+    <div class="streak-celebration" id="celebrationView">
+      <span class="streak-big-emoji">🔥</span>
+      <h3 class="streak-msg" id="streakMsg">Streak Started!</h3>
+      <p class="streak-sub" id="streakSubMsg">Keep it up — come back tomorrow to build your streak!</p>
+      <button class="btn-secondary" onclick="closeModal()" style="margin-top: 24px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <span>Back to chat</span>
+        <span>💬</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+/* ══════════════════════════════════════════
+   STATE
+══════════════════════════════════════════ */
+const state = {
+  selectedSymptoms: new Set(),
+  currentScreen: 'profile',
+  streakCount: 0,
+  challengeCompleted: false,
+  messages: []
+};
+
+/* ══════════════════════════════════════════
+   SYMPTOM DATA
+══════════════════════════════════════════ */
+const SYMPTOMS = [
+  { id: 'irregular', label: 'Irregular periods',  emoji: '🌙' },
+  { id: 'acne',      label: 'Hormonal acne',       emoji: '🔴' },
+  { id: 'hairloss',  label: 'Hair loss',            emoji: '💇‍♀️' },
+  { id: 'weight',    label: 'Weight gain',          emoji: '⚖️'  },
+  { id: 'fatigue',   label: 'Fatigue',              emoji: '😴' },
+  { id: 'mood',      label: 'Mood swings',          emoji: '🌊' },
+  { id: 'insulin',   label: 'Insulin resistance',   emoji: '⚡' },
+];
+
+/* Tip map — keyed by symptom ID */
+const TIPS_MAP = {
+  irregular: [
+    { emoji: '🌙', text: 'Track your cycle with a simple period app — patterns reveal a lot.' },
+    { emoji: '🫖', text: 'Spearmint tea (2x daily) may help regulate androgens linked to irregular cycles.' },
+  ],
+  acne: [
+    { emoji: '🥗', text: 'Low-glycaemic foods reduce sebum production — swap white rice for millet or oats.' },
+    { emoji: '🧴', text: 'Zinc supplements have strong evidence for hormonal acne. Ask your doctor.' },
+  ],
+  hairloss: [
+    { emoji: '🌿', text: 'Scalp massages with rosemary oil (shown to rival minoxidil in studies).' },
+    { emoji: '🥚', text: 'Biotin + protein intake matters. Ensure 0.8g protein per kg of body weight.' },
+  ],
+  weight: [
+    { emoji: '🚶‍♀️', text: '20-min walks after meals reduce post-meal insulin spikes significantly.' },
+    { emoji: '😴', text: 'Prioritise 7–9h sleep — cortisol from poor sleep directly drives weight gain.' },
+  ],
+  fatigue: [
+    { emoji: '☀️', text: 'Get 10 min of morning sunlight to set your circadian rhythm and reduce fatigue.' },
+    { emoji: '🍳', text: 'Eat protein within 30 mins of waking — it stabilises blood sugar through the day.' },
+  ],
+  mood: [
+    { emoji: '🧘', text: 'Inositol (myo + d-chiro blend) has emerging evidence for mood and anxiety in PCOS.' },
+    { emoji: '📔', text: 'Track mood alongside your cycle — patterns help you prepare and self-compassion kicks in.' },
+  ],
+  insulin: [
+    { emoji: '🥄', text: 'Berberine is a well-studied supplement for insulin sensitivity — compare with metformin in trials.' },
+    { emoji: '🍽️', text: 'Eat fibre before carbs at every meal — it blunts glucose spikes by ~30%.' },
+  ],
+};
+
+/* Challenge pool by symptom */
+const CHALLENGE_POOL = {
+  fatigue:   { emoji: '☀️', name: '10-min morning sunlight',         desc: 'Stand outside for 10 minutes after waking. Sets your circadian clock and fights afternoon crashes.' },
+  insulin:   { emoji: '🚶‍♀️', name: '10-min walk after lunch',          desc: 'Light movement post-meal is one of the most effective tools for managing insulin resistance.' },
+  weight:    { emoji: '💧', name: 'Drink 500ml before each meal',     desc: 'Hydration before meals boosts metabolism and reduces overeating driven by thirst mistaken for hunger.' },
+  acne:      { emoji: '🥗', name: 'Low-GI meal challenge',            desc: 'Swap one high-GI food today. Try roti instead of white bread, or oats instead of cornflakes.' },
+  irregular: { emoji: '📊', name: 'Log your cycle today',             desc: 'Open any period tracker and log today\'s status. Consistency for 3 months reveals your true cycle pattern.' },
+  mood:      { emoji: '📔', name: '3-minute mood journal',            desc: 'Write 3 sentences about how you feel today. No judgment. Patterns from journaling reduce anxiety over time.' },
+  hairloss:  { emoji: '🌿', name: '5-min rosemary scalp massage',     desc: 'Warm a few drops of rosemary oil, massage into scalp for 5 minutes. Clinically comparable to minoxidil.' },
+  default:   { emoji: '🚶‍♀️', name: '10-min walk after lunch',          desc: 'Light movement after meals helps regulate blood sugar and energy levels — great for any PCOS type.' },
+};
+
+/* Initial simulated chat messages */
+const INITIAL_MESSAGES = [
+  { from: 'received', text: 'omg hi!! I was so curious when I saw the match 🌸', time: '11:32 AM', delay: 400 },
+  { from: 'received', text: 'which symptoms hit you the hardest rn? for me it\'s 100% the fatigue 😭', time: '11:33 AM', delay: 900 },
+];
+
+const AUTO_REPLIES = [
+  "omg yes exactly!! I feel so seen rn 🥺",
+  "has anything actually helped you? I've tried SO many things lol",
+  "wait tell me more — which one worked for you??",
+  "honestly same. it took me ages to figure out my pattern.",
+  "the worst is when doctors just say 'lose weight' ugh 😤",
+  "that's actually really helpful, gonna try that!",
+  "we should totally do the 30-day challenge together 🔥",
+  "can't believe I finally found someone who actually gets the fatigue thing",
+];
+
+
+/* ══════════════════════════════════════════
+   SCREEN MANAGEMENT
+══════════════════════════════════════════ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active');
+    if (s.classList.contains('active')) s.classList.add('exit');
+  });
+  setTimeout(() => {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('exit'));
+    document.getElementById(id).classList.add('active');
+    // Hide logo on chat screen
+    document.getElementById('topLogo').style.display = (id === 'screen-chat') ? 'none' : 'block';
+  }, 80);
+  state.currentScreen = id;
+}
+
+
+/* ══════════════════════════════════════════
+   SCREEN 1 · PROFILE SETUP
+══════════════════════════════════════════ */
+function buildSymptomPills() {
+  const grid = document.getElementById('symptomsGrid');
+  grid.innerHTML = '';
+  SYMPTOMS.forEach(({ id, label, emoji }) => {
+    const pill = document.createElement('div');
+    pill.className = 'pill';
+    pill.dataset.id = id;
+    pill.innerHTML = `<span class="pill-emoji">${emoji}</span>${label}`;
+    pill.addEventListener('click', () => toggleSymptom(pill, id));
+    grid.appendChild(pill);
+  });
+}
+
+function toggleSymptom(pill, id) {
+  if (state.selectedSymptoms.has(id)) {
+    state.selectedSymptoms.delete(id);
+    pill.classList.remove('selected');
+  } else {
+    state.selectedSymptoms.add(id);
+    pill.classList.add('selected');
+    // micro bounce
+    pill.animate([
+      { transform: 'scale(1)' },
+      { transform: 'scale(1.12)' },
+      { transform: 'scale(1)' },
+    ], { duration: 300, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' });
+  }
+  updateProfileCTA();
+}
+
+function updateProfileCTA() {
+  const btn = document.getElementById('findCysterBtn');
+  const hint = document.getElementById('selectHint');
+  const count = state.selectedSymptoms.size;
+  btn.disabled = count === 0;
+  if (count === 0) {
+    hint.textContent = 'Select at least 1 symptom to continue';
+    hint.className = 'select-hint';
+  } else {
+    hint.textContent = `${count} symptom${count > 1 ? 's' : ''} selected — looking good!`;
+    hint.className = 'select-hint';
+    hint.style.color = '#888';
+  }
+}
+
+
+/* ══════════════════════════════════════════
+   SCREEN 2 · MATCHING ANIMATION
+══════════════════════════════════════════ */
+function startMatching() {
+  showScreen('screen-matching');
+
+  const messages = [
+    { text: 'Finding someone who gets you…',    sub: 'analyzing your pattern' },
+    { text: 'Matching based on your symptoms…', sub: 'comparing fingerprints' },
+    { text: 'Someone matches you perfectly…',   sub: 'building your connection' },
+    { text: 'Found her! 🌸',                    sub: 'preparing your match' },
+  ];
+
+  let i = 0;
+  const textEl = document.getElementById('matchingText');
+  const subEl  = document.getElementById('matchingSub');
+
+  const interval = setInterval(() => {
+    // Fade out
+    textEl.style.opacity = '0';
+    setTimeout(() => {
+      i++;
+      if (i < messages.length) {
+        textEl.textContent = messages[i].text;
+        subEl.textContent  = messages[i].sub;
+        textEl.style.opacity = '1';
+      }
+    }, 300);
+  }, 900);
+
+  // Transition to match screen after 3.5s
+  setTimeout(() => {
+    clearInterval(interval);
+    prepareMatchScreen();
+    showScreen('screen-match');
+    animateCompatibilityBar();
+  }, 3600);
+}
+
+
+/* ══════════════════════════════════════════
+   SCREEN 3 · MATCH RESULT
+══════════════════════════════════════════ */
+function prepareMatchScreen() {
+  // Show shared symptoms as pills
+  const container = document.getElementById('sharedSymptoms');
+  container.innerHTML = '';
+  const shared = [...state.selectedSymptoms].slice(0, 4); // show top 4
+  shared.forEach(id => {
+    const sym = SYMPTOMS.find(s => s.id === id);
+    if (!sym) return;
+    const pill = document.createElement('div');
+    pill.className = 'shared-pill';
+    pill.textContent = `${sym.emoji} ${sym.label}`;
+    container.appendChild(pill);
+  });
+}
+
+function animateCompatibilityBar() {
+  // Compatibility: higher with more symptoms (just for fun simulation)
+  const base = 72;
+  const bonus = Math.min(state.selectedSymptoms.size * 4, 20);
+  const pct = base + bonus;
+
+  setTimeout(() => {
+    document.getElementById('compatBar').style.width = pct + '%';
+    document.getElementById('compatPct').textContent = pct + '% compatible';
+  }, 500);
+}
+
+
+/* ══════════════════════════════════════════
+   SCREEN 4 · CHAT + DASHBOARD
+══════════════════════════════════════════ */
+function openChat() {
+  showScreen('screen-chat');
+  buildDashboard();
+  loadInitialMessages();
+}
+
+function buildDashboard() {
+  buildStreakDays();
+  buildTips();
+  buildChallenge();
+}
+
+/* Tips — combine tips from selected symptoms, max 5 */
+function buildTips() {
+  const container = document.getElementById('tipsContainer');
+  const allTips = [];
+  state.selectedSymptoms.forEach(id => {
+    if (TIPS_MAP[id]) allTips.push(...TIPS_MAP[id]);
+  });
+  const tips = allTips.slice(0, 5);
+
+  if (tips.length === 0) {
+    container.innerHTML = '<p style="font-size:13px;color:#aaa;">Select symptoms to get personalised tips.</p>';
+    return;
+  }
+
+  container.innerHTML = tips.map(t => `
+    <div class="tip-item">
+      <div class="tip-dot">${t.emoji}</div>
+      <span>${t.text}</span>
+    </div>
+  `).join('');
+}
+
+/* Challenge — pick based on first selected symptom */
+function buildChallenge() {
+  const first = [...state.selectedSymptoms][0];
+  const ch = CHALLENGE_POOL[first] || CHALLENGE_POOL.default;
+  document.getElementById('challengeEmoji').textContent = ch.emoji;
+  document.getElementById('challengeName').textContent  = ch.name;
+  document.getElementById('challengeDesc').textContent  = ch.desc;
+}
+
+/* Streak UI */
+function buildStreakDays() {
+  const container = document.getElementById('streakDays');
+  const days = ['M','T','W','T','F','S','S'];
+  container.innerHTML = days.map((d, i) => `
+    <div class="streak-day${i < state.streakCount ? ' active' : ''}">
+      ${i < state.streakCount ? '🔥' : '<span style="font-size:10px;color:#ccc;">' + d + '</span>'}
+    </div>
+  `).join('');
+}
+
+function updateStreakUI() {
+  document.getElementById('streakNum').textContent = state.streakCount;
+  document.getElementById('streakFlames').textContent = '🔥'.repeat(Math.min(state.streakCount, 5));
+  buildStreakDays();
+}
+
+/* ── Chat messages ── */
+function loadInitialMessages() {
+  const area = document.getElementById('messagesArea');
+  INITIAL_MESSAGES.forEach((msg, i) => {
+    setTimeout(() => {
+      const el = createMessageEl(msg);
+      area.appendChild(el);
+      area.scrollTop = area.scrollHeight;
+    }, msg.delay);
+  });
+}
+
+function createMessageEl({ from, text, time }) {
+  const wrap = document.createElement('div');
+  wrap.className = `msg ${from}`;
+  wrap.innerHTML = `
+    <div class="msg-bubble">${text}</div>
+    <div class="msg-time">${time || getCurrentTime()}</div>
+  `;
+  return wrap;
+}
+
+function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+
+  const area = document.getElementById('messagesArea');
+
+  // User message
+  const msg = createMessageEl({ from: 'sent', text });
+  area.appendChild(msg);
+  area.scrollTop = area.scrollHeight;
+  input.value = '';
+  input.style.height = 'auto';
+
+  // Typing indicator after short delay
+  setTimeout(() => {
+    const typing = document.createElement('div');
+    typing.className = 'msg received';
+    typing.id = 'typingIndicator';
+    typing.innerHTML = `<div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
+    area.appendChild(typing);
+    area.scrollTop = area.scrollHeight;
+
+    // Auto-reply
+    setTimeout(() => {
+      const ti = document.getElementById('typingIndicator');
+      if (ti) ti.remove();
+
+      const reply = AUTO_REPLIES[Math.floor(Math.random() * AUTO_REPLIES.length)];
+      const replyEl = createMessageEl({ from: 'received', text: reply });
+      area.appendChild(replyEl);
+      area.scrollTop = area.scrollHeight;
+    }, 1500 + Math.random() * 800);
+  }, 600);
+}
+
+function getCurrentTime() {
+  const now = new Date();
+  return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+
+/* ══════════════════════════════════════════
+   UPLOAD MODAL + STREAK
+══════════════════════════════════════════ */
+function openUploadModal() {
+  if (state.challengeCompleted) return;
+  document.getElementById('uploadModal').classList.add('open');
+  document.getElementById('uploadView').style.display = 'block';
+  document.getElementById('celebrationView').className = 'streak-celebration';
+}
+
+function closeModal() {
+  document.getElementById('uploadModal').classList.remove('open');
+}
+
+function simulateUpload() {
+  if (state.challengeCompleted) return;
+
+  // Hide upload, show celebration
+  document.getElementById('uploadView').style.display = 'none';
+  document.getElementById('celebrationView').classList.add('show');
+
+  // Increment streak
+  state.streakCount = Math.min(state.streakCount + 1, 7);
+  state.challengeCompleted = true;
+
+  // Update streak message
+  const msgs = [
+    ['Streak Started! 🌱', 'You\'re on your way. Come back tomorrow!'],
+    ['2-Day Streak! 🔥',   'Two days running — you\'re building a habit!'],
+    ['3 Days Strong! 🔥🔥', 'Three in a row. Your cyster would be proud!'],
+    ['4 Days! 🔥🔥',        'Four days! The hardest part is already done.'],
+    ['5 Days! 🌟',           'Five-day streak! You\'re an inspiration.'],
+    ['6 Days!! 💪',          'Six days! One more and you\'ve got a full week!'],
+    ['FULL WEEK! 🎉',        'A full 7-day streak! You absolute legend 🌸'],
+  ];
+  const [msg, sub] = msgs[state.streakCount - 1] || msgs[0];
+  document.getElementById('streakMsg').textContent = msg;
+  document.getElementById('streakSubMsg').textContent = sub;
+  document.querySelector('.streak-big-emoji').textContent = state.streakCount >= 7 ? '🎉' : '🔥';
+
+  // Update dashboard streak UI
+  updateStreakUI();
+
+  // Mark challenge done
+  document.getElementById('startChallengeBtn').textContent = '✓ Completed today!';
+  document.getElementById('startChallengeBtn').style.opacity = '0.6';
+  document.getElementById('startChallengeBtn').style.cursor = 'default';
+
+  // Launch confetti
+  launchConfetti();
+}
+
+function launchConfetti() {
+  const colors = ['#e8c1c5', '#fce4e6', '#f6d7dc', '#2e2e2e', '#ffffff', '#d4a2a8'];
+  for (let i = 0; i < 40; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'confetti';
+      el.style.cssText = `
+        left: ${Math.random() * 100}vw;
+        top: ${-10 + Math.random() * 20}px;
+        background: ${colors[Math.floor(Math.random() * colors.length)]};
+        width: ${6 + Math.random() * 8}px;
+        height: ${6 + Math.random() * 8}px;
+        border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+        animation-duration: ${2 + Math.random() * 1.5}s;
+        animation-delay: ${Math.random() * 0.5}s;
+        transform-origin: center;
+      `;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 3500);
+    }, i * 40);
+  }
+}
+
+
+/* ══════════════════════════════════════════
+   INIT
+══════════════════════════════════════════ */
+(function init() {
+  buildSymptomPills();
+})();
+</script>
+</body>
+</html>
