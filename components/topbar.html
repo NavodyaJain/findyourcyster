@@ -1,0 +1,415 @@
+<!-- 
+  ════════════════════════════════════════════════════════════
+  components/topbar.html · FindYourCyster
+  ════════════════════════════════════════════════════════════
+  PURPOSE
+    Standalone topbar component. Injected into shell.html via:
+      fetch('components/topbar.html') → innerHTML of #topbar-mount
+
+  WHAT IT DOES
+    • Displays the FindYourCyster logo (synced to sidebar width)
+    • Sidebar toggle button (☰ / ✕)
+    • Switches between PAGE TITLE mode and CYSTER STRIP mode
+        - Cyster strip: avatar + name + online status (chat page)
+        - Page title: current section name (all other pages)
+    • Right actions: notifications bell, search, user pill
+    • Responsive: collapses logo text on mobile
+
+  DATA CONTRACT (reads from window.SHELL)
+    window.SHELL.cyster   → { name, age, avatar, city }
+    window.SHELL.userName → string
+    window.SHELL.route    → current route string
+
+  EVENTS EMITTED
+    topbar:toggle  → sidebar should toggle
+    topbar:search  → search triggered
+  ════════════════════════════════════════════════════════════
+-->
+<style>
+  /* ── topbar layout ── */
+  #topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: var(--tb-h, 60px);
+    background: rgba(255,255,255,.9);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(232,193,197,.22);
+    display: flex;
+    align-items: center;
+    padding: 0 16px 0 0;
+    z-index: 300;
+    box-shadow: 0 2px 20px rgba(30,26,26,.07);
+    gap: 0;
+    transition: none; /* children handle their own transitions */
+  }
+
+  /* ── brand zone (mirrors sidebar width) ── */
+  .tb-brand {
+    height: 100%;
+    width: var(--sb-w, 64px);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    gap: 10px;
+    overflow: hidden;
+    border-right: 1px solid rgba(232,193,197,.18);
+    transition: width .3s cubic-bezier(.22,1,.36,1);
+    text-decoration: none;
+  }
+  body.sb-open .tb-brand { width: var(--sb-open, 228px); }
+
+  .tb-brand-mark {
+    width: 32px; height: 32px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #f0d0d4, #e8c1c5);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(232,193,197,.35);
+    transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+  }
+  .tb-brand:hover .tb-brand-mark { transform: scale(1.08); }
+
+  .tb-brand-name {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: #1e1a1a;
+    white-space: nowrap;
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+    transition: opacity .22s ease, width .3s cubic-bezier(.22,1,.36,1);
+  }
+  .tb-brand-name em { color: #c99ea4; font-style: normal; }
+  body.sb-open .tb-brand-name { opacity: 1; width: 148px; }
+
+  /* ── toggle button ── */
+  .tb-toggle {
+    width: 34px; height: 34px;
+    border-radius: 9px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: #9e8e8e;
+    font-size: 15px;
+    margin: 0 6px 0 10px;
+    flex-shrink: 0;
+    transition: background .2s ease, color .2s ease, transform .2s ease;
+  }
+  .tb-toggle:hover { background: #fce4e6; color: #1e1a1a; }
+  .tb-toggle:active { transform: scale(.93); }
+
+  /* ── page title mode ── */
+  .tb-page-title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #1e1a1a;
+    padding-left: 12px;
+    border-left: 3px solid #e8c1c5;
+    margin-left: 6px;
+    white-space: nowrap;
+    transition: opacity .2s ease;
+  }
+
+  /* ── cyster strip mode (chat page) ── */
+  .tb-cyster-strip {
+    display: none;
+    align-items: center;
+    gap: 11px;
+    margin-left: 10px;
+    cursor: pointer;
+    padding: 6px 14px 6px 6px;
+    border-radius: 999px;
+    transition: background .2s ease;
+  }
+  .tb-cyster-strip:hover { background: #fce4e6; }
+  .tb-cyster-strip.visible { display: flex; }
+
+  .tb-cav {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f0d0d4, #e8c1c5);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+    border: 2px solid white;
+    box-shadow: 0 3px 10px rgba(232,193,197,.28);
+    flex-shrink: 0;
+  }
+  .tb-cname {
+    font-weight: 600;
+    font-size: 14px;
+    color: #1e1a1a;
+  }
+  .tb-cstatus {
+    font-size: 11px;
+    color: #5db85d;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 1px;
+  }
+  .tb-cstatus::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #5db85d;
+    animation: onlinePulse 2s ease-in-out infinite;
+  }
+  @keyframes onlinePulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: .5; transform: scale(.8); }
+  }
+
+  /* ── spacer ── */
+  .tb-spacer { flex: 1; }
+
+  /* ── right action buttons ── */
+  .tb-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .tb-action-btn {
+    position: relative;
+    width: 34px; height: 34px;
+    border-radius: 9px;
+    border: 1px solid rgba(232,193,197,.3);
+    background: rgba(255,255,255,.6);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    color: #5a4f4f;
+    transition: all .2s ease;
+  }
+  .tb-action-btn:hover { background: #fce4e6; border-color: #e8c1c5; color: #1e1a1a; }
+
+  .tb-notif-dot {
+    position: absolute;
+    top: 5px; right: 5px;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #c99ea4;
+    border: 1.5px solid white;
+    animation: notifPop .4s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes notifPop { from { transform: scale(0); } to { transform: scale(1); } }
+
+  /* ── user pill ── */
+  .tb-user-pill {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 4px 12px 4px 5px;
+    border-radius: 999px;
+    border: 1px solid rgba(232,193,197,.3);
+    background: rgba(255,255,255,.65);
+    cursor: pointer;
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #1e1a1a;
+    transition: all .2s ease;
+    white-space: nowrap;
+  }
+  .tb-user-pill:hover { background: #fce4e6; border-color: #e8c1c5; }
+
+  .tb-user-av {
+    width: 25px; height: 25px;
+    border-radius: 50%;
+    background: #1e1a1a;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    color: #e8c1c5;
+  }
+
+  /* ── responsive ── */
+  @media (max-width: 768px) {
+    .tb-brand { width: 58px !important; padding: 0 12px; }
+    body.sb-open .tb-brand-name { opacity: 0 !important; width: 0 !important; }
+    .tb-page-title { font-size: 16px; }
+    .tb-user-name-label { display: none; }
+  }
+  @media (max-width: 480px) {
+    .tb-action-btn.tb-search-btn { display: none; }
+  }
+</style>
+
+<!-- TOPBAR HTML -->
+<div id="topbar">
+
+  <!-- Brand (width syncs with sidebar) -->
+  <a class="tb-brand" href="#chat" onclick="window.shellNavigate&&shellNavigate('chat');return false;">
+    <div class="tb-brand-mark">🌸</div>
+    <div class="tb-brand-name">FindYour<em>Cyster</em></div>
+  </a>
+
+  <!-- Sidebar toggle -->
+  <button class="tb-toggle" id="tb-toggle-btn" onclick="window.shellToggleSb&&shellToggleSb()" title="Toggle sidebar" aria-label="Toggle navigation">
+    ☰
+  </button>
+
+  <!-- Page title (default mode) -->
+  <div class="tb-page-title" id="tb-page-title">Chat</div>
+
+  <!-- Cyster strip (chat page only) -->
+  <div class="tb-cyster-strip" id="tb-cyster-strip">
+    <div class="tb-cav" id="tb-cav-emoji">🌸</div>
+    <div>
+      <div class="tb-cname" id="tb-cname-text">Aanya, 22</div>
+      <div class="tb-cstatus">Online now</div>
+    </div>
+  </div>
+
+  <!-- Spacer -->
+  <div class="tb-spacer"></div>
+
+  <!-- Right actions -->
+  <div class="tb-actions">
+
+    <!-- Notifications -->
+    <button class="tb-action-btn" id="tb-notif-btn" title="Notifications" onclick="toggleNotifPanel()">
+      🔔
+      <div class="tb-notif-dot" id="tb-notif-dot"></div>
+    </button>
+
+    <!-- Search -->
+    <button class="tb-action-btn tb-search-btn" title="Search" onclick="window.shellNavigate&&shellNavigate('library')">
+      🔍
+    </button>
+
+    <!-- User pill -->
+    <div class="tb-user-pill" title="Your profile" onclick="window.shellNavigate&&shellNavigate('settings')">
+      <div class="tb-user-av">✨</div>
+      <span class="tb-user-name-label" id="tb-user-name">You</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- Notification dropdown (lightweight) -->
+<div id="tb-notif-panel" style="
+  position:fixed;top:calc(var(--tb-h,60px) + 8px);right:16px;
+  width:300px;background:white;border-radius:20px;
+  border:1px solid rgba(232,193,197,.25);
+  box-shadow:0 16px 48px rgba(30,26,26,.14);
+  z-index:400;opacity:0;pointer-events:none;
+  transform:translateY(-8px) scale(.97);
+  transition:all .25s cubic-bezier(.22,1,.36,1);
+  overflow:hidden;
+">
+  <div style="padding:16px 18px 12px;border-bottom:1px solid rgba(232,193,197,.15);display:flex;align-items:center;justify-content:space-between;">
+    <span style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:#1e1a1a;">Notifications</span>
+    <span style="font-size:11px;font-weight:600;color:#c99ea4;cursor:pointer;" onclick="markAllRead()">Mark all read</span>
+  </div>
+  <div id="tb-notif-list" style="max-height:320px;overflow-y:auto;"></div>
+  <div style="padding:12px 18px;border-top:1px solid rgba(232,193,197,.12);text-align:center;">
+    <span style="font-size:13px;color:#c99ea4;cursor:pointer;font-weight:500;">See all notifications →</span>
+  </div>
+</div>
+
+<script>
+/* ── topbar component script ── */
+(function initTopbar() {
+  /* populate from shell data */
+  function populateCyster() {
+    const c = window.SHELL?.cyster || (()=>{
+      try { return JSON.parse(sessionStorage.getItem('matchedCyster')); } catch(e){ return null; }
+    })() || { name:'Aanya', age:22, avatar:'🌸' };
+    document.getElementById('tb-cav-emoji').textContent  = c.avatar;
+    document.getElementById('tb-cname-text').textContent = `${c.name}, ${c.age}`;
+    document.getElementById('tb-user-name').textContent  = window.SHELL?.userName || c.userName || 'You';
+  }
+
+  /* mode switcher: called by shell router */
+  window.topbarSetRoute = function(route) {
+    const titleEl  = document.getElementById('tb-page-title');
+    const cysterEl = document.getElementById('tb-cyster-strip');
+    const PAGE_TITLES = {
+      chat:'Chat', dashboard:'My Dashboard', challenges:'Challenges',
+      calendar:'Cycle Calendar', community:'Community',
+      library:'Experience Library', settings:'Settings'
+    };
+    if (route === 'chat') {
+      titleEl.style.display  = 'none';
+      cysterEl.classList.add('visible');
+    } else {
+      titleEl.style.display  = 'block';
+      titleEl.textContent    = PAGE_TITLES[route] || route;
+      cysterEl.classList.remove('visible');
+    }
+  };
+
+  /* sidebar toggle icon sync */
+  window.topbarSyncToggle = function(isOpen) {
+    const btn = document.getElementById('tb-toggle-btn');
+    if (btn) btn.textContent = isOpen ? '✕' : '☰';
+  };
+
+  /* notifications */
+  const NOTIFS = [
+    { emoji:'🌸', text:'Aanya sent you a message', time:'2 min ago', unread:true },
+    { emoji:'⚡', text:'You completed 3 challenges this week!', time:'1 hr ago', unread:true },
+    { emoji:'🔥', text:'Your streak is at 5 days — keep going!', time:'3 hr ago', unread:false },
+    { emoji:'🌸', text:'New cyster in your pod: Priya joined', time:'Yesterday', unread:false },
+  ];
+
+  function renderNotifs() {
+    const list = document.getElementById('tb-notif-list');
+    list.innerHTML = '';
+    NOTIFS.forEach((n,i) => {
+      list.innerHTML += `
+        <div style="display:flex;gap:12px;padding:12px 18px;background:${n.unread?'rgba(253,240,241,.6)':'transparent'};border-bottom:1px solid rgba(232,193,197,.1);cursor:pointer;transition:background .2s ease;"
+          onmouseover="this.style.background='#fce4e6'" onmouseout="this.style.background='${n.unread?'rgba(253,240,241,.6)':'transparent'}'"
+          onclick="NOTIFS[${i}].unread=false;renderNotifs();updateNotifDot()">
+          <div style="font-size:22px;flex-shrink:0;">${n.emoji}</div>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:${n.unread?'600':'400'};color:#1e1a1a;line-height:1.4;">${n.text}</div>
+            <div style="font-size:11px;color:#9e8e8e;margin-top:2px;">${n.time}</div>
+          </div>
+          ${n.unread ? '<div style="width:7px;height:7px;border-radius:50%;background:#c99ea4;flex-shrink:0;margin-top:4px;"></div>' : ''}
+        </div>`;
+    });
+  }
+
+  function updateNotifDot() {
+    const dot = document.getElementById('tb-notif-dot');
+    const hasUnread = NOTIFS.some(n => n.unread);
+    if (dot) dot.style.display = hasUnread ? 'block' : 'none';
+  }
+
+  window.toggleNotifPanel = function() {
+    const panel = document.getElementById('tb-notif-panel');
+    const isOpen = panel.style.opacity === '1';
+    panel.style.opacity        = isOpen ? '0' : '1';
+    panel.style.pointerEvents  = isOpen ? 'none' : 'all';
+    panel.style.transform      = isOpen ? 'translateY(-8px) scale(.97)' : 'translateY(0) scale(1)';
+    if (!isOpen) renderNotifs();
+  };
+
+  window.markAllRead = function() {
+    NOTIFS.forEach(n => n.unread = false);
+    renderNotifs();
+    updateNotifDot();
+  };
+
+  /* close notif panel on outside click */
+  document.addEventListener('click', e => {
+    const panel = document.getElementById('tb-notif-panel');
+    const btn   = document.getElementById('tb-notif-btn');
+    if (panel && !panel.contains(e.target) && !btn?.contains(e.target)) {
+      panel.style.opacity = '0';
+      panel.style.pointerEvents = 'none';
+      panel.style.transform = 'translateY(-8px) scale(.97)';
+    }
+  });
+
+  populateCyster();
+  updateNotifDot();
+})();
+</script>

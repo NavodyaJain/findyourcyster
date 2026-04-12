@@ -1,0 +1,263 @@
+<!-- pages/dashboard.html · FindYourCyster Dashboard -->
+<style>
+.db-wrap{padding:28px 28px 40px;max-width:1100px;margin:0 auto;}
+
+.db-greeting{margin-bottom:28px;}
+.db-greeting h2{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:700;color:#1e1a1a;letter-spacing:-.5px;line-height:1.2;}
+.db-greeting p{font-size:15px;color:#5a4f4f;margin-top:6px;}
+
+.db-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:18px;}
+.db-grid-2{display:grid;grid-template-columns:2fr 1fr;gap:18px;margin-bottom:18px;}
+.db-grid-bottom{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+
+/* card base */
+.dc{background:white;border-radius:24px;padding:22px;border:1px solid rgba(232,193,197,.2);box-shadow:0 4px 20px rgba(30,26,26,.06);transition:all .25s ease;}
+.dc:hover{box-shadow:0 8px 28px rgba(30,26,26,.1);transform:translateY(-2px);}
+.dc-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#9e8e8e;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+
+/* stat cards (top row) */
+.stat-big{font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:700;color:#1e1a1a;line-height:1;}
+.stat-unit{font-size:18px;font-weight:400;}
+.stat-sub{font-size:13px;color:#9e8e8e;margin-top:4px;}
+.stat-badge{display:inline-flex;align-items:center;gap:4px;background:#fce4e6;color:#c99ea4;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600;margin-top:8px;}
+
+/* streak days bar */
+.streak-bar{display:flex;gap:5px;margin-top:12px;}
+.sb-day{flex:1;height:8px;border-radius:4px;background:rgba(232,193,197,.25);transition:all .4s ease;}
+.sb-day.on{background:#c99ea4;}
+
+/* tips list */
+.tip-list{display:flex;flex-direction:column;gap:0;}
+.tip-row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid rgba(232,193,197,.15);font-size:13px;color:#5a4f4f;line-height:1.5;}
+.tip-row:last-child{border-bottom:none;}
+.tip-ico{width:28px;height:28px;border-radius:50%;background:#fce4e6;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+
+/* community pulse */
+.pulse-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(232,193,197,.12);font-size:13px;color:#5a4f4f;}
+.pulse-row:last-child{border-bottom:none;}
+.pulse-val{font-weight:700;font-size:15px;color:#1e1a1a;}
+.pulse-dot{width:8px;height:8px;border-radius:50%;background:#5db85d;animation:livePulse 2s ease-in-out infinite;}
+@keyframes livePulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+
+/* mood tracker */
+.mood-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:4px;}
+.mood-cell{aspect-ratio:1;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:14px;cursor:pointer;border:1.5px solid rgba(232,193,197,.25);background:#fdf0f1;transition:all .2s ease;}
+.mood-cell:hover{border-color:#c99ea4;transform:scale(1.05);}
+.mood-cell.logged{background:#fce4e6;border-color:#c99ea4;}
+.mood-cell span{font-size:9px;color:#9e8e8e;margin-top:2px;}
+
+/* progress rings row */
+.rings-row{display:flex;gap:18px;margin-top:6px;}
+.ring-item{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.ring-svg{transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:rgba(232,193,197,.2);stroke-width:6;}
+.ring-fill{fill:none;stroke:#c99ea4;stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset 1.2s ease;}
+.ring-label{font-size:11px;color:#5a4f4f;font-weight:500;text-align:center;}
+.ring-pct{font-size:13px;font-weight:700;color:#1e1a1a;}
+
+/* cyster match mini card */
+.cyster-mini{display:flex;align-items:center;gap:12px;padding:12px;background:#fdf0f1;border-radius:16px;margin-bottom:10px;cursor:pointer;transition:all .25s ease;}
+.cyster-mini:hover{background:#fce4e6;}
+.cm-av{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#f0d0d4,#e8c1c5);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.cm-name{font-weight:600;font-size:14px;}
+.cm-sub{font-size:12px;color:#9e8e8e;}
+.cm-badge{margin-left:auto;background:#fce4e6;color:#c99ea4;font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px;}
+
+@media(max-width:900px){.db-grid{grid-template-columns:1fr 1fr;}.db-grid-2{grid-template-columns:1fr;}.db-grid-bottom{grid-template-columns:1fr;}.rings-row{flex-wrap:wrap;}}
+@media(max-width:600px){.db-wrap{padding:16px 14px 32px;}.db-grid{grid-template-columns:1fr;}.stat-big{font-size:38px;}}
+</style>
+
+<div class="db-wrap">
+
+  <!-- greeting -->
+  <div class="db-greeting">
+    <h2>Good morning, <em style="color:#c99ea4;font-style:normal;" id="db-username">Riya</em> 🌸</h2>
+    <p>Here's your PCOS snapshot for today — you're doing great.</p>
+  </div>
+
+  <!-- row 1: 3 stat cards -->
+  <div class="db-grid">
+
+    <!-- streak -->
+    <div class="dc">
+      <div class="dc-label">🔥 Active Streak</div>
+      <div class="stat-big" id="db-streak-num">0<span class="stat-unit">d</span></div>
+      <div class="stat-sub">Keep going — consistency is everything</div>
+      <div class="streak-bar" id="db-streak-bar"></div>
+    </div>
+
+    <!-- challenges done -->
+    <div class="dc">
+      <div class="dc-label">⚡ Challenges</div>
+      <div class="stat-big">12<span class="stat-unit"> done</span></div>
+      <div class="stat-sub">This month</div>
+      <div class="stat-badge">↑ 3 from last month</div>
+    </div>
+
+    <!-- cyster match score -->
+    <div class="dc">
+      <div class="dc-label">🌸 Your Match</div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="font-size:32px;" id="db-cav">🌸</div>
+        <div>
+          <div style="font-weight:700;font-size:16px;" id="db-cname">Aanya, 22</div>
+          <div style="font-size:12px;color:#9e8e8e;" id="db-ccity">Delhi</div>
+          <div class="stat-badge" id="db-cpct">94% match</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- row 2: tips + pulse -->
+  <div class="db-grid-2">
+
+    <!-- personalized tips -->
+    <div class="dc">
+      <div class="dc-label">💡 For Your Pattern</div>
+      <div class="tip-list" id="db-tips"></div>
+    </div>
+
+    <!-- community pulse -->
+    <div class="dc">
+      <div class="dc-label"><span class="pulse-dot"></span> Community Pulse</div>
+      <div class="pulse-row"><span>Cysters online</span><span class="pulse-val">1,248</span></div>
+      <div class="pulse-row"><span>Challenges done today</span><span class="pulse-val">342</span></div>
+      <div class="pulse-row"><span>Stories shared</span><span class="pulse-val">89</span></div>
+      <div class="pulse-row"><span>New matches today</span><span class="pulse-val">27</span></div>
+    </div>
+
+  </div>
+
+  <!-- row 3: mood + progress rings -->
+  <div class="db-grid-bottom">
+
+    <!-- mood tracker (7-day) -->
+    <div class="dc">
+      <div class="dc-label">🌊 Mood This Week</div>
+      <div class="mood-grid" id="db-mood-grid"></div>
+    </div>
+
+    <!-- symptom progress rings -->
+    <div class="dc">
+      <div class="dc-label">📈 Symptom Trends</div>
+      <div class="rings-row" id="db-rings"></div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+(function() {
+  /* cyster data */
+  let c = null;
+  try { c = JSON.parse(sessionStorage.getItem('matchedCyster')); } catch(e){}
+  c = c || {name:'Aanya',age:22,city:'Delhi',avatar:'🌸'};
+  const userName = c.userName || 'Riya';
+
+  document.getElementById('db-username').textContent = userName;
+  document.getElementById('db-cav').textContent  = c.avatar;
+  document.getElementById('db-cname').textContent = `${c.name}, ${c.age}`;
+  document.getElementById('db-ccity').textContent = c.city;
+
+  /* streak */
+  const streak = parseInt(localStorage.getItem('fyc_streak')||'0');
+  document.getElementById('db-streak-num').innerHTML = `${streak}<span class="stat-unit">d</span>`;
+  const bar = document.getElementById('db-streak-bar');
+  for(let i=0;i<7;i++){const d=document.createElement('div');d.className='sb-day'+(i<streak?' on':'');bar.appendChild(d);}
+
+  /* tips */
+  const TIPS = [
+    {e:'☀️',t:'10 min morning sunlight sets your circadian rhythm and fights afternoon fatigue.'},
+    {e:'🥗',t:'Eat fibre before carbs — it blunts glucose spikes by ~30%.'},
+    {e:'🌿',t:'Spearmint tea twice daily may help regulate androgen levels.'},
+    {e:'😴',t:'7–9h sleep is non-negotiable — poor sleep directly drives cortisol and weight gain.'},
+    {e:'🚶‍♀️',t:'A 15-min walk after meals is one of the most effective tools for insulin resistance.'},
+  ];
+  const tips = document.getElementById('db-tips');
+  TIPS.forEach(t => {
+    tips.innerHTML += `<div class="tip-row"><div class="tip-ico">${t.e}</div><span>${t.t}</span></div>`;
+  });
+
+  /* mood 7-day */
+  const MOODS = ['😊','😐','😴','😔','😰'];
+  const DAYS = ['M','T','W','T','F','S','S'];
+  const grid = document.getElementById('db-mood-grid');
+  DAYS.forEach((d,i) => {
+    const saved = localStorage.getItem(`fyc_mood_${i}`);
+    const cell = document.createElement('div');
+    cell.className = 'mood-cell' + (saved ? ' logged' : '');
+    cell.innerHTML = `${saved||'·'}<span>${d}</span>`;
+    cell.addEventListener('click', () => {
+      const m = MOODS[Math.floor(Math.random()*MOODS.length)];
+      cell.innerHTML = `${m}<span>${d}</span>`;
+      cell.classList.add('logged');
+      localStorage.setItem(`fyc_mood_${i}`, m);
+    });
+    grid.appendChild(cell);
+  });
+
+  /* rings */
+  const RINGS = [
+    {label:'Energy',pct:65,color:'#c99ea4'},
+    {label:'Sleep',pct:72,color:'#7a9e80'},
+    {label:'Mood',pct:58,color:'#a494c4'},
+  ];
+  const ringsEl = document.getElementById('db-rings');
+  const r = 28; const circ = 2*Math.PI*r;
+  RINGS.forEach(ring => {
+    const offset = circ * (1 - ring.pct/100);
+    const div = document.createElement('div');
+    div.className = 'ring-item';
+    
+    /* Create SVG */
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('class', 'ring-svg');
+    svg.setAttribute('width', '72');
+    svg.setAttribute('height', '72');
+    svg.setAttribute('viewBox', '0 0 72 72');
+    
+    /* Create background circle */
+    const bgCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    bgCircle.setAttribute('class', 'ring-bg');
+    bgCircle.setAttribute('cx', '36');
+    bgCircle.setAttribute('cy', '36');
+    bgCircle.setAttribute('r', r);
+    
+    /* Create fill circle */
+    const fillCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    fillCircle.setAttribute('class', 'ring-fill');
+    fillCircle.setAttribute('cx', '36');
+    fillCircle.setAttribute('cy', '36');
+    fillCircle.setAttribute('r', r);
+    fillCircle.setAttribute('stroke', ring.color);
+    fillCircle.setAttribute('stroke-dasharray', circ.toFixed(1));
+    fillCircle.setAttribute('stroke-dashoffset', circ.toFixed(1));
+    fillCircle.setAttribute('data-offset', offset.toFixed(1));
+    
+    svg.appendChild(bgCircle);
+    svg.appendChild(fillCircle);
+    div.appendChild(svg);
+    
+    /* Create percentage text */
+    const pctDiv = document.createElement('div');
+    pctDiv.className = 'ring-pct';
+    pctDiv.textContent = ring.pct + '%';
+    div.appendChild(pctDiv);
+    
+    /* Create label text */
+    const labelDiv = document.createElement('div');
+    labelDiv.className = 'ring-label';
+    labelDiv.textContent = ring.label;
+    div.appendChild(labelDiv);
+    
+    ringsEl.appendChild(div);
+    
+    /* animate after append */
+    setTimeout(() => {
+      div.querySelector('.ring-fill').style.strokeDashoffset = offset;
+    }, 300);
+  });
+})();
+</script>

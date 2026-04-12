@@ -1,0 +1,88 @@
+<!-- pages/settings.html · FindYourCyster Settings -->
+<style>
+.set-wrap{padding:28px 28px 48px;max-width:700px;margin:0 auto;}
+.set-section{background:white;border-radius:22px;padding:22px 24px;border:1px solid rgba(232,193,197,.2);box-shadow:0 3px 16px rgba(30,26,26,.06);margin-bottom:16px;}
+.set-section-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:#1e1a1a;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid rgba(232,193,197,.2);}
+.set-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid rgba(232,193,197,.1);}
+.set-row:last-child{border-bottom:none;padding-bottom:0;}
+.set-label{font-size:14px;font-weight:500;color:#1e1a1a;}
+.set-sub{font-size:12px;color:#9e8e8e;margin-top:2px;}
+/* toggle switch */
+.toggle{width:44px;height:24px;border-radius:12px;background:#e0e0e0;position:relative;cursor:pointer;transition:background .25s ease;flex-shrink:0;}
+.toggle.on{background:#c99ea4;}
+.toggle::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:white;top:3px;left:3px;transition:left .25s ease;box-shadow:0 2px 6px rgba(0,0,0,.15);}
+.toggle.on::after{left:23px;}
+.set-danger{color:#c0777c;}
+.set-btn{padding:8px 16px;border-radius:999px;border:1.5px solid rgba(232,193,197,.4);background:transparent;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;cursor:pointer;color:#5a4f4f;transition:all .25s ease;}
+.set-btn:hover{background:#fce4e6;border-color:#c99ea4;}
+.set-btn.danger{border-color:rgba(192,119,124,.3);color:#c0777c;}
+.set-btn.danger:hover{background:rgba(192,119,124,.08);}
+</style>
+
+<div class="set-wrap">
+  <div style="margin-bottom:24px;">
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:700;color:#1e1a1a;margin-bottom:6px;">Settings ⚙️</h2>
+    <p style="font-size:15px;color:#5a4f4f;">Manage your profile, notifications, and privacy.</p>
+  </div>
+
+  <div class="set-section">
+    <div class="set-section-title">Notifications</div>
+    <div class="set-row">
+      <div><div class="set-label">Daily challenge reminders</div><div class="set-sub">Get nudged at your preferred time</div></div>
+      <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+    </div>
+    <div class="set-row">
+      <div><div class="set-label">Messages from your Cyster</div><div class="set-sub">Push notifications for new chat</div></div>
+      <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+    </div>
+    <div class="set-row">
+      <div><div class="set-label">Weekly mood insights</div><div class="set-sub">Summary of your mood patterns</div></div>
+      <div class="toggle" onclick="this.classList.toggle('on')"></div>
+    </div>
+    <div class="set-row">
+      <div><div class="set-label">Community updates</div><div class="set-sub">New members in your pod</div></div>
+      <div class="toggle" onclick="this.classList.toggle('on')"></div>
+    </div>
+  </div>
+
+  <div class="set-section">
+    <div class="set-section-title">Privacy</div>
+    <div class="set-row">
+      <div><div class="set-label">Profile visible to community</div><div class="set-sub">Other cysters can discover you</div></div>
+      <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+    </div>
+    <div class="set-row">
+      <div><div class="set-label">Share symptom data anonymously</div><div class="set-sub">Helps improve matching for everyone</div></div>
+      <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+    </div>
+    <div class="set-row">
+      <div><div class="set-label">Show online status</div><div class="set-sub">Let your Cyster know you're active</div></div>
+      <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+    </div>
+  </div>
+
+  <div class="set-section">
+    <div class="set-section-title">Account</div>
+    <div class="set-row">
+      <div><div class="set-label">Edit profile</div></div>
+      <button class="set-btn">Edit →</button>
+    </div>
+    <div class="set-row">
+      <div><div class="set-label">Update symptoms</div><div class="set-sub">Re-run symptom fingerprint</div></div>
+      <button class="set-btn">Update</button>
+    </div>
+    <div class="set-row">
+      <div><div class="set-label">Export my data</div><div class="set-sub">Download everything in JSON</div></div>
+      <button class="set-btn">Export</button>
+    </div>
+    <div class="set-row">
+      <div><div class="set-label set-danger">Delete account</div><div class="set-sub">Permanently remove your data</div></div>
+      <button class="set-btn danger">Delete</button>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:28px;">
+    <div style="font-size:13px;color:#9e8e8e;">FindYourCyster · v1.0.0 · Made with 🌸 for every cyster</div>
+    <div style="font-size:12px;color:#bbb;margin-top:4px;"><a href="#" style="color:#c99ea4;text-decoration:none;">Privacy Policy</a> · <a href="#" style="color:#c99ea4;text-decoration:none;">Terms</a></div>
+  </div>
+</div>

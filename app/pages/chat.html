@@ -1,0 +1,275 @@
+<!-- pages/chat.html · FindYourCyster Chat -->
+<!-- Loaded by shell.html into #page-chat via fetch() -->
+<style>
+.chat-wrap{display:flex;height:100%;overflow:hidden;}
+
+/* messages column */
+.chat-msgs-col{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+
+/* top identity strip (shows shared symptoms) */
+.chat-identity-strip{
+  padding:14px 24px;
+  background:rgba(253,240,241,.8);
+  border-bottom:1px solid rgba(232,193,197,.2);
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex-shrink:0;
+}
+.ci-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#9e8e8e;}
+.ci-chip{background:var(--rose-light,#fce4e6);border:1px solid rgba(232,193,197,.5);padding:4px 12px;border-radius:999px;font-size:12px;font-weight:500;color:#1e1a1a;}
+
+/* messages */
+.msgs-area{flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth;}
+.msgs-area::-webkit-scrollbar{width:4px;}
+.msgs-area::-webkit-scrollbar-thumb{background:rgba(232,193,197,.4);border-radius:4px;}
+
+/* date pill */
+.date-pill{align-self:center;font-size:11px;color:#bbb;background:rgba(255,255,255,.7);padding:4px 14px;border-radius:999px;border:1px solid rgba(232,193,197,.2);}
+
+/* message */
+.msg{display:flex;flex-direction:column;max-width:72%;}
+.msg.sent{align-self:flex-end;align-items:flex-end;}
+.msg.recv{align-self:flex-start;align-items:flex-start;}
+.msg-bub{
+  padding:11px 16px;border-radius:18px;font-size:14px;line-height:1.55;
+  animation:msgIn .3s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.msg.sent .msg-bub{background:#1e1a1a;color:white;border-bottom-right-radius:4px;}
+.msg.recv .msg-bub{background:white;color:#1e1a1a;border-bottom-left-radius:4px;box-shadow:0 2px 12px rgba(30,26,26,.08);}
+.msg-time{font-size:10px;color:#ccc;margin-top:3px;padding:0 4px;}
+
+/* typing */
+.typing-bub{display:flex;align-items:center;gap:4px;padding:12px 16px;background:white;border-radius:18px;border-bottom-left-radius:4px;width:60px;box-shadow:0 2px 12px rgba(30,26,26,.08);}
+.td{width:6px;height:6px;border-radius:50%;background:#e8c1c5;animation:tb 1.1s ease-in-out infinite;}
+.td:nth-child(2){animation-delay:.18s;}
+.td:nth-child(3){animation-delay:.36s;}
+@keyframes tb{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+
+/* input */
+.chat-input-row{
+  padding:14px 20px;
+  border-top:1px solid rgba(232,193,197,.2);
+  background:rgba(255,255,255,.8);
+  display:flex;gap:10px;align-items:flex-end;flex-shrink:0;
+}
+.msg-input{
+  flex:1;border:1.5px solid rgba(232,193,197,.35);border-radius:18px;
+  padding:11px 16px;font-family:'Outfit',sans-serif;font-size:14px;
+  background:white;color:#1e1a1a;outline:none;resize:none;
+  min-height:46px;max-height:110px;line-height:1.5;
+  transition:border-color .25s ease,box-shadow .25s ease;
+}
+.msg-input:focus{border-color:#c99ea4;box-shadow:0 0 0 3px rgba(232,193,197,.15);}
+.send-btn{
+  width:42px;height:42px;border-radius:50%;background:#1e1a1a;color:white;
+  border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;transition:all .25s ease;
+}
+.send-btn:hover{transform:scale(1.08);box-shadow:0 6px 18px rgba(30,26,26,.25);}
+
+/* ── right panel: quick dashboard snapshot ── */
+.chat-right-panel{
+  width:280px;flex-shrink:0;
+  border-left:1px solid rgba(232,193,197,.2);
+  background:rgba(255,255,255,.7);
+  backdrop-filter:blur(12px);
+  display:flex;flex-direction:column;
+  overflow-y:auto;
+}
+.chat-right-panel::-webkit-scrollbar{width:4px;}
+.chat-right-panel::-webkit-scrollbar-thumb{background:rgba(232,193,197,.3);border-radius:4px;}
+
+.crp-header{padding:18px 18px 12px;border-bottom:1px solid rgba(232,193,197,.15);}
+.crp-header h4{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:#1e1a1a;}
+.crp-header p{font-size:12px;color:#9e8e8e;margin-top:2px;}
+
+.crp-body{padding:14px 16px;display:flex;flex-direction:column;gap:14px;}
+
+/* mini widget */
+.mini-widget{background:#fdf0f1;border:1px solid rgba(232,193,197,.25);border-radius:18px;padding:14px;}
+.mw-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#9e8e8e;margin-bottom:10px;display:flex;align-items:center;gap:5px;}
+.mw-streak-num{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:700;color:#1e1a1a;line-height:1;}
+.mw-streak-unit{font-size:14px;font-weight:400;}
+.streak-dots{display:flex;gap:4px;margin-top:8px;}
+.sdot{width:28px;height:6px;border-radius:3px;background:rgba(232,193,197,.3);}
+.sdot.on{background:#c99ea4;}
+
+.today-ch{background:linear-gradient(135deg,#1e1a1a,#3a3030);border-radius:14px;padding:14px;color:white;position:relative;overflow:hidden;}
+.today-ch::before{content:'';position:absolute;top:-30px;right:-20px;width:80px;height:80px;background:radial-gradient(circle,rgba(232,193,197,.3) 0%,transparent 70%);border-radius:50%;}
+.tc-emoji{font-size:22px;margin-bottom:6px;display:block;}
+.tc-name{font-weight:600;font-size:14px;margin-bottom:3px;}
+.tc-desc{font-size:11px;color:rgba(255,255,255,.6);line-height:1.5;}
+.tc-btn{margin-top:10px;background:#e8c1c5;color:#1e1a1a;border:none;padding:7px 14px;border-radius:999px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .25s ease;}
+.tc-btn:hover{transform:scale(1.04);}
+
+.mood-row{display:flex;gap:6px;justify-content:space-between;}
+.mood-btn{flex:1;padding:8px 4px;border-radius:12px;border:1.5px solid rgba(232,193,197,.3);background:rgba(255,255,255,.6);font-size:18px;cursor:pointer;text-align:center;transition:all .25s ease;}
+.mood-btn:hover{border-color:#c99ea4;transform:scale(1.06);}
+.mood-btn.picked{border-color:#c99ea4;background:#fce4e6;}
+
+@media(max-width:900px){.chat-right-panel{display:none;}}
+@media(max-width:600px){.chat-identity-strip{padding:10px 16px;}.msgs-area{padding:14px 14px;}.chat-input-row{padding:10px 12px;}}
+</style>
+
+<div class="chat-wrap">
+
+  <!-- LEFT: messages -->
+  <div class="chat-msgs-col">
+    <!-- shared symptoms strip -->
+    <div class="chat-identity-strip">
+      <span class="ci-label">You both share</span>
+      <div id="ci-chips"></div>
+    </div>
+
+    <!-- messages -->
+    <div class="msgs-area" id="msgs-area">
+      <div class="date-pill">Today</div>
+      <!-- system -->
+      <div style="align-self:center;font-size:12px;color:#bbb;background:rgba(255,255,255,.6);padding:5px 14px;border-radius:999px;border:1px solid rgba(232,193,197,.2);">
+        You matched with <span id="match-name-sys">Aanya</span> ✨
+      </div>
+    </div>
+
+    <!-- input -->
+    <div class="chat-input-row">
+      <textarea class="msg-input" id="msg-input" placeholder="Say something…" rows="1"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg();}"
+        oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,110)+'px'"></textarea>
+      <button class="send-btn" onclick="sendMsg()">↑</button>
+    </div>
+  </div>
+
+  <!-- RIGHT: snapshot panel -->
+  <div class="chat-right-panel">
+    <div class="crp-header">
+      <h4>Quick View</h4>
+      <p>Your dashboard snapshot</p>
+    </div>
+    <div class="crp-body">
+
+      <!-- streak -->
+      <div class="mini-widget">
+        <div class="mw-label">🔥 Streak</div>
+        <div class="mw-streak-num" id="chat-streak">0<span class="mw-streak-unit"> days</span></div>
+        <div class="streak-dots" id="chat-streak-dots"></div>
+      </div>
+
+      <!-- today's challenge -->
+      <div class="mini-widget" style="padding:0;background:transparent;border:none;">
+        <div class="mw-label">⚡ Today's Challenge</div>
+        <div class="today-ch">
+          <span class="tc-emoji">🚶‍♀️</span>
+          <div class="tc-name">10-min walk after lunch</div>
+          <div class="tc-desc">Light movement post-meal helps regulate blood sugar.</div>
+          <button class="tc-btn" onclick="window.parent.go&&window.parent.go('challenges')">Log Challenge →</button>
+        </div>
+      </div>
+
+      <!-- mood check -->
+      <div class="mini-widget">
+        <div class="mw-label">🌊 How are you feeling?</div>
+        <div class="mood-row" id="mood-row">
+          <div class="mood-btn" onclick="pickMood(this)" title="Great">😊</div>
+          <div class="mood-btn" onclick="pickMood(this)" title="Okay">😐</div>
+          <div class="mood-btn" onclick="pickMood(this)" title="Tired">😴</div>
+          <div class="mood-btn" onclick="pickMood(this)" title="Low">😔</div>
+          <div class="mood-btn" onclick="pickMood(this)" title="Anxious">😰</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function() {
+  /* pull cyster data from parent shell or sessionStorage */
+  let c = null;
+  try { c = JSON.parse(sessionStorage.getItem('matchedCyster')); } catch(e){}
+  c = c || {name:'Aanya',age:22,avatar:'🌸',sharedSymptoms:['Fatigue','Hormonal acne']};
+
+  /* populate shared chips */
+  const chips = document.getElementById('ci-chips');
+  const syms = c.sharedSymptoms || ['Irregular periods'];
+  syms.forEach(s => {
+    const d = document.createElement('div');
+    d.className = 'ci-chip';
+    d.textContent = s;
+    chips.appendChild(d);
+  });
+
+  /* match name */
+  const ns = document.getElementById('match-name-sys');
+  if (ns) ns.textContent = c.name;
+
+  /* streak dots */
+  const streak = parseInt(localStorage.getItem('fyc_streak')||'0');
+  document.getElementById('chat-streak').innerHTML = `${streak}<span class="mw-streak-unit"> days</span>`;
+  const dots = document.getElementById('chat-streak-dots');
+  for (let i=0;i<7;i++){const d=document.createElement('div');d.className='sdot'+(i<streak?' on':'');dots.appendChild(d);}
+
+  /* initial messages */
+  const initMsgs = [
+    {from:'recv',text:`omg hi!! I was so excited when I saw we matched 🌸`,delay:600},
+    {from:'recv',text:`which symptoms hit you the hardest rn? for me it's the fatigue like no one around me understands 😭`,delay:1100},
+  ];
+  initMsgs.forEach(m => setTimeout(() => appendMsg(m.from, m.text), m.delay));
+
+  /* auto-replies */
+  const replies = [
+    "omg yes exactly!! I feel so seen right now 🥺",
+    "has anything actually helped you? I've tried SO many things lol",
+    "wait tell me more — which one worked for you??",
+    "honestly same. took me ages to figure out my pattern",
+    "the worst is when doctors just say 'lose weight' 😤",
+    "that's actually really helpful, gonna try that!",
+    "we should do the 30-day challenge together 🔥",
+  ];
+  let rIdx = 0;
+
+  window.sendMsg = function() {
+    const inp = document.getElementById('msg-input');
+    const txt = inp.value.trim();
+    if (!txt) return;
+    appendMsg('sent', txt);
+    inp.value = ''; inp.style.height = 'auto';
+
+    /* typing indicator */
+    setTimeout(() => {
+      const area = document.getElementById('msgs-area');
+      const ti = document.createElement('div');
+      ti.className = 'msg recv'; ti.id = 'typing-ind';
+      ti.innerHTML = '<div class="typing-bub"><div class="td"></div><div class="td"></div><div class="td"></div></div>';
+      area.appendChild(ti); area.scrollTop = area.scrollHeight;
+
+      setTimeout(() => {
+        ti.remove();
+        appendMsg('recv', replies[rIdx % replies.length]);
+        rIdx++;
+      }, 1400 + Math.random()*600);
+    }, 500);
+  };
+
+  function appendMsg(from, text) {
+    const area = document.getElementById('msgs-area');
+    const now = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    const div = document.createElement('div');
+    div.className = `msg ${from}`;
+    div.innerHTML = `<div class="msg-bub">${text}</div><div class="msg-time">${now}</div>`;
+    area.appendChild(div);
+    area.scrollTop = area.scrollHeight;
+  }
+
+  window.pickMood = function(btn) {
+    document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('picked'));
+    btn.classList.add('picked');
+    localStorage.setItem('fyc_mood_today', btn.title);
+  };
+  /* restore today's mood */
+  const savedMood = localStorage.getItem('fyc_mood_today');
+  if (savedMood) {
+    const btn = [...document.querySelectorAll('.mood-btn')].find(b=>b.title===savedMood);
+    if (btn) btn.classList.add('picked');
+  }
+})();
+</script>

@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FindYourCyster · Create Your Profile</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --rose:#e8c1c5; --rose-light:#fce4e6; --rose-mid:#f0d0d4; --rose-deep:#c99ea4;
+  --petal:#fdf0f1; --ink:#1e1a1a; --ink-muted:#5a4f4f; --ink-faint:#9e8e8e;
+  --sage:#7a9e80; --sage-light:#c8deca;
+  --lavender:#a494c4; --lav-light:#ece8f6;
+  --amber:#d4956a; --amber-light:#faebd7;
+  --sky:#7ea8c4; --sky-light:#ddeef7;
+  --f-display:'Cormorant Garamond',Georgia,serif;
+  --f-body:'Outfit',system-ui,sans-serif;
+  --r-md:18px; --r-lg:28px; --r-xl:40px; --r-pill:999px;
+  --shadow-card:0 24px 64px rgba(30,26,26,.10),0 4px 16px rgba(30,26,26,.06);
+  --shadow-glow:0 0 60px rgba(232,193,197,.6),0 0 120px rgba(232,193,197,.25);
+  --ease-spring:cubic-bezier(0.34,1.56,0.64,1);
+  --ease-out:cubic-bezier(0.22,1,0.36,1);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--f-body);background:var(--petal);color:var(--ink);
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  overflow-x:hidden;position:relative;padding-bottom:60px;
+}
+body::before{
+  content:'';position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 15% 10%,rgba(232,193,197,.3) 0%,transparent 60%),
+    radial-gradient(ellipse 70% 80% at 85% 90%,rgba(240,208,212,.35) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 50% at 50% 50%,rgba(253,240,241,1) 0%,transparent 100%);
+  z-index:0;animation:meshShift 22s ease-in-out infinite alternate;
+}
+@keyframes meshShift{0%{filter:hue-rotate(0deg)}100%{filter:hue-rotate(6deg) brightness(1.01)}}
+.orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(70px);animation:orbFloat var(--dur,18s) ease-in-out infinite alternate;}
+.orb-1{width:500px;height:500px;background:rgba(232,193,197,.35);top:-150px;right:-100px;--dur:22s;}
+.orb-2{width:400px;height:400px;background:rgba(248,217,222,.45);bottom:-100px;left:-80px;--dur:18s;animation-delay:-6s;}
+.orb-3{width:220px;height:220px;background:rgba(122,158,128,.12);top:45%;left:30%;--dur:14s;animation-delay:-3s;}
+@keyframes orbFloat{from{transform:translate(0,0) scale(1)}to{transform:translate(28px,44px) scale(1.1)}}
+
+/* ── shell ── */
+.app-shell{
+  position:relative;z-index:1;width:100%;max-width:700px;
+  padding:28px 16px 48px;display:flex;flex-direction:column;align-items:center;
+  opacity:0;animation:shellIn .8s var(--ease-out) .05s forwards;
+}
+@keyframes shellIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.logo{font-family:var(--f-display);font-size:22px;font-weight:700;color:var(--ink);letter-spacing:-.3px;margin-bottom:28px;opacity:0;animation:fadeDown .8s var(--ease-out) .1s forwards;}
+.logo em{color:var(--rose-deep);font-style:normal;}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+
+/* progress */
+.progress-shell{width:100%;display:flex;align-items:center;gap:10px;margin-bottom:28px;opacity:0;animation:fadeDown .8s var(--ease-out) .2s forwards;}
+.step-dot{width:8px;height:8px;border-radius:50%;background:rgba(232,193,197,.35);border:1.5px solid rgba(232,193,197,.5);transition:all .5s var(--ease-spring);flex-shrink:0;}
+.step-dot.done{background:var(--rose-deep);border-color:var(--rose-deep);}
+.step-dot.active{background:var(--ink);border-color:var(--ink);transform:scale(1.3);}
+.progress-track{flex:1;height:3px;background:rgba(232,193,197,.3);border-radius:var(--r-pill);overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--rose-deep),var(--rose));border-radius:var(--r-pill);width:0%;transition:width .55s var(--ease-out);}
+.step-label{font-size:12px;font-weight:500;color:var(--ink-faint);white-space:nowrap;}
+
+/* card */
+.card{
+  width:100%;background:rgba(255,255,255,.72);
+  backdrop-filter:blur(28px) saturate(1.4);-webkit-backdrop-filter:blur(28px) saturate(1.4);
+  border:1px solid rgba(255,255,255,.85);border-radius:var(--r-xl);
+  box-shadow:var(--shadow-card);padding:48px;position:relative;overflow:hidden;
+}
+#step3-card{opacity:0;transform:translateX(40px);transition:none;}
+.card::before{content:'✿';position:absolute;bottom:-20px;right:20px;font-size:160px;opacity:.03;pointer-events:none;line-height:1;color:var(--rose-deep);}
+
+.step-wrapper{position:relative;width:100%;min-height:420px;}
+.step{display:none;opacity:0;transform:translateX(40px);transition:opacity .4s var(--ease-out),transform .4s var(--ease-out);width:100%;}
+.step.active{display:block;opacity:1;transform:translateX(0);}
+.step.exit-left{display:block;opacity:0;transform:translateX(-40px);pointer-events:none;position:absolute;inset:0;}
+
+.step-eyebrow{font-size:11px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--rose-deep);margin-bottom:10px;}
+.step-title{font-family:var(--f-display);font-size:36px;font-weight:700;line-height:1.2;color:var(--ink);margin-bottom:6px;letter-spacing:-.5px;}
+.step-sub{font-size:15px;color:var(--ink-muted);margin-bottom:30px;line-height:1.65;}
+
+/* fields */
+.field-group{display:flex;flex-direction:column;gap:16px;margin-bottom:32px;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.field-wrap{display:flex;flex-direction:column;gap:6px;}
+.field-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--ink-faint);}
+.field-input,.field-textarea{
+  background:rgba(255,255,255,.7);border:1.5px solid rgba(232,193,197,.4);
+  border-radius:var(--r-md);padding:14px 18px;
+  font-family:var(--f-body);font-size:15px;color:var(--ink);outline:none;
+  transition:all .3s var(--ease-out);width:100%;
+}
+.field-input::placeholder,.field-textarea::placeholder{color:var(--ink-faint);}
+.field-input:focus,.field-textarea:focus{border-color:var(--rose-deep);background:white;box-shadow:0 0 0 4px rgba(232,193,197,.18);}
+.field-input.filled{border-color:rgba(122,158,128,.5);}
+.field-textarea{resize:none;min-height:88px;line-height:1.6;}
+.char-count{font-size:11px;color:var(--ink-faint);text-align:right;margin-top:-4px;}
+
+/* ── categories ── */
+.total-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:11px 16px;background:rgba(255,255,255,.5);
+  border:1px solid rgba(232,193,197,.3);border-radius:var(--r-md);
+  margin-bottom:20px;font-size:13px;color:var(--ink-muted);
+}
+.categories-wrap{display:flex;flex-direction:column;gap:14px;margin-bottom:28px;}
+.cat-block{
+  background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.8);
+  border-radius:var(--r-lg);overflow:hidden;transition:box-shadow .3s ease;
+}
+.cat-block:hover{box-shadow:0 8px 28px rgba(30,26,26,.07);}
+.cat-header{
+  display:flex;align-items:center;gap:12px;padding:15px 18px;
+  cursor:pointer;border-bottom:1px solid transparent;
+  transition:border-color .3s;user-select:none;
+}
+.cat-block.open .cat-header{border-color:rgba(232,193,197,.25);}
+.cat-icon{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;transition:transform .3s var(--ease-spring);}
+.cat-block:hover .cat-icon{transform:scale(1.08);}
+.cat-info{flex:1;}
+.cat-title{font-weight:600;font-size:14px;color:var(--ink);}
+.cat-desc{font-size:11px;color:var(--ink-faint);margin-top:1px;}
+.cat-badge{font-size:11px;font-weight:500;padding:3px 10px;border-radius:var(--r-pill);background:rgba(232,193,197,.2);color:var(--ink-faint);transition:all .3s ease;white-space:nowrap;}
+.cat-badge.has{font-weight:600;}
+.cat-arrow{font-size:14px;color:var(--ink-faint);transition:transform .3s ease;flex-shrink:0;margin-left:4px;}
+.cat-block.open .cat-arrow{transform:rotate(90deg);}
+.cat-chips{display:none;flex-wrap:wrap;gap:8px;padding:14px 18px 18px;}
+.cat-block.open .cat-chips{display:flex;}
+
+/* chip */
+.chip{
+  display:inline-flex;align-items:center;gap:6px;padding:8px 15px;
+  border-radius:var(--r-pill);border:1.5px solid rgba(232,193,197,.45);
+  background:rgba(255,255,255,.65);font-size:13px;font-weight:500;color:var(--ink);
+  cursor:pointer;user-select:none;transition:all .25s var(--ease-out);
+}
+.chip:hover{border-color:var(--rose-deep);transform:translateY(-2px);box-shadow:0 5px 16px rgba(232,193,197,.3);}
+.chip.selected{border-color:var(--rose-deep);transform:translateY(-2px) scale(1.02);box-shadow:0 5px 16px rgba(232,193,197,.4);}
+.chip-check{font-size:11px;opacity:0;transform:scale(.5);transition:all .22s var(--ease-spring);}
+.chip.selected .chip-check{opacity:1;transform:scale(1);}
+
+/* per-category colour themes */
+.cat-block[data-cat="cycle"] .cat-icon{background:#fce4e6;}
+.cat-block[data-cat="cycle"] .chip.selected{background:#fce4e6;}
+.cat-block[data-cat="cycle"] .cat-badge.has{background:#fce4e6;color:var(--rose-deep);}
+
+.cat-block[data-cat="hormonal"] .cat-icon{background:var(--lav-light);}
+.cat-block[data-cat="hormonal"] .chip.selected{background:var(--lav-light);}
+.cat-block[data-cat="hormonal"] .cat-badge.has{background:var(--lav-light);color:var(--lavender);}
+
+.cat-block[data-cat="metabolic"] .cat-icon{background:var(--amber-light);}
+.cat-block[data-cat="metabolic"] .chip.selected{background:var(--amber-light);}
+.cat-block[data-cat="metabolic"] .cat-badge.has{background:var(--amber-light);color:var(--amber);}
+
+.cat-block[data-cat="mental"] .cat-icon{background:var(--sky-light);}
+.cat-block[data-cat="mental"] .chip.selected{background:var(--sky-light);}
+.cat-block[data-cat="mental"] .cat-badge.has{background:var(--sky-light);color:var(--sky);}
+
+.cat-block[data-cat="physical"] .cat-icon{background:var(--sage-light);}
+.cat-block[data-cat="physical"] .chip.selected{background:var(--sage-light);}
+.cat-block[data-cat="physical"] .cat-badge.has{background:var(--sage-light);color:var(--sage);}
+
+/* prompts */
+.count-badge{display:flex;align-items:center;gap:10px;font-size:12px;font-weight:600;color:var(--ink-muted);margin-bottom:16px;}
+.pips{display:flex;gap:5px;}
+.pip{width:22px;height:6px;border-radius:3px;background:rgba(232,193,197,.3);border:1px solid rgba(232,193,197,.4);transition:all .35s var(--ease-spring);}
+.pip.filled{background:var(--rose-deep);border-color:var(--rose-deep);}
+.prompts-grid{display:flex;flex-direction:column;gap:11px;margin-bottom:28px;}
+.prompt-card{
+  background:rgba(255,255,255,.65);border:1.5px solid rgba(232,193,197,.35);
+  border-radius:var(--r-lg);padding:15px 17px;cursor:pointer;
+  transition:all .3s var(--ease-out);
+}
+.prompt-card:hover{border-color:var(--rose-deep);background:rgba(255,255,255,.9);box-shadow:0 5px 18px rgba(232,193,197,.2);}
+.prompt-card.open{border-color:var(--rose-deep);background:white;box-shadow:0 5px 18px rgba(232,193,197,.2);}
+.prompt-card.done{border-color:var(--sage);background:rgba(200,222,202,.1);}
+.prompt-header{display:flex;align-items:center;gap:11px;}
+.prompt-number{width:26px;height:26px;border-radius:50%;background:var(--rose-light);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--rose-deep);flex-shrink:0;transition:all .3s var(--ease-spring);}
+.prompt-card.done .prompt-number{background:var(--sage-light);color:var(--sage);}
+.prompt-text{font-size:14px;font-weight:500;color:var(--ink);flex:1;line-height:1.4;}
+.prompt-arrow{font-size:13px;color:var(--ink-faint);transition:transform .3s;flex-shrink:0;}
+.prompt-card.open .prompt-arrow{transform:rotate(90deg);}
+.prompt-input-wrap{display:none;margin-top:12px;padding-top:12px;border-top:1px solid rgba(232,193,197,.2);}
+.prompt-card.open .prompt-input-wrap{display:block;}
+.prompt-textarea{
+  width:100%;min-height:72px;background:rgba(253,240,241,.45);
+  border:1.5px solid rgba(232,193,197,.3);border-radius:var(--r-md);
+  padding:11px 15px;font-family:var(--f-body);font-size:14px;color:var(--ink);
+  resize:none;outline:none;line-height:1.6;transition:all .3s ease;
+}
+.prompt-textarea:focus{border-color:var(--rose-deep);background:white;box-shadow:0 0 0 3px rgba(232,193,197,.15);}
+
+/* buttons */
+.btn-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:8px;}
+.btn{padding:16px 36px;border-radius:var(--r-pill);font-family:var(--f-body);font-size:15px;font-weight:600;border:none;cursor:pointer;transition:all .3s var(--ease-out);display:inline-flex;align-items:center;gap:8px;min-height:52px;}
+.btn-back{background:transparent;border:1.5px solid rgba(232,193,197,.5);color:var(--ink-muted);padding:14px 22px;}
+.btn-back:hover{background:rgba(232,193,197,.12);border-color:var(--rose-deep);color:var(--ink);}
+.btn-next{background:var(--ink);color:white;box-shadow:0 12px 30px rgba(30,26,26,.2);flex:1;justify-content:center;}
+.btn-next:hover:not(:disabled){background:#2e2828;transform:translateY(-2px);box-shadow:0 18px 40px rgba(30,26,26,.28);}
+.btn-next:disabled{opacity:.35;cursor:not-allowed;}
+.btn-match{background:linear-gradient(135deg,var(--rose-deep) 0%,#b88590 100%);color:white;box-shadow:0 14px 36px rgba(201,158,164,.5);flex:1;justify-content:center;font-size:16px;}
+.btn-match:hover:not(:disabled){transform:translateY(-3px) scale(1.01);box-shadow:0 20px 48px rgba(201,158,164,.6);}
+.btn-match:disabled{opacity:.35;cursor:not-allowed;}
+
+/* ── matching overlay ── */
+#matching-overlay{position:fixed;inset:0;z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--ink);opacity:0;pointer-events:none;transition:opacity .5s ease;}
+#matching-overlay.show{opacity:1;pointer-events:all;}
+.match-stars{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+.star{position:absolute;border-radius:50%;background:rgba(232,193,197,.55);animation:starTwinkle var(--d,3s) ease-in-out infinite alternate;}
+@keyframes starTwinkle{from{opacity:.15;transform:scale(.7)}to{opacity:.8;transform:scale(1.3)}}
+.match-orb{position:relative;width:180px;height:180px;margin-bottom:44px;}
+.match-orb-core{position:absolute;inset:22px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#f6d7dc,var(--rose),var(--rose-deep));box-shadow:0 0 60px rgba(232,193,197,.5),0 0 120px rgba(232,193,197,.22);animation:coreBreath 2.5s ease-in-out infinite;display:flex;align-items:center;justify-content:center;font-size:46px;}
+@keyframes coreBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.08);box-shadow:0 0 100px rgba(232,193,197,.8)}}
+.pulse-ring{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(232,193,197,.25);animation:pulseRing 2.4s ease-out infinite;}
+.pulse-ring:nth-child(2){animation-delay:.8s;}
+.pulse-ring:nth-child(3){animation-delay:1.6s;}
+@keyframes pulseRing{0%{transform:scale(1);opacity:1}100%{transform:scale(1.65);opacity:0}}
+.match-heading{font-family:var(--f-display);font-size:32px;font-weight:400;font-style:italic;color:white;margin-bottom:12px;text-align:center;transition:opacity .35s ease;min-height:44px;}
+.match-sub{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:36px;text-align:center;}
+.match-progress-track{width:250px;height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;margin-bottom:16px;}
+.match-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--rose-deep),var(--rose));border-radius:2px;transition:width .35s ease;}
+.dots-loader{display:flex;gap:8px;margin-top:4px;}
+.dot-l{width:8px;height:8px;border-radius:50%;background:rgba(232,193,197,.45);animation:dotPulse 1.2s ease-in-out infinite;}
+.dot-l:nth-child(2){animation-delay:.2s;}
+.dot-l:nth-child(3){animation-delay:.4s;}
+@keyframes dotPulse{0%,60%,100%{transform:scale(1);opacity:.45}30%{transform:scale(1.4);opacity:1;background:var(--rose)}}
+
+/* ── match result card ── */
+#match-result-screen{position:fixed;inset:0;z-index:100;overflow-y:auto;display:none;flex-direction:column;align-items:center;justify-content:flex-start;padding:60px 16px 40px;opacity:0;pointer-events:none;transition:opacity .6s var(--ease-out);}
+#match-result-screen.show{display:flex;pointer-events:auto;}
+#match-result-screen.reveal{opacity:1;}
+.mres-header{text-align:center;margin-bottom:26px;opacity:0;max-width:700px;width:100%;}
+.mres-header{text-align:center;margin-bottom:26px;opacity:0;}
+#match-result-screen.reveal .mres-header{animation:fadeDown .7s var(--ease-out) .3s forwards;}
+.mres-pill{display:inline-flex;align-items:center;gap:7px;background:rgba(30,26,26,.85);backdrop-filter:blur(10px);color:var(--rose);padding:9px 20px;border-radius:var(--r-pill);font-size:12px;font-weight:600;letter-spacing:.4px;margin-bottom:12px;}
+.mres-headline{font-family:var(--f-display);font-size:40px;font-weight:600;color:var(--ink);line-height:1.2;margin-bottom:6px;letter-spacing:-.5px;}
+.mres-sub{font-size:15px;color:var(--ink-muted);line-height:1.6;}
+
+/* flip */
+.flip-container{perspective:1200px;width:100%;max-width:700px;margin:0 auto;flex-shrink:0;}
+.flip-inner{position:relative;transform-style:preserve-3d;transition:transform 1.1s cubic-bezier(.4,0,.2,1);}
+.flip-inner.flipped{transform:rotateY(360deg);}
+.mr-card{width:100%;background:white;border-radius:var(--r-xl);box-shadow:var(--shadow-card);overflow:hidden;position:relative;}
+@keyframes glowReveal{0%{box-shadow:var(--shadow-card)}40%{box-shadow:var(--shadow-glow),var(--shadow-card)}100%{box-shadow:0 20px 60px rgba(232,193,197,.25),var(--shadow-card)}}
+.mr-card.glow{animation:glowReveal 2.2s var(--ease-out) forwards;}
+
+.mr-top{background:linear-gradient(135deg,var(--rose-light) 0%,var(--rose-mid) 100%);padding:38px 44px 28px;position:relative;overflow:hidden;text-align:center;}
+.mr-top::before{content:'';position:absolute;top:-50px;left:-50px;width:180px;height:180px;background:radial-gradient(circle,rgba(255,255,255,.28) 0%,transparent 70%);border-radius:50%;}
+.mr-top::after{content:'';position:absolute;bottom:-70px;right:-30px;width:160px;height:160px;background:radial-gradient(circle,rgba(232,193,197,.35) 0%,transparent 70%);border-radius:50%;}
+
+.mr-score{position:absolute;top:22px;right:26px;display:flex;flex-direction:column;align-items:center;z-index:2;}
+.mr-score-circle{width:62px;height:62px;position:relative;}
+.mr-score-circle svg{width:100%;height:100%;transform:rotate(-90deg);}
+.score-bg{fill:none;stroke:rgba(255,255,255,.4);stroke-width:5;}
+.score-fill{fill:none;stroke:var(--ink);stroke-width:5;stroke-linecap:round;stroke-dasharray:163;stroke-dashoffset:163;transition:stroke-dashoffset 2s var(--ease-out) 1s;}
+.score-num{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:13px;font-weight:700;color:var(--ink);}
+.score-lbl{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--ink-muted);margin-top:4px;text-transform:uppercase;}
+
+.mr-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(30,26,26,.85);backdrop-filter:blur(10px);color:var(--rose);padding:7px 16px;border-radius:var(--r-pill);font-size:12px;font-weight:600;letter-spacing:.4px;margin-bottom:18px;animation:badgePop .6s var(--ease-spring) .4s both;}
+@keyframes badgePop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.mr-avatar{width:86px;height:86px;border-radius:50%;background:linear-gradient(135deg,var(--rose-mid),var(--rose));border:4px solid white;box-shadow:0 10px 28px rgba(232,193,197,.4);display:flex;align-items:center;justify-content:center;font-size:38px;margin:0 auto 14px;position:relative;z-index:1;animation:avatarBob 5s ease-in-out infinite;}
+@keyframes avatarBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.mr-name{font-family:var(--f-display);font-size:30px;font-weight:700;color:var(--ink);position:relative;z-index:1;margin-bottom:4px;}
+.mr-meta{font-size:14px;color:var(--ink-muted);position:relative;z-index:1;margin-bottom:14px;}
+.shared-strip{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;position:relative;z-index:1;}
+.shared-tag{background:rgba(255,255,255,.6);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.8);padding:5px 13px;border-radius:var(--r-pill);font-size:12px;font-weight:500;color:var(--ink);}
+
+.mr-body{padding:28px 44px 38px;display:flex;flex-direction:column;gap:22px;}
+.mr-sec-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ink-faint);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.mr-sec-label::after{content:'';flex:1;height:1px;background:rgba(232,193,197,.3);}
+.mr-bio{font-size:15px;color:var(--ink-muted);line-height:1.7;}
+.mr-tags{display:flex;flex-wrap:wrap;gap:7px;}
+.mr-tag{background:var(--rose-light);border:1px solid rgba(232,193,197,.5);color:var(--ink);padding:6px 14px;border-radius:var(--r-pill);font-size:13px;font-weight:500;animation:tagIn .4s var(--ease-spring) both;}
+@keyframes tagIn{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+.pd-block{background:rgba(253,240,241,.55);border:1px solid rgba(232,193,197,.3);border-radius:var(--r-lg);padding:15px 17px;margin-bottom:9px;}
+.pd-block:last-child{margin-bottom:0;}
+.pd-q{font-size:11px;font-weight:600;color:var(--rose-deep);margin-bottom:5px;letter-spacing:.3px;}
+.pd-a{font-size:14px;color:var(--ink);line-height:1.65;font-style:italic;}
+
+.mr-cta{display:flex;gap:12px;flex-wrap:wrap;}
+.btn-chat{flex:1;background:var(--ink);color:white;padding:17px 24px;border-radius:var(--r-pill);font-family:var(--f-body);font-size:15px;font-weight:600;border:none;cursor:pointer;transition:all .3s var(--ease-out);display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 12px 28px rgba(30,26,26,.2);}
+.btn-chat:hover{transform:translateY(-2px);box-shadow:0 18px 38px rgba(30,26,26,.28);}
+.btn-reset{background:transparent;border:1.5px solid rgba(232,193,197,.5);color:var(--ink-muted);padding:15px 20px;border-radius:var(--r-pill);font-family:var(--f-body);font-size:14px;font-weight:500;cursor:pointer;transition:all .3s ease;display:flex;align-items:center;gap:6px;}
+.btn-reset:hover{border-color:var(--rose-deep);color:var(--ink);background:rgba(232,193,197,.08);}
+
+#confetti-canvas{position:fixed;inset:0;pointer-events:none;z-index:999;}
+
+@media(max-width:600px){
+  .card{padding:28px 20px;}
+  .step-title{font-size:28px;}
+  .field-row{grid-template-columns:1fr;}
+  .mr-top{padding:32px 22px 24px;}
+  .mr-body{padding:22px 22px 32px;}
+  .mr-name{font-size:26px;}
+  .mres-headline{font-size:30px;}
+  .mr-score{top:14px;right:14px;}
+  .mr-cta{flex-direction:column;}
+  .btn-chat,.btn-reset{width:100%;}
+  .btn-row{flex-wrap:wrap;}
+  .btn-next,.btn-match{width:100%;}
+}
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+<canvas id="confetti-canvas"></canvas>
+
+<!-- MATCHING OVERLAY -->
+<div id="matching-overlay">
+  <div class="match-stars" id="starField"></div>
+  <div class="match-orb">
+    <div class="pulse-ring"></div><div class="pulse-ring"></div><div class="pulse-ring"></div>
+    <div class="match-orb-core">🌸</div>
+  </div>
+  <h2 class="match-heading" id="matchHeading">Finding people like you…</h2>
+  <p class="match-sub" id="matchSub">scanning your pattern</p>
+  <div class="match-progress-track"><div class="match-progress-fill" id="matchFill"></div></div>
+  <div class="dots-loader"><div class="dot-l"></div><div class="dot-l"></div><div class="dot-l"></div></div>
+</div>
+
+<!-- MAIN SHELL -->
+<div class="app-shell" id="app-shell">
+
+  <div class="logo">FindYour<em>Cyster</em></div>
+
+  <div class="progress-shell" id="progressShell">
+    <div class="step-dot active" id="dot-1"></div>
+    <div class="progress-track"><div class="progress-fill" id="pf1"></div></div>
+    <div class="step-dot" id="dot-2"></div>
+    <div class="progress-track"><div class="progress-fill" id="pf2"></div></div>
+    <div class="step-dot" id="dot-3"></div>
+    <span class="step-label" id="stepLabel">Step 1 of 3</span>
+  </div>
+
+  <!-- CARD -->
+  <div class="card" id="mainCard">
+    <div class="step-wrapper">
+
+      <!-- STEP 1 -->
+      <div class="step active" id="step-1">
+        <p class="step-eyebrow">Step 1 · About You</p>
+        <h2 class="step-title">Let's meet you.</h2>
+        <p class="step-sub">Real and unfiltered — just you.</p>
+        <div class="field-group">
+          <div class="field-row">
+            <div class="field-wrap">
+              <label class="field-label" for="f-name">Full Name</label>
+              <input class="field-input" id="f-name" type="text" placeholder="Riya Sharma" maxlength="50" autocomplete="off" oninput="checkStep1()">
+            </div>
+            <div class="field-wrap">
+              <label class="field-label" for="f-age">Age</label>
+              <input class="field-input" id="f-age" type="number" placeholder="24" min="13" max="60" oninput="checkStep1()">
+            </div>
+          </div>
+          <div class="field-wrap">
+            <label class="field-label" for="f-city">City</label>
+            <input class="field-input" id="f-city" type="text" placeholder="Mumbai, India" maxlength="60" oninput="checkStep1()">
+          </div>
+          <div class="field-wrap">
+            <label class="field-label" for="f-bio">Bio <span style="font-weight:300;letter-spacing:0">(in your own words)</span></label>
+            <textarea class="field-textarea" id="f-bio" placeholder="Coffee-obsessed. Still figuring out what my body is trying to tell me 🌿" maxlength="180" oninput="onBioInput()"></textarea>
+            <div class="char-count"><span id="bioCount">0</span>/180</div>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-next" id="btn1next" onclick="goToStep(2)" disabled>Continue →</button>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step" id="step-2">
+        <p class="step-eyebrow">Step 2 · Your Symptoms</p>
+        <h2 class="step-title">What does your PCOS look like?</h2>
+        <p class="step-sub">Select from each category — choose as many as you relate to.</p>
+        <div class="total-bar">
+          <span id="totalBarText">Open a category below and select what feels familiar ↓</span>
+        </div>
+        <div class="categories-wrap" id="categoriesWrap"></div>
+        <div class="btn-row">
+          <button class="btn btn-back" onclick="goToStep(1)">← Back</button>
+          <button class="btn btn-next" id="btn2next" onclick="goToStep(3)" disabled>Next →</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- STEP 3 CARD (Separate) -->
+  <div class="card" id="step3-card" style="display:none;opacity:0;transform:translateX(40px);">
+    <div>
+      <p class="step-eyebrow">Step 3 · Your Voice</p>
+      <h2 class="step-title">Tell your story.</h2>
+      <p class="step-sub">Answer any 3 prompts — this is how your cyster will find <em>you</em>.</p>
+      <div class="count-badge">
+        <div class="pips"><div class="pip" id="pip-1"></div><div class="pip" id="pip-2"></div><div class="pip" id="pip-3"></div></div>
+        <span id="promptCountText">0 of 3 completed</span>
+      </div>
+      <div class="prompts-grid" id="promptsGrid"></div>
+      <div class="btn-row">
+        <button class="btn btn-back" onclick="goToStep(2)">← Back</button>
+        <button class="btn btn-match" id="btnMatch" onclick="startMatching()" disabled>✨ Find my Cyster</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /app-shell -->
+
+  <!-- MATCH RESULT -->
+  <div id="match-result-screen">
+    <div class="mres-header">
+      <div class="mres-pill">✦ Match Found</div>
+      <p class="mres-headline">She gets it. 🌸</p>
+      <p class="mres-sub">Based on your symptom fingerprint, we found your closest cyster.</p>
+    </div>
+
+    <div class="flip-container">
+      <div class="flip-inner" id="flipInner">
+        <div class="mr-card" id="mrCard">
+
+          <div class="mr-top">
+            <div class="mr-score">
+              <div class="mr-score-circle">
+                <svg viewBox="0 0 56 56">
+                  <circle class="score-bg" cx="28" cy="28" r="24"/>
+                  <circle class="score-fill" id="scoreFill" cx="28" cy="28" r="24"/>
+                </svg>
+                <div class="score-num" id="scoreNum">0%</div>
+              </div>
+              <div class="score-lbl">Match</div>
+            </div>
+            <div class="mr-badge">✨ It's a Match!</div>
+            <div class="mr-avatar" id="mrAvatar">🌸</div>
+            <div class="mr-name" id="mrName">—</div>
+            <div class="mr-meta" id="mrMeta">—</div>
+            <div class="shared-strip" id="sharedStrip"></div>
+          </div>
+
+          <div class="mr-body">
+            <div>
+              <div class="mr-sec-label">Her bio</div>
+              <p class="mr-bio" id="mrBio">—</p>
+            </div>
+            <div>
+              <div class="mr-sec-label">Her symptoms</div>
+              <div class="mr-tags" id="mrTags"></div>
+            </div>
+            <div>
+              <div class="mr-sec-label">In her words</div>
+              <div id="mrPrompts"></div>
+            </div>
+            <div class="mr-cta">
+              <button class="btn-chat" onclick="window.location.href='app/shell.html#chat';">💬 Start Chat</button>
+              <button class="btn-reset" onclick="resetAll()">↩ Start over</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ─ State ─ */
+const S = { step:1, name:'', age:'', city:'', bio:'', symptoms:new Set(), prompts:{} };
+
+/* ─ Symptom categories (5 clinical domains, researched from Rotterdam criteria + ACOG + BMC Women's Health literature) ─ */
+const CATEGORIES = [
+  {
+    id:'cycle', label:'Cycle & Reproductive', icon:'🌙', desc:'Period & ovulation patterns',
+    symptoms:[
+      {id:'irreg',  label:'Irregular periods',        emoji:'📅'},
+      {id:'absent', label:'Missed / absent periods',   emoji:'🚫'},
+      {id:'heavy',  label:'Heavy bleeding',            emoji:'🩸'},
+      {id:'spotting',label:'Spotting between periods', emoji:'💧'},
+      {id:'long_c', label:'Long cycles (35+ days)',    emoji:'🗓️'},
+      {id:'pelvic', label:'Pelvic / ovarian pain',     emoji:'🫀'},
+    ]
+  },
+  {
+    id:'hormonal', label:'Hormonal & Skin', icon:'⚡', desc:'High androgen & oestrogen effects',
+    symptoms:[
+      {id:'acne',    label:'Hormonal acne',             emoji:'🔴'},
+      {id:'hirsuit', label:'Excess facial / body hair', emoji:'🌿'},
+      {id:'hair_l',  label:'Hair thinning / loss',      emoji:'💇‍♀️'},
+      {id:'oily',    label:'Oily skin / scalp',         emoji:'✨'},
+      {id:'dark',    label:'Dark skin patches (AN)',     emoji:'🫤'},
+      {id:'breast',  label:'Breast tenderness',         emoji:'🌸'},
+    ]
+  },
+  {
+    id:'metabolic', label:'Metabolic & Energy', icon:'🍃', desc:'Insulin, blood sugar & weight',
+    symptoms:[
+      {id:'wt_gain', label:'Unexplained weight gain',   emoji:'⚖️'},
+      {id:'wt_hard', label:'Difficulty losing weight',  emoji:'🏃‍♀️'},
+      {id:'cravings',label:'Sugar / carb cravings',     emoji:'🧁'},
+      {id:'insulin', label:'Insulin resistance',        emoji:'💉'},
+      {id:'fatigue', label:'Constant fatigue',          emoji:'😴'},
+      {id:'crash',   label:'Post-meal energy crashes',  emoji:'📉'},
+    ]
+  },
+  {
+    id:'mental', label:'Mental & Emotional', icon:'🫧', desc:'Mood, anxiety & cognitive effects',
+    symptoms:[
+      {id:'mood',    label:'Mood swings',               emoji:'🌊'},
+      {id:'anxiety', label:'Anxiety',                   emoji:'😰'},
+      {id:'depress', label:'Low mood / depression',     emoji:'🌧️'},
+      {id:'fog',     label:'Brain fog / poor focus',    emoji:'🌫️'},
+      {id:'libido',  label:'Low libido',                emoji:'🫀'},
+      {id:'body_im', label:'Body image struggles',      emoji:'🪞'},
+    ]
+  },
+  {
+    id:'physical', label:'Physical & Gut', icon:'🌱', desc:'Digestion, sleep & inflammation',
+    symptoms:[
+      {id:'bloat',   label:'Bloating',                  emoji:'🫧'},
+      {id:'sleep',   label:'Poor sleep / insomnia',     emoji:'🌛'},
+      {id:'head',    label:'Headaches / migraines',     emoji:'🤕'},
+      {id:'joint',   label:'Joint or muscle pain',      emoji:'💪'},
+      {id:'gut',     label:'IBS / gut sensitivity',     emoji:'🌿'},
+      {id:'uri',     label:'Frequent urination',        emoji:'💧'},
+    ]
+  },
+];
+
+const PROMPTS = [
+  'My biggest PCOS challenge is…',
+  'One thing I wish others understood…',
+  'A small win I had recently…',
+  'My self‑care ritual is…',
+  'I feel most supported when…',
+  'If I could tell my younger self one thing…',
+];
+
+/* Mock cysters pool */
+const MOCK = [
+  {
+    name:'Aanya', age:22, city:'Delhi, India', avatar:'🌸',
+    bio:'Overthinker. Chai addict. Slowly learning to listen to my body instead of fighting it 🍃',
+    symptoms:['irreg','fatigue','acne','mood','cravings','fog'],
+    prompts:[
+      {q:'My biggest PCOS challenge is…',    a:'The fatigue that hits at 2pm even when I slept 8 hours. Nobody around me gets why I can\'t just push through.'},
+      {q:'A small win I had recently…',       a:'Went for a 15-min walk after dinner three days in a row. That\'s a streak for me.'},
+      {q:'I feel most supported when…',       a:'Someone just says "that sounds really hard" instead of offering a quick fix.'},
+    ]
+  },
+  {
+    name:'Priya', age:25, city:'Bangalore, India', avatar:'🌷',
+    bio:'UX designer by day, plant mom by night. Diagnosed at 19 — still figuring it out 🌱',
+    symptoms:['long_c','hair_l','anxiety','wt_gain','bloat','dark'],
+    prompts:[
+      {q:'One thing I wish others understood…',       a:'That PCOS isn\'t just about periods. The anxiety and brain fog are just as real and just as disabling.'},
+      {q:'My self‑care ritual is…',                   a:'A 20-min wind-down with no screens, chamomile tea, and my journal. It\'s the one thing I protect.'},
+      {q:'If I could tell my younger self one thing…',a:'Stop blaming yourself. Your body isn\'t broken — it just works differently, and that\'s okay.'},
+    ]
+  },
+  {
+    name:'Meera', age:27, city:'Mumbai, India', avatar:'🌻',
+    bio:'Running between deadlines and doctor appointments. Laugh-cry emoji forever 😂💜',
+    symptoms:['acne','hirsuit','insulin','crash','mood','wt_hard'],
+    prompts:[
+      {q:'My biggest PCOS challenge is…',    a:'Insulin resistance that makes my body feel like it\'s playing against me. I do everything "right" and still struggle.'},
+      {q:'A small win I had recently…',       a:'Asked my doctor for a proper explanation instead of just accepting "take the pill and lose weight."'},
+      {q:'I feel most supported when…',       a:'Someone checks in the week before my period, not just when I\'m in full crisis mode.'},
+    ]
+  },
+  {
+    name:'Sara', age:23, city:'Hyderabad, India', avatar:'🌺',
+    bio:'First-gen med student trying to understand my own body better than the textbooks do 📚',
+    symptoms:['absent','body_im','depress','fatigue','oily','sleep'],
+    prompts:[
+      {q:'One thing I wish others understood…',       a:'Missing periods isn\'t "lucky" — it\'s terrifying and it means something is off hormonally.'},
+      {q:'My self‑care ritual is…',                   a:'Sunlight + protein breakfast. It took 3 months to feel a difference but it\'s real.'},
+      {q:'If I could tell my younger self one thing…',a:'The diagnosis isn\'t a life sentence. It\'s information — and information gives you power.'},
+    ]
+  },
+];
+
+/* ─ All symptoms flat ─ */
+const ALL_SYMPTOMS = CATEGORIES.flatMap(c => c.symptoms);
+
+/* ─ Navigation ─ */
+function goToStep(n) {
+  const prev = S.step; S.step = n;
+  const mainCard = document.getElementById('mainCard');
+  const step3Card = document.getElementById('step3-card');
+  const ease = 'cubic-bezier(.22,1,.36,1)';
+  
+  if (prev === 3 && n === 2) {
+    // Step 3 → Step 2: slide step3-card out right, slide main card back in from left
+    step3Card.style.transition = `opacity .4s ${ease}, transform .4s ${ease}`;
+    step3Card.style.opacity = '0';
+    step3Card.style.transform = 'translateX(40px)';
+    
+    setTimeout(() => {
+      step3Card.style.display = 'none';
+      mainCard.style.display = '';
+      const step2 = document.getElementById('step-2');
+      step2.classList.add('active');
+      document.getElementById('step-1').classList.remove('active');
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        mainCard.style.transition = `opacity .4s ${ease}, transform .4s ${ease}`;
+        mainCard.style.opacity = '1';
+        mainCard.style.transform = 'translateX(0)';
+      }));
+    }, 200);
+  } else if (prev === 2 && n === 3) {
+    // Step 2 → Step 3: slide main card out left, slide step3-card in from right
+    mainCard.style.transition = `opacity .4s ${ease}, transform .4s ${ease}`;
+    mainCard.style.opacity = '0';
+    mainCard.style.transform = 'translateX(-40px)';
+    
+    setTimeout(() => {
+      mainCard.style.display = 'none';
+      step3Card.style.display = 'block';
+      step3Card.style.opacity = '0';
+      step3Card.style.transform = 'translateX(40px)';
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        step3Card.style.transition = `opacity .4s ${ease}, transform .4s ${ease}`;
+        step3Card.style.opacity = '1';
+        step3Card.style.transform = 'translateX(0)';
+      }));
+    }, 200);
+  } else {
+    // Within main card (Steps 1 ↔ 2)
+    const pEl = document.getElementById(`step-${prev}`);
+    const nEl = document.getElementById(`step-${n}`);
+    pEl.classList.add('exit-left'); pEl.classList.remove('active');
+    setTimeout(() => {
+      pEl.classList.remove('exit-left');
+      nEl.style.display='block'; nEl.style.opacity='0';
+      nEl.style.transform=`translateX(${n>prev?'40px':'-40px'})`;
+      nEl.classList.add('active');
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        nEl.style.transition='opacity .4s cubic-bezier(.22,1,.36,1),transform .4s cubic-bezier(.22,1,.36,1)';
+        nEl.style.opacity='1'; nEl.style.transform='translateX(0)';
+      }));
+    }, 200);
+  }
+  updateProgressUI(n);
+}
+
+function updateProgressUI(n) {
+  for(let i=1;i<=3;i++){
+    const d=document.getElementById(`dot-${i}`);
+    d.classList.remove('active','done');
+    if(i<n) d.classList.add('done');
+    if(i===n) d.classList.add('active');
+  }
+  document.getElementById('pf1').style.width=n>1?'100%':'0%';
+  document.getElementById('pf2').style.width=n>2?'100%':'0%';
+  document.getElementById('stepLabel').textContent=`Step ${n} of 3`;
+}
+
+/* ─ Step 1 ─ */
+function checkStep1(){
+  const nm=document.getElementById('f-name').value.trim();
+  const ag=document.getElementById('f-age').value.trim();
+  const ct=document.getElementById('f-city').value.trim();
+  const bi=document.getElementById('f-bio').value.trim();
+  ['f-name','f-city'].forEach(id=>document.getElementById(id).classList.toggle('filled',document.getElementById(id).value.trim().length>0));
+  S.name=nm; S.age=ag; S.city=ct; S.bio=bi;
+  document.getElementById('btn1next').disabled=!(nm&&ag&&ct&&bi);
+}
+function onBioInput(){
+  const v=document.getElementById('f-bio').value;
+  document.getElementById('bioCount').textContent=v.length;
+  S.bio=v.trim(); checkStep1();
+}
+
+/* ─ Step 2 · Build categories ─ */
+(function buildCategories(){
+  const wrap=document.getElementById('categoriesWrap');
+  CATEGORIES.forEach(cat=>{
+    const block=document.createElement('div');
+    block.className='cat-block'; block.dataset.cat=cat.id;
+    block.innerHTML=`
+      <div class="cat-header" onclick="toggleCat('${cat.id}')">
+        <div class="cat-icon">${cat.icon}</div>
+        <div class="cat-info"><div class="cat-title">${cat.label}</div><div class="cat-desc">${cat.desc}</div></div>
+        <div class="cat-badge" id="badge-${cat.id}">0 selected</div>
+        <div class="cat-arrow">›</div>
+      </div>
+      <div class="cat-chips" id="chips-${cat.id}"></div>`;
+    const cWrap=block.querySelector(`#chips-${cat.id}`);
+    cat.symptoms.forEach(sym=>{
+      const chip=document.createElement('div');
+      chip.className='chip'; chip.dataset.id=sym.id;
+      chip.innerHTML=`<span>${sym.emoji}</span>${sym.label}<span class="chip-check">✓</span>`;
+      chip.addEventListener('click',()=>toggleSym(sym,cat.id,chip));
+      cWrap.appendChild(chip);
+    });
+    wrap.appendChild(block);
+  });
+})();
+
+function toggleCat(id){
+  const b=document.querySelector(`.cat-block[data-cat="${id}"]`);
+  const wasOpen=b.classList.contains('open');
+  document.querySelectorAll('.cat-block').forEach(x=>x.classList.remove('open'));
+  if(!wasOpen) b.classList.add('open');
+}
+
+function toggleSym(sym,catId,chip){
+  if(S.symptoms.has(sym.id)){S.symptoms.delete(sym.id);chip.classList.remove('selected');}
+  else{
+    S.symptoms.add(sym.id);chip.classList.add('selected');
+    chip.animate([{transform:'scale(1)'},{transform:'scale(1.1)'},{transform:'scale(1)'}],{duration:260,easing:'cubic-bezier(.34,1.56,.64,1)'});
+  }
+  // update badge
+  const cat=CATEGORIES.find(c=>c.id===catId);
+  const cnt=cat.symptoms.filter(s=>S.symptoms.has(s.id)).length;
+  const badge=document.getElementById(`badge-${catId}`);
+  badge.textContent=cnt===0?'0 selected':`${cnt} selected`;
+  badge.classList.toggle('has',cnt>0);
+  // total bar
+  const total=S.symptoms.size;
+  document.getElementById('totalBarText').textContent=
+    total===0?'Open a category below and select what feels familiar ↓'
+    :`${total} symptom${total>1?'s':''} selected across your profile`;
+  document.getElementById('btn2next').disabled=total===0;
+}
+
+/* ─ Step 3 · Prompts ─ */
+(function buildPrompts(){
+  const grid=document.getElementById('promptsGrid');
+  PROMPTS.forEach((text,i)=>{
+    const card=document.createElement('div');
+    card.className='prompt-card'; card.id=`pc-${i}`;
+    card.innerHTML=`
+      <div class="prompt-header" onclick="togglePrompt(${i})">
+        <div class="prompt-number" id="pn-${i}">${i+1}</div>
+        <div class="prompt-text">${text}</div>
+        <div class="prompt-arrow">›</div>
+      </div>
+      <div class="prompt-input-wrap">
+        <textarea class="prompt-textarea" id="pta-${i}" placeholder="Write your answer here…" rows="3" oninput="onPromptInput(${i})"></textarea>
+      </div>`;
+    grid.appendChild(card);
+  });
+})();
+
+function togglePrompt(i){
+  const c=document.getElementById(`pc-${i}`);
+  const open=c.classList.contains('open');
+  document.querySelectorAll('.prompt-card').forEach(x=>x.classList.remove('open'));
+  if(!open){c.classList.add('open');setTimeout(()=>document.getElementById(`pta-${i}`)?.focus(),50);}
+}
+
+function onPromptInput(i){
+  const val=document.getElementById(`pta-${i}`).value.trim();
+  const card=document.getElementById(`pc-${i}`);
+  const num=document.getElementById(`pn-${i}`);
+  if(val.length>=3){S.prompts[i]=val;card.classList.add('done');num.textContent='✓';}
+  else{delete S.prompts[i];card.classList.remove('done');num.textContent=i+1;}
+  const cnt=Object.keys(S.prompts).length;
+  for(let p=1;p<=3;p++) document.getElementById(`pip-${p}`).classList.toggle('filled',p<=cnt);
+  document.getElementById('promptCountText').textContent=`${cnt} of 3 completed`;
+  document.getElementById('btnMatch').disabled=cnt<3;
+}
+
+/* ─ Matching animation ─ */
+function startMatching(){
+  buildStarField();
+  const ov=document.getElementById('matching-overlay');
+  ov.classList.add('show');
+  const hd=document.getElementById('matchHeading');
+  const sb=document.getElementById('matchSub');
+  const fl=document.getElementById('matchFill');
+  const phases=[
+    {pct:18, text:'Finding people like you…',        sub:'reading your symptom fingerprint'},
+    {pct:40, text:'Comparing your pattern…',          sub:'scanning 12,400+ cyster profiles'},
+    {pct:65, text:'Checking symptom overlap…',         sub:'filtering across 5 symptom categories'},
+    {pct:85, text:'Almost there…',                    sub:'finalising your closest match'},
+    {pct:100,text:'Found her! 🌸',                    sub:'building her profile card'},
+  ];
+  let pi=0;
+  const tick=setInterval(()=>{
+    if(pi>=phases.length){clearInterval(tick);return;}
+    const ph=phases[pi++]; fl.style.width=ph.pct+'%';
+    hd.style.opacity='0';
+    setTimeout(()=>{hd.textContent=ph.text;sb.textContent=ph.sub;hd.style.opacity='1';},280);
+  },760);
+  setTimeout(()=>{clearInterval(tick);ov.classList.remove('show');setTimeout(()=>revealMatch(),500);},4200);
+}
+
+function buildStarField(){
+  const f=document.getElementById('starField'); f.innerHTML='';
+  for(let i=0;i<60;i++){
+    const s=document.createElement('div'); const sz=3+Math.random()*5;
+    s.className='star';
+    s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*3}s;animation-delay:${Math.random()*3}s;opacity:${.2+Math.random()*.5};`;
+    f.appendChild(s);
+  }
+}
+
+/* ─ Reveal matched profile ─ */
+function revealMatch(){
+  const match=MOCK[Math.floor(Math.random()*MOCK.length)];
+  const shared=match.symptoms.filter(id=>S.symptoms.has(id));
+
+  document.getElementById('mrAvatar').textContent=match.avatar;
+  document.getElementById('mrName').textContent=`${match.name}, ${match.age}`;
+  document.getElementById('mrMeta').textContent=match.city;
+  document.getElementById('mrBio').textContent=match.bio;
+
+  // shared strip
+  const strip=document.getElementById('sharedStrip'); strip.innerHTML='';
+  const stripIds=shared.length>0?shared.slice(0,4):match.symptoms.slice(0,3);
+  stripIds.forEach(id=>{
+    const sym=ALL_SYMPTOMS.find(s=>s.id===id); if(!sym) return;
+    const t=document.createElement('div'); t.className='shared-tag';
+    t.textContent=`${sym.emoji} ${sym.label}`; strip.appendChild(t);
+  });
+
+  // symptom tags
+  const tagsEl=document.getElementById('mrTags'); tagsEl.innerHTML='';
+  match.symptoms.forEach((id,i)=>{
+    const sym=ALL_SYMPTOMS.find(s=>s.id===id); if(!sym) return;
+    const t=document.createElement('div'); t.className='mr-tag';
+    t.style.animationDelay=`${.08+i*.06}s`;
+    t.textContent=`${sym.emoji} ${sym.label}`; tagsEl.appendChild(t);
+  });
+
+  // prompts
+  const prEl=document.getElementById('mrPrompts'); prEl.innerHTML='';
+  match.prompts.forEach(p=>{
+    const d=document.createElement('div'); d.className='pd-block';
+    d.innerHTML=`<div class="pd-q">${p.q}</div><div class="pd-a">"${p.a}"</div>`;
+    prEl.appendChild(d);
+  });
+
+  // hide form, show match result as full overlay
+  const appShell=document.getElementById('app-shell');
+  const screen=document.getElementById('match-result-screen');
+  
+  // fade out app-shell
+  appShell.style.transition='opacity .4s cubic-bezier(.22,1,.36,1)';
+  appShell.style.opacity='0';
+  
+  setTimeout(()=>{
+    appShell.style.display='none';
+    // show match result overlay
+    screen.classList.add('show');
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      screen.classList.add('reveal');
+      setTimeout(()=>{
+        document.getElementById('flipInner').classList.add('flipped');
+        document.getElementById('mrCard').classList.add('glow');
+      },350);
+      // score animation — base 80 + 2 per shared symptom
+      setTimeout(()=>{
+        const target=Math.min(80+shared.length*2,98);
+        const offset=163*(1-target/100);
+        document.getElementById('scoreFill').style.strokeDashoffset=offset;
+        let c=0; const iv=setInterval(()=>{
+          document.getElementById('scoreNum').textContent=++c+'%';
+          if(c>=target) clearInterval(iv);
+        },22);
+      },850);
+      setTimeout(launchConfetti,550);
+    }));
+  }, 200);
+}
+
+/* ─ Confetti ─ */
+function launchConfetti(){
+  const canvas=document.getElementById('confetti-canvas');
+  const ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+  const colors=['#e8c1c5','#fce4e6','#f6d7dc','#c99ea4','#1e1a1a','#7a9e80','#f0d0d4','#fff'];
+  const parts=Array.from({length:110},()=>({
+    x:Math.random()*canvas.width, y:-20-Math.random()*180,
+    w:6+Math.random()*9, h:4+Math.random()*6,
+    color:colors[Math.floor(Math.random()*colors.length)],
+    vx:-2+Math.random()*4, vy:2.5+Math.random()*4.5,
+    rot:Math.random()*360, vr:-3+Math.random()*6,
+    opacity:1, circle:Math.random()>.6,
+  }));
+  let frame;
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    let alive=false;
+    parts.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr; p.vy+=.07;
+      if(p.y<canvas.height+20) alive=true;
+      if(p.y>canvas.height-180) p.opacity=Math.max(0,p.opacity-.015);
+      ctx.save(); ctx.globalAlpha=p.opacity;
+      ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle=p.color; ctx.beginPath();
+      if(p.circle) ctx.arc(0,0,p.w/2,0,Math.PI*2);
+      else ctx.roundRect(-p.w/2,-p.h/2,p.w,p.h,2);
+      ctx.fill(); ctx.restore();
+    });
+    if(alive) frame=requestAnimationFrame(draw);
+    else ctx.clearRect(0,0,canvas.width,canvas.height);
+  }
+  frame=requestAnimationFrame(draw);
+  setTimeout(()=>{cancelAnimationFrame(frame);ctx.clearRect(0,0,canvas.width,canvas.height);},4500);
+}
+
+/* ─ Reset ─ */
+function resetAll(){
+  S.step=1; S.name=''; S.age=''; S.city=''; S.bio='';
+  S.symptoms.clear(); S.prompts={};
+  ['f-name','f-age','f-city','f-bio'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('bioCount').textContent='0';
+  document.getElementById('btn1next').disabled=true;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('selected'));
+  document.querySelectorAll('.cat-block').forEach(b=>b.classList.remove('open'));
+  CATEGORIES.forEach(cat=>{
+    const b=document.getElementById(`badge-${cat.id}`);
+    if(b){b.textContent='0 selected';b.classList.remove('has');}
+  });
+  document.getElementById('totalBarText').textContent='Open a category below and select what feels familiar ↓';
+  document.getElementById('btn2next').disabled=true;
+  PROMPTS.forEach((_,i)=>{
+    const c=document.getElementById(`pc-${i}`);
+    const ta=document.getElementById(`pta-${i}`);
+    const n=document.getElementById(`pn-${i}`);
+    if(c) c.classList.remove('open','done');
+    if(ta) ta.value='';
+    if(n) n.textContent=i+1;
+  });
+  for(let p=1;p<=3;p++) document.getElementById(`pip-${p}`).classList.remove('filled');
+  document.getElementById('promptCountText').textContent='0 of 3 completed';
+  document.getElementById('btnMatch').disabled=true;
+
+  const appShell=document.getElementById('app-shell');
+  const screen=document.getElementById('match-result-screen');
+  
+  // fade out match result
+  screen.classList.remove('reveal');
+  screen.style.opacity='0';
+  
+  setTimeout(()=>{
+    screen.classList.remove('show');
+    screen.style.opacity='';
+    document.getElementById('flipInner').classList.remove('flipped');
+    document.getElementById('mrCard').classList.remove('glow');
+    document.getElementById('scoreFill').style.strokeDashoffset='163';
+    document.getElementById('scoreNum').textContent='0%';
+    document.getElementById('matchFill').style.width='0%';
+    
+    // fade app-shell back in
+    appShell.style.display='';
+    appShell.style.opacity='';
+    appShell.style.transition='opacity .4s cubic-bezier(.22,1,.36,1)';
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      appShell.style.opacity='1';
+    }));
+    
+    setTimeout(()=>{
+      appShell.style.transition='';
+    },400);
+  }, 200);
+  
+  const step3Card=document.getElementById('step3-card');
+  step3Card.style.display='none';
+  step3Card.style.opacity='0';
+  step3Card.style.transform='translateX(40px)';
+  step3Card.style.transition='';
+
+  document.querySelectorAll('.step').forEach(s=>{s.classList.remove('active','exit-left');s.style.cssText='';});
+  document.getElementById('mainCard').style.display='';
+  document.getElementById('mainCard').style.opacity='';
+  document.getElementById('mainCard').style.transform='';
+  document.getElementById('mainCard').style.transition='';
+  document.getElementById('progressShell').style.display='';
+  document.getElementById('step-1').classList.add('active');
+  updateProgressUI(1);
+}
+</script>
+</body>
+</html>

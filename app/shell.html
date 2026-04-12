@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FindYourCyster · App</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/*
+  ════════════════════════════════════════════════════════════
+  shell.html · FindYourCyster
+  ════════════════════════════════════════════════════════════
+  This file owns:
+    - CSS variables (design tokens shared by all components)
+    - Page layout grid (topbar mount + sidebar mount + content)
+    - Hash router logic
+    - Component loader (fetches topbar.html + sidebar.html)
+    - Page loader (fetches pages/*.html on first visit)
+    - Global state (window.SHELL)
+
+  Components injected:
+    #topbar-mount  ← components/topbar.html
+    #sidebar-mount ← components/sidebar.html
+
+  Pages injected:
+    #page-{route}  ← pages/{route}.html
+  ════════════════════════════════════════════════════════════
+*/
+
+/* ── design tokens (shared with all child files) ── */
+:root {
+  --rose:       #e8c1c5;
+  --rose-light: #fce4e6;
+  --rose-mid:   #f0d0d4;
+  --rose-deep:  #c99ea4;
+  --petal:      #fdf0f1;
+  --ink:        #1e1a1a;
+  --ink-muted:  #5a4f4f;
+  --ink-faint:  #9e8e8e;
+  --sage:       #7a9e80;
+  --sage-light: #c8deca;
+
+  /* layout dimensions — change here, components inherit via var() */
+  --tb-h:   60px;    /* topbar height */
+  --sb-w:   64px;    /* sidebar collapsed width */
+  --sb-open:228px;   /* sidebar expanded width */
+
+  --f-display: 'Cormorant Garamond', Georgia, serif;
+  --f-body:    'Outfit', system-ui, sans-serif;
+  --r-md: 16px; --r-lg: 24px; --r-pill: 999px;
+  --shadow: 0 4px 24px rgba(30,26,26,.08);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ── reset ── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: var(--f-body);
+  background: var(--petal);
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── body below topbar ── */
+#app-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  margin-top: var(--tb-h);
+}
+
+/* ── sidebar mount ── */
+#sidebar-mount {
+  flex-shrink: 0;
+  height: 100%;
+  display: flex; /* sidebar.html's nav fills this */
+}
+
+/* ── content area ── */
+#content {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  background: var(--petal);
+  margin-left: var(--sb-w);
+  transition: margin-left 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+body.sb-open #content {
+  margin-left: var(--sb-open);
+}
+@media (max-width: 768px) {
+  #content {
+    margin-left: 0;
+  }
+}
+
+/* page slots */
+.page {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+  transition: opacity .32s var(--ease), transform .32s var(--ease);
+}
+.page.on {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateY(0);
+}
+.page::-webkit-scrollbar { width: 5px; }
+.page::-webkit-scrollbar-thumb {
+  background: rgba(232,193,197,.4);
+  border-radius: 4px;
+}
+
+/* loading skeleton shown before page HTML arrives */
+.page-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 12px;
+  color: var(--ink-faint);
+  font-size: 14px;
+}
+.page-loading-spinner {
+  width: 32px; height: 32px;
+  border: 3px solid rgba(232,193,197,.3);
+  border-top-color: var(--rose-deep);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* component load error state */
+.comp-error {
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #c0777c;
+  background: rgba(192,119,124,.08);
+  border-bottom: 1px solid rgba(192,119,124,.2);
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     TOPBAR (inlined from components/topbar.html)
+══════════════════════════════════════ -->
+<style>
+  /* ── topbar layout ── */
+  #topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: var(--tb-h, 60px);
+    background: rgba(255,255,255,.9);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(232,193,197,.22);
+    display: flex;
+    align-items: center;
+    padding: 0 16px 0 0;
+    z-index: 300;
+    box-shadow: 0 2px 20px rgba(30,26,26,.07);
+    gap: 0;
+    transition: none;
+  }
+
+  .tb-brand {
+    height: 100%;
+    width: var(--sb-w, 64px);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    gap: 10px;
+    overflow: hidden;
+    border-right: 1px solid rgba(232,193,197,.18);
+    transition: width .3s cubic-bezier(.22,1,.36,1);
+    text-decoration: none;
+  }
+  body.sb-open .tb-brand { width: var(--sb-open, 228px); }
+
+  .tb-brand-mark {
+    width: 32px; height: 32px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #f0d0d4, #e8c1c5);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(232,193,197,.35);
+    transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+  }
+  .tb-brand:hover .tb-brand-mark { transform: scale(1.08); }
+
+  .tb-brand-name {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: #1e1a1a;
+    white-space: nowrap;
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+    transition: opacity .22s ease, width .3s cubic-bezier(.22,1,.36,1);
+  }
+  .tb-brand-name em { color: #c99ea4; font-style: normal; }
+  body.sb-open .tb-brand-name { opacity: 1; width: 148px; }
+
+  .tb-toggle {
+    width: 34px; height: 34px;
+    border-radius: 9px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: #9e8e8e;
+    font-size: 15px;
+    margin: 0 6px 0 10px;
+    flex-shrink: 0;
+    transition: background .2s ease, color .2s ease, transform .2s ease;
+  }
+  .tb-toggle:hover { background: #fce4e6; color: #1e1a1a; }
+  .tb-toggle:active { transform: scale(.93); }
+
+  .tb-page-title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #1e1a1a;
+    padding-left: 12px;
+    border-left: 3px solid #e8c1c5;
+    margin-left: 6px;
+    white-space: nowrap;
+    transition: opacity .2s ease;
+  }
+
+  .tb-cyster-strip {
+    display: none;
+    align-items: center;
+    gap: 11px;
+    margin-left: 10px;
+    cursor: pointer;
+    padding: 6px 14px 6px 6px;
+    border-radius: 999px;
+    transition: background .2s ease;
+  }
+  .tb-cyster-strip:hover { background: #fce4e6; }
+  .tb-cyster-strip.visible { display: flex; }
+
+  .tb-cav {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f0d0d4, #e8c1c5);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+    border: 2px solid white;
+    box-shadow: 0 3px 10px rgba(232,193,197,.28);
+    flex-shrink: 0;
+  }
+  .tb-cname {
+    font-weight: 600;
+    font-size: 14px;
+    color: #1e1a1a;
+  }
+  .tb-cstatus {
+    font-size: 11px;
+    color: #5db85d;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 1px;
+  }
+  .tb-cstatus::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #5db85d;
+    animation: onlinePulse 2s ease-in-out infinite;
+  }
+  @keyframes onlinePulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: .5; transform: scale(.8); }
+  }
+
+  .tb-spacer { flex: 1; }
+
+  .tb-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .tb-action-btn {
+    position: relative;
+    width: 34px; height: 34px;
+    border-radius: 9px;
+    border: 1px solid rgba(232,193,197,.3);
+    background: rgba(255,255,255,.6);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    color: #5a4f4f;
+    transition: all .2s ease;
+  }
+  .tb-action-btn:hover { background: #fce4e6; border-color: #e8c1c5; color: #1e1a1a; }
+
+  .tb-notif-dot {
+    position: absolute;
+    top: 5px; right: 5px;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #c99ea4;
+    border: 1.5px solid white;
+    animation: notifPop .4s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes notifPop { from { transform: scale(0); } to { transform: scale(1); } }
+
+  .tb-user-pill {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 4px 12px 4px 5px;
+    border-radius: 999px;
+    border: 1px solid rgba(232,193,197,.3);
+    background: rgba(255,255,255,.65);
+    cursor: pointer;
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #1e1a1a;
+    transition: all .2s ease;
+    white-space: nowrap;
+  }
+  .tb-user-pill:hover { background: #fce4e6; border-color: #e8c1c5; }
+
+  .tb-user-av {
+    width: 25px; height: 25px;
+    border-radius: 50%;
+    background: #1e1a1a;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    color: #e8c1c5;
+  }
+
+  @media (max-width: 768px) {
+    .tb-brand { width: 58px !important; padding: 0 12px; }
+    body.sb-open .tb-brand-name { opacity: 0 !important; width: 0 !important; }
+    .tb-page-title { font-size: 16px; }
+    .tb-user-name-label { display: none; }
+  }
+  @media (max-width: 480px) {
+    .tb-action-btn.tb-search-btn { display: none; }
+  }
+</style>
+
+<div id="topbar">
+  <a class="tb-brand" href="#chat" onclick="window.shellNavigate&&shellNavigate('chat');return false;">
+    <div class="tb-brand-mark">🌸</div>
+    <div class="tb-brand-name">FindYour<em>Cyster</em></div>
+  </a>
+  <button class="tb-toggle" id="tb-toggle-btn" onclick="window.shellToggleSb&&shellToggleSb()" title="Toggle sidebar" aria-label="Toggle navigation">
+    ☰
+  </button>
+  <div class="tb-page-title" id="tb-page-title">Chat</div>
+  <div class="tb-cyster-strip" id="tb-cyster-strip">
+    <div class="tb-cav" id="tb-cav-emoji">🌸</div>
+    <div>
+      <div class="tb-cname" id="tb-cname-text">Aanya, 22</div>
+      <div class="tb-cstatus">Online now</div>
+    </div>
+  </div>
+  <div class="tb-spacer"></div>
+  <div class="tb-actions">
+    <button class="tb-action-btn" id="tb-notif-btn" title="Notifications" onclick="toggleNotifPanel()">
+      🔔
+      <div class="tb-notif-dot" id="tb-notif-dot"></div>
+    </button>
+    <button class="tb-action-btn tb-search-btn" title="Search" onclick="window.shellNavigate&&shellNavigate('library')">
+      🔍
+    </button>
+    <div class="tb-user-pill" title="Your profile" onclick="window.shellNavigate&&shellNavigate('settings')">
+      <div class="tb-user-av">✨</div>
+      <span class="tb-user-name-label" id="tb-user-name">You</span>
+    </div>
+  </div>
+</div>
+
+<div id="tb-notif-panel" style="
+  position:fixed;top:calc(var(--tb-h,60px) + 8px);right:16px;
+  width:300px;background:white;border-radius:20px;
+  border:1px solid rgba(232,193,197,.25);
+  box-shadow:0 16px 48px rgba(30,26,26,.14);
+  z-index:400;opacity:0;pointer-events:none;
+  transform:translateY(-8px) scale(.97);
+  transition:all .25s cubic-bezier(.22,1,.36,1);
+  overflow:hidden;
+">
+  <div style="padding:16px 18px 12px;border-bottom:1px solid rgba(232,193,197,.15);display:flex;align-items:center;justify-content:space-between;">
+    <span style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:#1e1a1a;">Notifications</span>
+    <span style="font-size:11px;font-weight:600;color:#c99ea4;cursor:pointer;" onclick="markAllRead()">Mark all read</span>
+  </div>
+  <div id="tb-notif-list" style="max-height:320px;overflow-y:auto;"></div>
+  <div style="padding:12px 18px;border-top:1px solid rgba(232,193,197,.12);text-align:center;">
+    <span style="font-size:13px;color:#c99ea4;cursor:pointer;font-weight:500;">See all notifications →</span>
+  </div>
+</div>
+
+<script>
+(function initTopbar() {
+  function populateCyster() {
+    const c = window.SHELL?.cyster || (()=>{
+      try { return JSON.parse(sessionStorage.getItem('matchedCyster')); } catch(e){ return null; }
+    })() || { name:'Aanya', age:22, avatar:'🌸' };
+    document.getElementById('tb-cav-emoji').textContent  = c.avatar;
+    document.getElementById('tb-cname-text').textContent = `${c.name}, ${c.age}`;
+    document.getElementById('tb-user-name').textContent  = window.SHELL?.userName || c.userName || 'You';
+  }
+
+  window.topbarSetRoute = function(route) {
+    const titleEl  = document.getElementById('tb-page-title');
+    const cysterEl = document.getElementById('tb-cyster-strip');
+    const PAGE_TITLES = {
+      chat:'Chat', dashboard:'My Dashboard', challenges:'Challenges',
+      calendar:'Cycle Calendar', community:'Community',
+      library:'Experience Library', settings:'Settings'
+    };
+    if (route === 'chat') {
+      titleEl.style.display  = 'none';
+      cysterEl.classList.add('visible');
+    } else {
+      titleEl.style.display  = 'block';
+      titleEl.textContent    = PAGE_TITLES[route] || route;
+      cysterEl.classList.remove('visible');
+    }
+  };
+
+  window.topbarSyncToggle = function(isOpen) {
+    const btn = document.getElementById('tb-toggle-btn');
+    if (btn) btn.textContent = isOpen ? '✕' : '☰';
+  };
+
+  const NOTIFS = [
+    { emoji:'🌸', text:'Aanya sent you a message', time:'2 min ago', unread:true },
+    { emoji:'⚡', text:'You completed 3 challenges this week!', time:'1 hr ago', unread:true },
+    { emoji:'🔥', text:'Your streak is at 5 days — keep going!', time:'3 hr ago', unread:false },
+    { emoji:'🌸', text:'New cyster in your pod: Priya joined', time:'Yesterday', unread:false },
+  ];
+
+  function renderNotifs() {
+    const list = document.getElementById('tb-notif-list');
+    list.innerHTML = '';
+    NOTIFS.forEach((n,i) => {
+      list.innerHTML += `
+        <div style="display:flex;gap:12px;padding:12px 18px;background:${n.unread?'rgba(253,240,241,.6)':'transparent'};border-bottom:1px solid rgba(232,193,197,.1);cursor:pointer;transition:background .2s ease;"
+          onmouseover="this.style.background='#fce4e6'" onmouseout="this.style.background='${n.unread?'rgba(253,240,241,.6)':'transparent'}'"
+          onclick="NOTIFS[${i}].unread=false;renderNotifs();updateNotifDot()">
+          <div style="font-size:22px;flex-shrink:0;">${n.emoji}</div>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:${n.unread?'600':'400'};color:#1e1a1a;line-height:1.4;">${n.text}</div>
+            <div style="font-size:11px;color:#9e8e8e;margin-top:2px;">${n.time}</div>
+          </div>
+          ${n.unread ? '<div style="width:7px;height:7px;border-radius:50%;background:#c99ea4;flex-shrink:0;margin-top:4px;"></div>' : ''}
+        </div>`;
+    });
+  }
+
+  function updateNotifDot() {
+    const dot = document.getElementById('tb-notif-dot');
+    const hasUnread = NOTIFS.some(n => n.unread);
+    if (dot) dot.style.display = hasUnread ? 'block' : 'none';
+  }
+
+  window.toggleNotifPanel = function() {
+    const panel = document.getElementById('tb-notif-panel');
+    const isOpen = panel.style.opacity === '1';
+    panel.style.opacity        = isOpen ? '0' : '1';
+    panel.style.pointerEvents  = isOpen ? 'none' : 'all';
+    panel.style.transform      = isOpen ? 'translateY(-8px) scale(.97)' : 'translateY(0) scale(1)';
+    if (!isOpen) renderNotifs();
+  };
+
+  window.markAllRead = function() {
+    NOTIFS.forEach(n => n.unread = false);
+    renderNotifs();
+    updateNotifDot();
+  };
+
+  document.addEventListener('click', e => {
+    const panel = document.getElementById('tb-notif-panel');
+    const btn   = document.getElementById('tb-notif-btn');
+    if (panel && !panel.contains(e.target) && !btn?.contains(e.target)) {
+      panel.style.opacity = '0';
+      panel.style.pointerEvents = 'none';
+      panel.style.transform = 'translateY(-8px) scale(.97)';
+    }
+  });
+
+  populateCyster();
+  updateNotifDot();
+})();
+</script>
+
+<!-- ══════════════════════════════════════
+     APP BODY (sidebar + content)
+══════════════════════════════════════ -->
+<div id="app-body">
+
+  <!-- SIDEBAR (inlined from components/sidebar.html) -->
+  <style>
+    #sidebar {
+      width: var(--sb-w, 64px);
+      height: 100%;
+      flex-shrink: 0;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-right: 1px solid rgba(232,193,197,.18);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: width .32s cubic-bezier(.22,1,.36,1);
+      box-shadow: 2px 0 20px rgba(30,26,26,.04);
+      z-index: 200;
+      position: relative;
+    }
+    body.sb-open #sidebar { width: var(--sb-open, 228px); }
+
+    .sb-section {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+      color: #bbb;
+      padding: 16px 0 6px 20px;
+      white-space: nowrap;
+      overflow: hidden;
+      opacity: 0;
+      height: 0;
+      transition: opacity .2s ease, height .3s ease, padding .3s ease;
+      pointer-events: none;
+    }
+    body.sb-open .sb-section {
+      opacity: 1;
+      height: 36px;
+      pointer-events: auto;
+    }
+
+    .sb-item {
+      display: flex;
+      align-items: center;
+      height: 44px;
+      border-radius: 14px;
+      margin: 2px 7px;
+      padding: 0 0 0 11px;
+      cursor: pointer;
+      text-decoration: none;
+      color: #9e8e8e;
+      font-family: 'Outfit', system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background .22s ease, color .22s ease;
+      position: relative;
+      overflow: visible;
+      white-space: nowrap;
+      gap: 0;
+    }
+    .sb-item:hover {
+      background: rgba(232,193,197,.18);
+      color: #1e1a1a;
+    }
+    .sb-item:hover .sb-item-ico { transform: scale(1.1); }
+
+    .sb-item.sb-active {
+      background: #fce4e6;
+      color: #1e1a1a;
+      font-weight: 600;
+    }
+    .sb-item.sb-active::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 22%; bottom: 22%;
+      width: 3px;
+      border-radius: 2px;
+      background: #c99ea4;
+      animation: accentIn .3s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes accentIn { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+
+    .sb-item-ico {
+      width: 38px; height: 38px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+      transition: transform .25s cubic-bezier(.34,1.56,.64,1);
+    }
+
+    .sb-item-lbl {
+      font-size: 14px;
+      font-weight: inherit;
+      opacity: 0;
+      transform: translateX(-8px);
+      transition: opacity .22s ease, transform .22s ease;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    body.sb-open .sb-item-lbl {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .sb-badge {
+      margin-left: auto;
+      margin-right: 10px;
+      background: #c99ea4;
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 999px;
+      opacity: 0;
+      transition: opacity .2s ease;
+      flex-shrink: 0;
+    }
+    body.sb-open .sb-badge { opacity: 1; }
+
+    .sb-tooltip {
+      position: fixed;
+      left: calc(var(--sb-w, 64px) + 10px);
+      background: #1e1a1a;
+      color: white;
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 8px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateX(-4px);
+      transition: opacity .15s ease, transform .15s ease;
+      z-index: 500;
+      box-shadow: 0 4px 14px rgba(30,26,26,.18);
+    }
+    .sb-tooltip::before {
+      content: '';
+      position: absolute;
+      right: 100%; top: 50%;
+      transform: translateY(-50%);
+      border: 5px solid transparent;
+      border-right-color: #1e1a1a;
+    }
+    body:not(.sb-open) .sb-item:hover .sb-tooltip {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    body.sb-open .sb-tooltip { display: none; }
+
+    .sb-spacer { flex: 1; }
+
+    .sb-bottom {
+      border-top: 1px solid rgba(232,193,197,.15);
+      padding: 8px 7px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .sb-cyster-card {
+      overflow: hidden;
+      height: 0;
+      opacity: 0;
+      transition: height .3s var(--ease, cubic-bezier(.22,1,.36,1)), opacity .25s ease;
+      margin-bottom: 0;
+    }
+    body.sb-open .sb-cyster-card {
+      height: 74px;
+      opacity: 1;
+      margin-bottom: 6px;
+    }
+    .sb-cyster-inner {
+      background: linear-gradient(135deg, rgba(253,240,241,.8), rgba(252,228,230,.6));
+      border: 1px solid rgba(232,193,197,.3);
+      border-radius: 14px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: background .2s ease;
+    }
+    .sb-cyster-inner:hover { background: #fce4e6; }
+    .sb-cav {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f0d0d4, #e8c1c5);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      border: 2px solid white;
+      flex-shrink: 0;
+    }
+    .sb-cname { font-size: 13px; font-weight: 600; color: #1e1a1a; }
+    .sb-cstatus { font-size: 11px; color: #5db85d; display: flex; align-items: center; gap: 4px; margin-top: 1px; }
+    .sb-cstatus::before { content:''; width:5px; height:5px; border-radius:50%; background:#5db85d; }
+    .sb-cmatch { font-size:10px; color:#c99ea4; font-weight:600; margin-left:auto; }
+
+    @media (max-width: 768px) {
+      #sidebar {
+        position: fixed !important;
+        left: 0;
+        top: var(--tb-h, 60px);
+        height: calc(100vh - var(--tb-h, 60px));
+        width: var(--sb-open, 228px) !important;
+        transform: translateX(-100%);
+        transition: transform .32s cubic-bezier(.22,1,.36,1) !important;
+        z-index: 250;
+      }
+      body.sb-open #sidebar { transform: translateX(0); }
+    }
+  </style>
+
+  <nav id="sidebar">
+    <div class="sb-section">Main</div>
+    <a class="sb-item sb-active" data-route="chat" href="#chat">
+      <div class="sb-item-ico">💬</div>
+      <span class="sb-item-lbl">Chat</span>
+      <span class="sb-badge" id="badge-chat">1</span>
+      <div class="sb-tooltip">Chat</div>
+    </a>
+    <a class="sb-item" data-route="dashboard" href="#dashboard">
+      <div class="sb-item-ico">📊</div>
+      <span class="sb-item-lbl">Dashboard</span>
+      <div class="sb-tooltip">Dashboard</div>
+    </a>
+    <a class="sb-item" data-route="challenges" href="#challenges">
+      <div class="sb-item-ico">⚡</div>
+      <span class="sb-item-lbl">Challenges</span>
+      <div class="sb-tooltip">Challenges</div>
+    </a>
+    <a class="sb-item" data-route="calendar" href="#calendar">
+      <div class="sb-item-ico">📅</div>
+      <span class="sb-item-lbl">Calendar</span>
+      <div class="sb-tooltip">Calendar</div>
+    </a>
+    <div class="sb-section">Explore</div>
+    <a class="sb-item" data-route="community" href="#community">
+      <div class="sb-item-ico">🌸</div>
+      <span class="sb-item-lbl">Community</span>
+      <div class="sb-tooltip">Community</div>
+    </a>
+    <a class="sb-item" data-route="library" href="#library">
+      <div class="sb-item-ico">📚</div>
+      <span class="sb-item-lbl">Experience Library</span>
+      <div class="sb-tooltip">Library</div>
+    </a>
+    <div class="sb-spacer"></div>
+    <div class="sb-bottom">
+      <div class="sb-cyster-card" onclick="window.shellNavigate&&shellNavigate('chat')">
+        <div class="sb-cyster-inner">
+          <div class="sb-cav" id="sb-cav">🌸</div>
+          <div>
+            <div class="sb-cname" id="sb-cname">Aanya, 22</div>
+            <div class="sb-cstatus">Online</div>
+          </div>
+          <div class="sb-cmatch" id="sb-cmatch">94%</div>
+        </div>
+      </div>
+      <a class="sb-item" data-route="settings" href="#settings">
+        <div class="sb-item-ico">⚙️</div>
+        <span class="sb-item-lbl">Settings</span>
+        <div class="sb-tooltip">Settings</div>
+      </a>
+    </div>
+  </nav>
+
+  <div id="sb-backdrop" style="
+    display:none;position:fixed;inset:0;
+    background:rgba(30,26,26,.3);z-index:240;
+    opacity:0;transition:opacity .3s ease;
+  " onclick="window.shellToggleSb&&shellToggleSb()"></div>
+
+  <script>
+  (function initSidebar() {
+    function populateCyster() {
+      let c = null;
+      try { c = JSON.parse(sessionStorage.getItem('matchedCyster')); } catch(e){}
+      c = c || { name:'Aanya', age:22, avatar:'🌸' };
+      const cavEl   = document.getElementById('sb-cav');
+      const cnameEl = document.getElementById('sb-cname');
+      if (cavEl)   cavEl.textContent   = c.avatar;
+      if (cnameEl) cnameEl.textContent = `${c.name}, ${c.age}`;
+    }
+
+    window.sidebarSetRoute = function(route) {
+      document.querySelectorAll('.sb-item').forEach(item => {
+        const isActive = item.dataset.route === route;
+        item.classList.toggle('sb-active', isActive);
+      });
+    };
+
+    window.sidebarSetOpen = function(isOpen) {
+      const backdrop = document.getElementById('sb-backdrop');
+      if (backdrop) {
+        if (window.innerWidth <= 768) {
+          backdrop.style.display = isOpen ? 'block' : 'none';
+          requestAnimationFrame(() => { backdrop.style.opacity = isOpen ? '1' : '0'; });
+        }
+      }
+    };
+
+    document.querySelectorAll('.sb-item').forEach(item => {
+      const tip = item.querySelector('.sb-tooltip');
+      if (!tip) return;
+      item.addEventListener('mouseenter', () => {
+        const rect = item.getBoundingClientRect();
+        tip.style.top = (rect.top + rect.height/2 - 15) + 'px';
+      });
+    });
+
+    document.querySelectorAll('.sb-item[data-route]').forEach(item => {
+      item.addEventListener('click', e => {
+        e.preventDefault();
+        const route = item.dataset.route;
+        document.dispatchEvent(new CustomEvent('sidebar:navigate', { detail: { route } }));
+        if (window.shellNavigate) shellNavigate(route);
+      });
+    });
+
+    const badge = document.getElementById('badge-chat');
+    const unread = parseInt(localStorage.getItem('fyc_unread_chat') || '1');
+    if (badge && unread > 0) {
+      badge.textContent = unread > 9 ? '9+' : unread;
+      badge.style.opacity = '1';
+    }
+
+    document.addEventListener('sidebar:navigate', e => {
+      if (e.detail.route === 'chat') {
+        if (badge) badge.style.opacity = '0';
+        localStorage.setItem('fyc_unread_chat', '0');
+      }
+    });
+
+    populateCyster();
+  })();
+  </script>
+
+  <!-- PAGE CONTENT AREA -->
+  <div id="content">
+
+    <!-- One slot per route — content fetched on first visit -->
+    <div class="page on" id="page-chat">
+      <div class="page-loading"><div class="page-loading-spinner"></div>Loading Chat…</div>
+    </div>
+
+    <div class="page" id="page-dashboard">
+      <div class="page-loading"><div class="page-loading-spinner"></div>Loading Dashboard…</div>
+    </div>
+
+    <div class="page" id="page-challenges">
+      <div class="page-loading"><div class="page-loading-spinner"></div>Loading Challenges…</div>
+    </div>
+
+    <div class="page" id="page-calendar">
+      <div class="page-loading"><div class="page-loading-spinner"></div>Loading Calendar…</div>
+    </div>
+
+    <div class="page" id="page-community">
+      <div class="page-loading"><div class="page-loading-spinner"></div>Loading Community…</div>
+    </div>
+
+    <div class="page" id="page-library">
+      <div class="page-loading"><div class="page-loading-spinner"></div>Loading Library…</div>
+    </div>
+
+    <div class="page" id="page-settings">
+      <div class="page-loading"><div class="page-loading-spinner"></div>Loading Settings…</div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════════
+   SHELL · Global state, router, component + page loader
+════════════════════════════════════════════════════════════ */
+
+/* ── global state (read by components via window.SHELL) ── */
+window.SHELL = {
+  route:    'chat',
+  sbOpen:   false,
+  cyster:   null,
+  userName: 'You',
+};
+
+/* ── route → page title map ── */
+const PAGE_TITLES = {
+  chat:      'Chat',
+  dashboard: 'My Dashboard',
+  challenges:'Challenges',
+  calendar:  'Cycle Calendar',
+  community: 'Community',
+  library:   'Experience Library',
+  settings:  'Settings',
+};
+
+/* ── page load tracking ── */
+const pagesLoaded = {};
+
+/* ══════════════════════════════════════
+   CYSTER DATA
+══════════════════════════════════════ */
+function loadCysterData() {
+  let c = null;
+  try { c = JSON.parse(sessionStorage.getItem('matchedCyster')); } catch(e){}
+
+  /* fallback demo data — safe for standalone testing */
+  if (!c) {
+    c = {
+      name: 'Aanya', age: 22, city: 'Delhi',
+      avatar: '🌸', userName: 'You',
+      sharedSymptoms: ['Fatigue', 'Hormonal acne', 'Irregular periods'],
+    };
+  }
+  window.SHELL.cyster   = c;
+  window.SHELL.userName = c.userName || 'You';
+  return c;
+}
+
+/* ══════════════════════════════════════
+   SIDEBAR TOGGLE
+   Called by topbar toggle button and sidebar backdrop
+══════════════════════════════════════ */
+window.shellToggleSb = function() {
+  window.SHELL.sbOpen = !window.SHELL.sbOpen;
+  document.body.classList.toggle('sb-open', window.SHELL.sbOpen);
+  /* sync components */
+  if (window.topbarSyncToggle) topbarSyncToggle(window.SHELL.sbOpen);
+  if (window.sidebarSetOpen)   sidebarSetOpen(window.SHELL.sbOpen);
+};
+
+/* ══════════════════════════════════════
+   ROUTER
+   navigate(route) → deactivates current, activates new,
+   updates topbar title, loads page HTML if first visit
+══════════════════════════════════════ */
+window.shellNavigate = function(route, pushState = true) {
+  if (!PAGE_TITLES[route]) return;
+  if (route === window.SHELL.route) return;
+
+  /* deactivate previous */
+  document.getElementById(`page-${window.SHELL.route}`)?.classList.remove('on');
+
+  window.SHELL.route = route;
+
+  /* activate new */
+  document.getElementById(`page-${route}`)?.classList.add('on');
+
+  /* sync components */
+  if (window.topbarSetRoute)   topbarSetRoute(route);
+  if (window.sidebarSetRoute)  sidebarSetRoute(route);
+
+  /* update hash */
+  if (pushState) history.pushState(null, '', `#${route}`);
+
+  /* load page if not yet loaded */
+  loadPage(route);
+
+  /* close sidebar on mobile after navigation */
+  if (window.innerWidth <= 768 && window.SHELL.sbOpen) shellToggleSb();
+};
+
+/* ══════════════════════════════════════
+   PAGE LOADER
+   Fetches pages/{route}.html on first visit,
+   injects into #page-{route} slot
+══════════════════════════════════════ */
+async function loadPage(route) {
+  if (pagesLoaded[route]) return;
+  pagesLoaded[route] = true;
+
+  const slot = document.getElementById(`page-${route}`);
+  if (!slot) return;
+
+  try {
+    const res = await fetch(`pages/${route}.html`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    slot.innerHTML = await res.text();
+    /* run page init if defined */
+    if (window[`init_${route}`]) window[`init_${route}`]();
+  } catch (err) {
+    slot.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:14px;color:#9e8e8e;font-family:'Outfit',sans-serif;">
+        <div style="font-size:48px;">${{chat:'💬',dashboard:'📊',challenges:'⚡',calendar:'📅',community:'🌸',library:'📚',settings:'⚙️'}[route]||'📄'}</div>
+        <div style="font-size:16px;font-weight:600;color:#1e1a1a;">${PAGE_TITLES[route]}</div>
+        <div style="font-size:13px;">Could not load <code>pages/${route}.html</code></div>
+        <div style="font-size:12px;color:#ccc;">Run via a local server (e.g. Live Server or npx serve)</div>
+      </div>`;
+  }
+}
+
+
+
+/* ══════════════════════════════════════
+   HASH CHANGE LISTENER
+══════════════════════════════════════ */
+window.addEventListener('hashchange', () => {
+  const route = location.hash.slice(1);
+  if (PAGE_TITLES[route]) shellNavigate(route, false);
+});
+
+/* ══════════════════════════════════════
+   SIDEBAR NAVIGATE EVENT
+   sidebar.html dispatches this; shell handles it
+══════════════════════════════════════ */
+document.addEventListener('sidebar:navigate', e => {
+  shellNavigate(e.detail.route);
+});
+
+/* ══════════════════════════════════════
+   INITIALISE
+══════════════════════════════════════ */
+(async function init() {
+
+  /* 1. Load cyster data into global state */
+  loadCysterData();
+
+  /* 2. Topbar and sidebar now inlined — no load needed */
+
+  /* 3. Determine start route from hash or default to chat */
+  const hashRoute = location.hash.slice(1);
+  const startRoute = PAGE_TITLES[hashRoute] ? hashRoute : 'chat';
+
+  /* 4. Set initial route state without pushing history */
+  window.SHELL.route = 'NONE'; /* force navigate() to treat as new */
+  shellNavigate(startRoute, false);
+
+  /* 5. Load start page */
+  loadPage(startRoute);
+
+})();
+</script>
+
+</body>
+</html>

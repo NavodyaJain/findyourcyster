@@ -1,0 +1,412 @@
+<!-- 
+  ════════════════════════════════════════════════════════════
+  components/sidebar.html · FindYourCyster
+  ════════════════════════════════════════════════════════════
+  PURPOSE
+    Standalone sidebar component. Injected into shell.html via:
+      fetch('components/sidebar.html') → innerHTML of #sidebar-mount
+
+  WHAT IT DOES
+    • Collapsed state: 64px wide, shows only icons
+    • Expanded state: 228px wide, shows icons + labels
+    • Hover tooltips in collapsed mode (like Claude's sidebar)
+    • Active route indicator: left-border accent + background
+    • Section labels fade in on expand
+    • Cyster mini-card at bottom (your match)
+    • Mobile: slides in as overlay, controlled by shell
+
+  NAVIGATION ITEMS
+    Main:    Chat, Dashboard, Challenges, Calendar
+    Explore: Community, Experience Library
+    Bottom:  Settings (sticky)
+
+  API (called by shell router)
+    window.sidebarSetRoute(route) → updates active state
+    window.sidebarSetOpen(bool)   → expand / collapse
+
+  EVENTS (dispatched on document)
+    sidebar:navigate → { detail: { route } }
+  ════════════════════════════════════════════════════════════
+-->
+<style>
+  /* ── sidebar shell ── */
+  #sidebar {
+    width: var(--sb-w, 64px);
+    height: 100%;
+    flex-shrink: 0;
+    background: rgba(255,255,255,.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(232,193,197,.18);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: width .32s cubic-bezier(.22,1,.36,1);
+    box-shadow: 2px 0 20px rgba(30,26,26,.04);
+    z-index: 200;
+    position: relative; /* for tooltip positioning */
+  }
+  body.sb-open #sidebar { width: var(--sb-open, 228px); }
+
+  /* ── section label ── */
+  .sb-section {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: #bbb;
+    padding: 16px 0 6px 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    opacity: 0;
+    height: 0;
+    transition: opacity .2s ease, height .3s ease, padding .3s ease;
+    pointer-events: none;
+  }
+  body.sb-open .sb-section {
+    opacity: 1;
+    height: 36px;
+    pointer-events: auto;
+  }
+
+  /* ── nav item ── */
+  .sb-item {
+    display: flex;
+    align-items: center;
+    height: 44px;
+    border-radius: 14px;
+    margin: 2px 7px;
+    padding: 0 0 0 11px;
+    cursor: pointer;
+    text-decoration: none;
+    color: #9e8e8e;
+    font-family: 'Outfit', system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background .22s ease, color .22s ease;
+    position: relative;
+    overflow: visible; /* allow tooltip to overflow */
+    white-space: nowrap;
+    gap: 0;
+  }
+  .sb-item:hover {
+    background: rgba(232,193,197,.18);
+    color: #1e1a1a;
+  }
+  .sb-item:hover .sb-item-ico { transform: scale(1.1); }
+
+  /* active state */
+  .sb-item.sb-active {
+    background: #fce4e6;
+    color: #1e1a1a;
+    font-weight: 600;
+  }
+  .sb-item.sb-active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 22%; bottom: 22%;
+    width: 3px;
+    border-radius: 2px;
+    background: #c99ea4;
+    animation: accentIn .3s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes accentIn { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+
+  /* icon */
+  .sb-item-ico {
+    width: 38px; height: 38px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+    transition: transform .25s cubic-bezier(.34,1.56,.64,1);
+  }
+
+  /* label */
+  .sb-item-lbl {
+    font-size: 14px;
+    font-weight: inherit;
+    opacity: 0;
+    transform: translateX(-8px);
+    transition: opacity .22s ease, transform .22s ease;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  body.sb-open .sb-item-lbl {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* badge (e.g. unread count) */
+  .sb-badge {
+    margin-left: auto;
+    margin-right: 10px;
+    background: #c99ea4;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 999px;
+    opacity: 0;
+    transition: opacity .2s ease;
+    flex-shrink: 0;
+  }
+  body.sb-open .sb-badge { opacity: 1; }
+
+  /* ── tooltip (collapsed mode only) ── */
+  .sb-tooltip {
+    position: fixed; /* use fixed so it escapes overflow:hidden */
+    left: calc(var(--sb-w, 64px) + 10px);
+    background: #1e1a1a;
+    color: white;
+    font-family: 'Outfit', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 8px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: opacity .15s ease, transform .15s ease;
+    z-index: 500;
+    box-shadow: 0 4px 14px rgba(30,26,26,.18);
+  }
+  .sb-tooltip::before {
+    content: '';
+    position: absolute;
+    right: 100%; top: 50%;
+    transform: translateY(-50%);
+    border: 5px solid transparent;
+    border-right-color: #1e1a1a;
+  }
+  /* Show tooltip only in collapsed mode */
+  body:not(.sb-open) .sb-item:hover .sb-tooltip {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  /* Never show tooltip in expanded mode */
+  body.sb-open .sb-tooltip { display: none; }
+
+  /* ── spacer ── */
+  .sb-spacer { flex: 1; }
+
+  /* ── bottom section (cyster card + settings) ── */
+  .sb-bottom {
+    border-top: 1px solid rgba(232,193,197,.15);
+    padding: 8px 7px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  /* cyster mini card (visible only when expanded) */
+  .sb-cyster-card {
+    overflow: hidden;
+    height: 0;
+    opacity: 0;
+    transition: height .3s var(--ease, cubic-bezier(.22,1,.36,1)), opacity .25s ease;
+    margin-bottom: 0;
+  }
+  body.sb-open .sb-cyster-card {
+    height: 74px;
+    opacity: 1;
+    margin-bottom: 6px;
+  }
+  .sb-cyster-inner {
+    background: linear-gradient(135deg, rgba(253,240,241,.8), rgba(252,228,230,.6));
+    border: 1px solid rgba(232,193,197,.3);
+    border-radius: 14px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: background .2s ease;
+  }
+  .sb-cyster-inner:hover { background: #fce4e6; }
+  .sb-cav {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f0d0d4, #e8c1c5);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    border: 2px solid white;
+    flex-shrink: 0;
+  }
+  .sb-cname { font-size: 13px; font-weight: 600; color: #1e1a1a; }
+  .sb-cstatus { font-size: 11px; color: #5db85d; display: flex; align-items: center; gap: 4px; margin-top: 1px; }
+  .sb-cstatus::before { content:''; width:5px; height:5px; border-radius:50%; background:#5db85d; }
+  .sb-cmatch { font-size:10px; color:#c99ea4; font-weight:600; margin-left:auto; }
+
+  /* ── mobile overlay state ── */
+  @media (max-width: 768px) {
+    #sidebar {
+      position: fixed !important;
+      left: 0;
+      top: var(--tb-h, 60px);
+      height: calc(100vh - var(--tb-h, 60px));
+      width: var(--sb-open, 228px) !important;
+      transform: translateX(-100%);
+      transition: transform .32s cubic-bezier(.22,1,.36,1) !important;
+      z-index: 250;
+    }
+    body.sb-open #sidebar { transform: translateX(0); }
+  }
+</style>
+
+<!-- SIDEBAR HTML -->
+<nav id="sidebar">
+
+  <!-- ── Main section ── -->
+  <div class="sb-section">Main</div>
+
+  <a class="sb-item sb-active" data-route="chat" href="#chat">
+    <div class="sb-item-ico">💬</div>
+    <span class="sb-item-lbl">Chat</span>
+    <span class="sb-badge" id="badge-chat">1</span>
+    <div class="sb-tooltip">Chat</div>
+  </a>
+
+  <a class="sb-item" data-route="dashboard" href="#dashboard">
+    <div class="sb-item-ico">📊</div>
+    <span class="sb-item-lbl">Dashboard</span>
+    <div class="sb-tooltip">Dashboard</div>
+  </a>
+
+  <a class="sb-item" data-route="challenges" href="#challenges">
+    <div class="sb-item-ico">⚡</div>
+    <span class="sb-item-lbl">Challenges</span>
+    <div class="sb-tooltip">Challenges</div>
+  </a>
+
+  <a class="sb-item" data-route="calendar" href="#calendar">
+    <div class="sb-item-ico">📅</div>
+    <span class="sb-item-lbl">Calendar</span>
+    <div class="sb-tooltip">Calendar</div>
+  </a>
+
+  <!-- ── Explore section ── -->
+  <div class="sb-section">Explore</div>
+
+  <a class="sb-item" data-route="community" href="#community">
+    <div class="sb-item-ico">🌸</div>
+    <span class="sb-item-lbl">Community</span>
+    <div class="sb-tooltip">Community</div>
+  </a>
+
+  <a class="sb-item" data-route="library" href="#library">
+    <div class="sb-item-ico">📚</div>
+    <span class="sb-item-lbl">Experience Library</span>
+    <div class="sb-tooltip">Library</div>
+  </a>
+
+  <!-- spacer -->
+  <div class="sb-spacer"></div>
+
+  <!-- ── Bottom: cyster card + settings ── -->
+  <div class="sb-bottom">
+
+    <!-- matched cyster mini card (expanded only) -->
+    <div class="sb-cyster-card" onclick="window.shellNavigate&&shellNavigate('chat')">
+      <div class="sb-cyster-inner">
+        <div class="sb-cav" id="sb-cav">🌸</div>
+        <div>
+          <div class="sb-cname" id="sb-cname">Aanya, 22</div>
+          <div class="sb-cstatus">Online</div>
+        </div>
+        <div class="sb-cmatch" id="sb-cmatch">94%</div>
+      </div>
+    </div>
+
+    <!-- settings -->
+    <a class="sb-item" data-route="settings" href="#settings">
+      <div class="sb-item-ico">⚙️</div>
+      <span class="sb-item-lbl">Settings</span>
+      <div class="sb-tooltip">Settings</div>
+    </a>
+
+  </div>
+
+</nav>
+
+<!-- mobile backdrop -->
+<div id="sb-backdrop" style="
+  display:none;position:fixed;inset:0;
+  background:rgba(30,26,26,.3);z-index:240;
+  opacity:0;transition:opacity .3s ease;
+" onclick="window.shellToggleSb&&shellToggleSb()"></div>
+
+<script>
+(function initSidebar() {
+
+  /* ── populate cyster data ── */
+  function populateCyster() {
+    let c = null;
+    try { c = JSON.parse(sessionStorage.getItem('matchedCyster')); } catch(e){}
+    c = c || { name:'Aanya', age:22, avatar:'🌸' };
+    const cavEl   = document.getElementById('sb-cav');
+    const cnameEl = document.getElementById('sb-cname');
+    if (cavEl)   cavEl.textContent   = c.avatar;
+    if (cnameEl) cnameEl.textContent = `${c.name}, ${c.age}`;
+  }
+
+  /* ── route setter (called by shell) ── */
+  window.sidebarSetRoute = function(route) {
+    document.querySelectorAll('.sb-item').forEach(item => {
+      const isActive = item.dataset.route === route;
+      item.classList.toggle('sb-active', isActive);
+    });
+  };
+
+  /* ── open/close setter (called by shell toggle) ── */
+  window.sidebarSetOpen = function(isOpen) {
+    const backdrop = document.getElementById('sb-backdrop');
+    if (backdrop) {
+      if (window.innerWidth <= 768) {
+        backdrop.style.display = isOpen ? 'block' : 'none';
+        requestAnimationFrame(() => { backdrop.style.opacity = isOpen ? '1' : '0'; });
+      }
+    }
+  };
+
+  /* ── tooltip vertical positioning ── */
+  document.querySelectorAll('.sb-item').forEach(item => {
+    const tip = item.querySelector('.sb-tooltip');
+    if (!tip) return;
+    item.addEventListener('mouseenter', () => {
+      const rect = item.getBoundingClientRect();
+      tip.style.top = (rect.top + rect.height/2 - 15) + 'px';
+    });
+  });
+
+  /* ── nav click handling ── */
+  document.querySelectorAll('.sb-item[data-route]').forEach(item => {
+    item.addEventListener('click', e => {
+      e.preventDefault();
+      const route = item.dataset.route;
+      /* dispatch event for shell to handle */
+      document.dispatchEvent(new CustomEvent('sidebar:navigate', { detail: { route } }));
+      /* also call shell directly if available */
+      if (window.shellNavigate) shellNavigate(route);
+    });
+  });
+
+  /* ── badge: show unread chat messages ── */
+  const badge = document.getElementById('badge-chat');
+  const unread = parseInt(localStorage.getItem('fyc_unread_chat') || '1');
+  if (badge && unread > 0) {
+    badge.textContent = unread > 9 ? '9+' : unread;
+    badge.style.opacity = '1';
+  }
+
+  /* clear badge when chat is opened */
+  document.addEventListener('sidebar:navigate', e => {
+    if (e.detail.route === 'chat') {
+      if (badge) badge.style.opacity = '0';
+      localStorage.setItem('fyc_unread_chat', '0');
+    }
+  });
+
+  populateCyster();
+})();
+</script>

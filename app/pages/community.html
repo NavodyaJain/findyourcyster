@@ -1,0 +1,134 @@
+<!-- pages/community.html · FindYourCyster Community -->
+<style>
+.com-wrap{padding:28px 28px 48px;max-width:1080px;margin:0 auto;}
+.com-hero{background:linear-gradient(135deg,#fce4e6,#fdf0f1);border-radius:28px;padding:28px 32px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+.com-hero h2{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:700;color:#1e1a1a;margin-bottom:4px;}
+.com-hero p{font-size:15px;color:#5a4f4f;max-width:480px;}
+.com-stats{display:flex;gap:24px;flex-wrap:wrap;}
+.cstat{text-align:center;}
+.cstat-num{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:700;color:#1e1a1a;}
+.cstat-lbl{font-size:12px;color:#9e8e8e;font-weight:500;}
+
+.com-grid-title{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;color:#1e1a1a;margin-bottom:16px;}
+.com-section{margin-bottom:28px;}
+
+/* pod cards */
+.pods-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;}
+.pod-card{background:white;border-radius:22px;padding:20px;border:1px solid rgba(232,193,197,.2);box-shadow:0 4px 16px rgba(30,26,26,.06);transition:all .25s ease;cursor:pointer;}
+.pod-card:hover{transform:translateY(-3px);box-shadow:0 10px 26px rgba(30,26,26,.10);}
+.pod-header{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.pod-ico{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.pod-name{font-weight:700;font-size:16px;color:#1e1a1a;}
+.pod-sub{font-size:12px;color:#9e8e8e;}
+.pod-avatars{display:flex;margin-bottom:12px;}
+.pod-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#f0d0d4,#e8c1c5);border:2px solid white;display:flex;align-items:center;justify-content:center;font-size:14px;margin-left:-8px;}
+.pod-av:first-child{margin-left:0;}
+.pod-av-more{background:#1e1a1a;color:#e8c1c5;font-size:10px;font-weight:700;}
+.pod-meta{display:flex;align-items:center;justify-content:space-between;}
+.pod-activity{font-size:12px;color:#9e8e8e;}
+.pod-join-btn{padding:7px 16px;border-radius:999px;border:1.5px solid rgba(232,193,197,.5);background:transparent;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;color:#1e1a1a;cursor:pointer;transition:all .25s ease;}
+.pod-join-btn:hover{background:#fce4e6;border-color:#c99ea4;}
+.pod-join-btn.joined{background:#fce4e6;border-color:#c99ea4;}
+
+/* cyster discovery */
+.cysters-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;}
+.cy-card{background:white;border-radius:20px;padding:18px;border:1px solid rgba(232,193,197,.2);box-shadow:0 3px 14px rgba(30,26,26,.05);text-align:center;transition:all .25s ease;cursor:pointer;}
+.cy-card:hover{transform:translateY(-3px);box-shadow:0 8px 22px rgba(30,26,26,.10);}
+.cy-av{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#f0d0d4,#e8c1c5);display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 10px;border:3px solid white;box-shadow:0 4px 14px rgba(232,193,197,.3);}
+.cy-name{font-weight:700;font-size:15px;color:#1e1a1a;margin-bottom:2px;}
+.cy-city{font-size:12px;color:#9e8e8e;margin-bottom:10px;}
+.cy-sym-strip{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-bottom:12px;}
+.cy-sym{background:#fce4e6;border:1px solid rgba(232,193,197,.4);padding:3px 9px;border-radius:999px;font-size:11px;font-weight:500;color:#1e1a1a;}
+.cy-pct{font-size:11px;font-weight:700;color:#c99ea4;margin-bottom:10px;}
+.cy-connect-btn{width:100%;padding:8px;border-radius:999px;background:#1e1a1a;color:white;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all .25s ease;}
+.cy-connect-btn:hover{background:#3a3030;}
+</style>
+
+<div class="com-wrap">
+
+  <!-- hero -->
+  <div class="com-hero">
+    <div>
+      <h2>Your Community 🌸</h2>
+      <p>Find micro-pods of cysters who share your exact symptom pattern. Small groups, real connection.</p>
+    </div>
+    <div class="com-stats">
+      <div class="cstat"><div class="cstat-num">12k+</div><div class="cstat-lbl">Cysters</div></div>
+      <div class="cstat"><div class="cstat-num">840</div><div class="cstat-lbl">Active Pods</div></div>
+      <div class="cstat"><div class="cstat-num">98%</div><div class="cstat-lbl">Feel Supported</div></div>
+    </div>
+  </div>
+
+  <!-- pods -->
+  <div class="com-section">
+    <div class="com-grid-title">Symptom Pods for You</div>
+    <div class="pods-grid" id="pods-grid"></div>
+  </div>
+
+  <!-- cyster discovery -->
+  <div class="com-section">
+    <div class="com-grid-title">Cysters Like You</div>
+    <div class="cysters-grid" id="cysters-grid"></div>
+  </div>
+
+</div>
+
+<script>
+(function() {
+  const PODS = [
+    {emoji:'⚡',bg:'#faebd7',name:'Insulin Resistance Squad',sub:'Metabolic PCOS · 3.1k members',members:['🌸','🌷','🌻','🌺'],extra:24,activity:'Active 2 min ago'},
+    {emoji:'🌙',bg:'#fce4e6',name:'Cycle Irregularity Circle',sub:'Cycle disruption · 1.8k members',members:['✨','🌸','🌷'],extra:18,activity:'Active 8 min ago'},
+    {emoji:'🔴',bg:'#ece8f6',name:'Hormonal Acne Warriors',sub:'Skin & androgens · 2.4k members',members:['🌺','🌻','🌸','🌷'],extra:31,activity:'Active 5 min ago'},
+    {emoji:'😴',bg:'#ddeef7',name:'Fatigue First Club',sub:'Energy & sleep · 2.2k members',members:['🌸','🌻','✨'],extra:15,activity:'Active 1 min ago'},
+    {emoji:'🧘',bg:'#c8deca',name:'Mental Health Matters',sub:'Mood & anxiety · 1.9k members',members:['🌷','🌸','🌺','🌻'],extra:22,activity:'Active 12 min ago'},
+    {emoji:'⚖️',bg:'#fce4e6',name:'Weight & Metabolic Pod',sub:'Weight & insulin · 2.7k members',members:['✨','🌸','🌷'],extra:19,activity:'Active 3 min ago'},
+  ];
+
+  const CYSTERS = [
+    {av:'🌸',name:'Aanya, 22',city:'Delhi',syms:['Fatigue','Acne','Mood swings'],pct:94},
+    {av:'🌷',name:'Priya, 25',city:'Bangalore',syms:['Hair loss','Irregular','Anxiety'],pct:88},
+    {av:'🌻',name:'Meera, 27',city:'Mumbai',syms:['Insulin','Acne','Weight'],pct:85},
+    {av:'🌺',name:'Sara, 23',city:'Hyderabad',syms:['Fatigue','Mood','Bloating'],pct:82},
+    {av:'✨',name:'Kavya, 24',city:'Chennai',syms:['Irregular','Acne','Fatigue'],pct:79},
+    {av:'🌼',name:'Ritu, 26',city:'Pune',syms:['Weight','Sleep','Fog'],pct:77},
+    {av:'🍃',name:'Pooja, 21',city:'Kolkata',syms:['Cramps','Mood','Hair'],pct:74},
+    {av:'💫',name:'Diya, 28',city:'Jaipur',syms:['Acne','Insulin','Fatigue'],pct:72},
+  ];
+
+  /* render pods */
+  const podsGrid = document.getElementById('pods-grid');
+  PODS.forEach(pod => {
+    const div = document.createElement('div');
+    div.className = 'pod-card';
+    div.innerHTML = `
+      <div class="pod-header">
+        <div class="pod-ico" style="background:${pod.bg}">${pod.emoji}</div>
+        <div><div class="pod-name">${pod.name}</div><div class="pod-sub">${pod.sub}</div></div>
+      </div>
+      <div class="pod-avatars">
+        ${pod.members.map(av=>`<div class="pod-av">${av}</div>`).join('')}
+        <div class="pod-av pod-av-more">+${pod.extra}</div>
+      </div>
+      <div class="pod-meta">
+        <span class="pod-activity">🟢 ${pod.activity}</span>
+        <button class="pod-join-btn" onclick="this.classList.toggle('joined');this.textContent=this.classList.contains('joined')?'Joined ✓':'Join Pod'">Join Pod</button>
+      </div>`;
+    podsGrid.appendChild(div);
+  });
+
+  /* render cysters */
+  const cGrid = document.getElementById('cysters-grid');
+  CYSTERS.forEach(cy => {
+    const div = document.createElement('div');
+    div.className = 'cy-card';
+    div.innerHTML = `
+      <div class="cy-av">${cy.av}</div>
+      <div class="cy-name">${cy.name}</div>
+      <div class="cy-city">${cy.city}</div>
+      <div class="cy-sym-strip">${cy.syms.map(s=>`<div class="cy-sym">${s}</div>`).join('')}</div>
+      <div class="cy-pct">🔥 ${cy.pct}% match</div>
+      <button class="cy-connect-btn" onclick="this.textContent='Connected ✓';this.style.background='#7a9e80'">Connect</button>`;
+    cGrid.appendChild(div);
+  });
+})();
+</script>

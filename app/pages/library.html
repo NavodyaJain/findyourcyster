@@ -1,0 +1,130 @@
+<!-- pages/library.html · FindYourCyster Experience Library -->
+<style>
+.lib-wrap{padding:28px 28px 48px;max-width:1000px;margin:0 auto;}
+.lib-search-bar{display:flex;gap:10px;margin-bottom:20px;align-items:center;}
+.lib-search{flex:1;border:1.5px solid rgba(232,193,197,.4);border-radius:999px;padding:12px 20px;font-family:'Outfit',sans-serif;font-size:14px;color:#1e1a1a;background:white;outline:none;transition:all .25s ease;}
+.lib-search:focus{border-color:#c99ea4;box-shadow:0 0 0 3px rgba(232,193,197,.15);}
+.lib-filter-btn{padding:11px 18px;border-radius:999px;border:1.5px solid rgba(232,193,197,.4);background:white;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;cursor:pointer;color:#5a4f4f;transition:all .25s ease;}
+.lib-filter-btn:hover,.lib-filter-btn.on{background:#fce4e6;border-color:#c99ea4;color:#1e1a1a;}
+
+/* filter pills */
+.lib-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;}
+.lf-pill{padding:7px 16px;border-radius:999px;border:1.5px solid rgba(232,193,197,.35);background:rgba(255,255,255,.7);font-size:13px;font-weight:500;cursor:pointer;transition:all .25s ease;color:#5a4f4f;}
+.lf-pill:hover{border-color:#c99ea4;}
+.lf-pill.on{background:#fce4e6;border-color:#c99ea4;color:#1e1a1a;font-weight:600;}
+
+/* library cards */
+.lib-grid{display:flex;flex-direction:column;gap:14px;}
+.lib-entry{
+  background:white;border-radius:22px;padding:22px 24px;
+  border:1px solid rgba(232,193,197,.2);box-shadow:0 3px 16px rgba(30,26,26,.06);
+  transition:all .25s ease;cursor:pointer;
+}
+.lib-entry:hover{box-shadow:0 8px 24px rgba(30,26,26,.10);transform:translateY(-2px);}
+.le-top{display:flex;align-items:flex-start;gap:14px;margin-bottom:12px;}
+.le-av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#f0d0d4,#e8c1c5);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.le-meta{flex:1;}
+.le-author{font-weight:700;font-size:15px;color:#1e1a1a;}
+.le-profile{font-size:12px;color:#9e8e8e;margin-top:1px;}
+.le-cats{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+.le-cat{padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600;}
+.le-verified{margin-left:auto;font-size:11px;font-weight:600;color:#7a9e80;background:#c8deca;padding:3px 10px;border-radius:999px;flex-shrink:0;}
+.le-intervention{font-size:13px;font-weight:600;color:#1e1a1a;margin-bottom:6px;}
+.le-result{font-size:14px;color:#5a4f4f;line-height:1.65;font-style:italic;margin-bottom:12px;}
+.le-bottom{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.le-tag{background:#fdf0f1;border:1px solid rgba(232,193,197,.3);padding:4px 11px;border-radius:999px;font-size:11px;font-weight:500;color:#5a4f4f;}
+.le-duration{font-size:12px;color:#9e8e8e;}
+.le-helpful{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;color:#9e8e8e;cursor:pointer;transition:color .2s;}
+.le-helpful:hover{color:#c99ea4;}
+.le-helpful.voted{color:#c99ea4;}
+</style>
+
+<div class="lib-wrap">
+
+  <div style="margin-bottom:24px;">
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:700;color:#1e1a1a;margin-bottom:6px;">Experience Library 📚</h2>
+    <p style="font-size:15px;color:#5a4f4f;">Real stories from real cysters — searchable by your symptom profile. Not advice. Lived experience.</p>
+  </div>
+
+  <div class="lib-search-bar">
+    <input class="lib-search" type="text" placeholder="Search by symptom, intervention, or keyword…" oninput="filterLib(this.value)">
+  </div>
+
+  <div class="lib-filters" id="lib-filters"></div>
+
+  <div class="lib-grid" id="lib-grid"></div>
+
+</div>
+
+<script>
+(function() {
+  const CATS = ['All','Fatigue','Acne','Irregular cycles','Hair loss','Insulin resistance','Mood','Weight','Sleep'];
+  const ENTRIES = [
+    {av:'🌸',author:'Aanya, 22',profile:'Fatigue-dominant · insulin resistance · Delhi',cats:['Fatigue','Insulin resistance'],catColors:['#faebd7','#fce4e6'],intervention:'Berberine 500mg twice daily + fibre-first meals',result:'"After 6 weeks I noticed my 2pm crashes almost completely stopped. My fasting glucose also came down. I combine it with eating a salad before my carbs at every meal — the combination was the key for me, not either alone."',tags:['6 weeks','Metabolic','India diet-friendly'],duration:'6 weeks',helpful:34},
+    {av:'🌷',author:'Priya, 25',profile:'Hair thinning · irregular cycles · Bangalore',cats:['Hair loss','Irregular cycles'],catColors:['#ece8f6','#fce4e6'],intervention:'Rosemary oil scalp massage daily + inositol supplement',result:'"I was losing so much hair. Started rosemary oil every morning — just 5 minutes. By month 3 I genuinely had visible regrowth. The inositol (myo + d-chiro 40:1 blend) also regulated my cycle within 90 days. Both together changed everything."',tags:['3 months','Hormonal','Budget-friendly'],duration:'3 months',helpful:51},
+    {av:'🌻',author:'Meera, 27',profile:'Hormonal acne · weight gain · Mumbai',cats:['Acne','Weight'],catColors:['#ece8f6','#fce4e6'],intervention:'Low-GI diet swap + spearmint tea (twice daily)',result:'"I replaced white rice with millets and started having spearmint tea after lunch and dinner. My acne cleared by about 70% in 8 weeks. The spearmint research is real — I wish someone had told me sooner. Diet change alone hadn't worked for 2 years."',tags:['8 weeks','Skin','Indian diet'],duration:'8 weeks',helpful:67},
+    {av:'🌺',author:'Sara, 23',profile:'Sleep issues · mood swings · Hyderabad',cats:['Sleep','Mood'],catColors:['#ddeef7','#c8deca'],intervention:'Magnesium glycinate before bed + journaling practice',result:'"I was waking at 3am every night with racing thoughts. Magnesium glycinate (400mg before bed) completely fixed my sleep within 2 weeks. I added a 3-sentence mood journal every morning — after 4 weeks I could actually predict my bad days by cycle phase."',tags:['2 weeks','Mental health','Supplement'],duration:'2–4 weeks',helpful:43},
+    {av:'✨',author:'Kavya, 24',profile:'Fatigue · brain fog · Chennai',cats:['Fatigue'],catColors:['#faebd7'],intervention:'Protein-first breakfast within 30 min of waking',result:'"I used to skip breakfast or have just idli. Now I have 2 eggs first thing before anything else. The brain fog I\'d had for 3 years started lifting in under 2 weeks. I sound like an influencer but I\'m not — this was the only variable I changed."',tags:['2 weeks','Energy','South India'],duration:'2 weeks',helpful:28},
+    {av:'🌼',author:'Ritu, 26',profile:'Weight gain · irregular cycles · Pune',cats:['Weight','Irregular cycles'],catColors:['#fce4e6','#c8deca'],intervention:'15-min walks after each meal (3x daily) + sleep consistency',result:'"My doctor said lose weight but never told me how when diet wasn\'t working. I tried 15-min post-meal walks every day for 30 days. I didn\'t lose much weight but my cycles became more predictable after month 2, and my cravings dropped significantly."',tags:['30 days','Lifestyle','Free'],duration:'30 days',helpful:39},
+  ];
+
+  let activeCat = 'All';
+  let searchQuery = '';
+
+  /* render filters */
+  const filtersEl = document.getElementById('lib-filters');
+  CATS.forEach(cat => {
+    const p = document.createElement('div');
+    p.className = 'lf-pill' + (cat==='All'?' on':'');
+    p.textContent = cat;
+    p.addEventListener('click', () => {
+      activeCat = cat;
+      filtersEl.querySelectorAll('.lf-pill').forEach(x=>x.classList.remove('on'));
+      p.classList.add('on');
+      renderEntries();
+    });
+    filtersEl.appendChild(p);
+  });
+
+  function renderEntries() {
+    const grid = document.getElementById('lib-grid');
+    grid.innerHTML = '';
+    ENTRIES
+      .filter(e => activeCat==='All' || e.cats.includes(activeCat))
+      .filter(e => !searchQuery || JSON.stringify(e).toLowerCase().includes(searchQuery.toLowerCase()))
+      .forEach((e, i) => {
+        const div = document.createElement('div');
+        div.className = 'lib-entry';
+        div.innerHTML = `
+          <div class="le-top">
+            <div class="le-av">${e.av}</div>
+            <div class="le-meta">
+              <div class="le-author">${e.author}</div>
+              <div class="le-profile">${e.profile}</div>
+              <div class="le-cats">
+                ${e.cats.map((c,ci)=>`<div class="le-cat" style="background:${e.catColors[ci]};color:#1e1a1a">${c}</div>`).join('')}
+              </div>
+            </div>
+            <div class="le-verified">✓ Real experience</div>
+          </div>
+          <div class="le-intervention">Tried: ${e.intervention}</div>
+          <div class="le-result">${e.result}</div>
+          <div class="le-bottom">
+            ${e.tags.map(t=>`<div class="le-tag">${t}</div>`).join('')}
+            <span class="le-duration">⏱ ${e.duration}</span>
+            <div class="le-helpful" onclick="this.classList.toggle('voted');this.querySelector('span').textContent=this.classList.contains('voted')?${e.helpful+1}:${e.helpful}">
+              🌸 Helpful (<span>${e.helpful}</span>)
+            </div>
+          </div>`;
+        grid.appendChild(div);
+      });
+    if (!grid.children.length) {
+      grid.innerHTML = '<div style="text-align:center;padding:48px;color:#9e8e8e;font-size:15px;">No entries found — try a different filter.</div>';
+    }
+  }
+
+  window.filterLib = function(q) { searchQuery = q; renderEntries(); };
+
+  renderEntries();
+})();
+</script>
