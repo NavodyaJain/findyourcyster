@@ -1,41 +1,63 @@
 <!-- pages/chat.html · FindYourCyster Chat -->
-<!-- Loaded by shell.html into #page-chat via fetch() -->
+<!-- Reads from localStorage key 'fyc_chat_events' — written by challenges.html -->
 <style>
 .chat-wrap{display:flex;height:100%;overflow:hidden;}
 
 /* messages column */
 .chat-msgs-col{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
 
-/* top identity strip (shows shared symptoms) */
-.chat-identity-strip{
-  padding:14px 24px;
-  background:rgba(253,240,241,.8);
-  border-bottom:1px solid rgba(232,193,197,.2);
-  display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex-shrink:0;
-}
-.ci-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#9e8e8e;}
-.ci-chip{background:var(--rose-light,#fce4e6);border:1px solid rgba(232,193,197,.5);padding:4px 12px;border-radius:999px;font-size:12px;font-weight:500;color:#1e1a1a;}
+/* shared symptoms strip */
+.chat-id-strip{padding:12px 22px;background:rgba(253,240,241,.8);border-bottom:1px solid rgba(232,193,197,.2);display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex-shrink:0;}
+.ci-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#9e8e8e;}
+.ci-chip{background:#fce4e6;border:1px solid rgba(232,193,197,.5);padding:4px 12px;border-radius:999px;font-size:12px;font-weight:500;color:#1e1a1a;}
 
 /* messages */
-.msgs-area{flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth;}
+.msgs-area{flex:1;overflow-y:auto;padding:18px 22px;display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth;}
 .msgs-area::-webkit-scrollbar{width:4px;}
 .msgs-area::-webkit-scrollbar-thumb{background:rgba(232,193,197,.4);border-radius:4px;}
 
-/* date pill */
 .date-pill{align-self:center;font-size:11px;color:#bbb;background:rgba(255,255,255,.7);padding:4px 14px;border-radius:999px;border:1px solid rgba(232,193,197,.2);}
 
 /* message */
-.msg{display:flex;flex-direction:column;max-width:72%;}
+.msg{display:flex;flex-direction:column;max-width:72%;animation:msgIn .3s cubic-bezier(.22,1,.36,1) both;}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .msg.sent{align-self:flex-end;align-items:flex-end;}
 .msg.recv{align-self:flex-start;align-items:flex-start;}
-.msg-bub{
-  padding:11px 16px;border-radius:18px;font-size:14px;line-height:1.55;
-  animation:msgIn .3s cubic-bezier(.22,1,.36,1) both;
-}
-@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.msg-bub{padding:11px 16px;border-radius:18px;font-size:14px;line-height:1.55;}
 .msg.sent .msg-bub{background:#1e1a1a;color:white;border-bottom-right-radius:4px;}
 .msg.recv .msg-bub{background:white;color:#1e1a1a;border-bottom-left-radius:4px;box-shadow:0 2px 12px rgba(30,26,26,.08);}
 .msg-time{font-size:10px;color:#ccc;margin-top:3px;padding:0 4px;}
+
+/* system message */
+.sys-msg{
+  align-self:center;max-width:88%;
+  background:linear-gradient(135deg,rgba(122,158,128,.12),rgba(164,148,196,.1));
+  border:1px solid rgba(122,158,128,.3);
+  border-radius:18px;padding:12px 16px;
+  font-size:13px;color:#1e1a1a;text-align:center;
+  animation:msgIn .4s cubic-bezier(.22,1,.36,1) both;
+}
+.sys-msg-ico{font-size:20px;margin-bottom:4px;display:block;}
+.sys-msg-title{font-weight:700;font-size:14px;margin-bottom:3px;}
+.sys-msg-sub{font-size:12px;color:#5a4f4f;line-height:1.5;}
+
+/* challenge share card (sent in chat) */
+.ch-share-card{
+  background:linear-gradient(135deg,#1e1a1a,#2e2020);
+  border-radius:18px;padding:16px 18px;
+  max-width:280px;
+  color:white;
+  cursor:pointer;
+  transition:all .25s ease;
+  border-bottom-right-radius:4px;
+  box-shadow:0 8px 24px rgba(30,26,26,.25);
+}
+.ch-share-card:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(30,26,26,.3);}
+.csc-emoji{font-size:28px;margin-bottom:8px;display:block;}
+.csc-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(232,193,197,.7);margin-bottom:5px;}
+.csc-name{font-weight:700;font-size:16px;margin-bottom:4px;}
+.csc-msg{font-size:12px;color:rgba(255,255,255,.65);line-height:1.5;}
+.csc-streak{margin-top:10px;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#e8c1c5;}
 
 /* typing */
 .typing-bub{display:flex;align-items:center;gap:4px;padding:12px 16px;background:white;border-radius:18px;border-bottom-left-radius:4px;width:60px;box-shadow:0 2px 12px rgba(30,26,26,.08);}
@@ -45,178 +67,255 @@
 @keyframes tb{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
 
 /* input */
-.chat-input-row{
-  padding:14px 20px;
-  border-top:1px solid rgba(232,193,197,.2);
-  background:rgba(255,255,255,.8);
-  display:flex;gap:10px;align-items:flex-end;flex-shrink:0;
-}
-.msg-input{
-  flex:1;border:1.5px solid rgba(232,193,197,.35);border-radius:18px;
-  padding:11px 16px;font-family:'Outfit',sans-serif;font-size:14px;
-  background:white;color:#1e1a1a;outline:none;resize:none;
-  min-height:46px;max-height:110px;line-height:1.5;
-  transition:border-color .25s ease,box-shadow .25s ease;
-}
+.chat-input-row{padding:12px 18px;border-top:1px solid rgba(232,193,197,.2);background:rgba(255,255,255,.8);display:flex;gap:9px;align-items:flex-end;flex-shrink:0;}
+.msg-input{flex:1;border:1.5px solid rgba(232,193,197,.35);border-radius:18px;padding:10px 16px;font-family:'Outfit',sans-serif;font-size:14px;background:white;color:#1e1a1a;outline:none;resize:none;min-height:44px;max-height:110px;line-height:1.5;transition:border-color .25s ease,box-shadow .25s ease;}
 .msg-input:focus{border-color:#c99ea4;box-shadow:0 0 0 3px rgba(232,193,197,.15);}
-.send-btn{
-  width:42px;height:42px;border-radius:50%;background:#1e1a1a;color:white;
-  border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
-  font-size:16px;flex-shrink:0;transition:all .25s ease;
-}
+.send-btn{width:40px;height:40px;border-radius:50%;background:#1e1a1a;color:white;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;transition:all .25s ease;}
 .send-btn:hover{transform:scale(1.08);box-shadow:0 6px 18px rgba(30,26,26,.25);}
 
-/* ── right panel: quick dashboard snapshot ── */
-.chat-right-panel{
-  width:280px;flex-shrink:0;
-  border-left:1px solid rgba(232,193,197,.2);
-  background:rgba(255,255,255,.7);
-  backdrop-filter:blur(12px);
-  display:flex;flex-direction:column;
-  overflow-y:auto;
-}
-.chat-right-panel::-webkit-scrollbar{width:4px;}
-.chat-right-panel::-webkit-scrollbar-thumb{background:rgba(232,193,197,.3);border-radius:4px;}
-
-.crp-header{padding:18px 18px 12px;border-bottom:1px solid rgba(232,193,197,.15);}
-.crp-header h4{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:#1e1a1a;}
-.crp-header p{font-size:12px;color:#9e8e8e;margin-top:2px;}
-
-.crp-body{padding:14px 16px;display:flex;flex-direction:column;gap:14px;}
+/* right panel */
+.chat-rp{width:272px;flex-shrink:0;border-left:1px solid rgba(232,193,197,.2);background:rgba(255,255,255,.7);backdrop-filter:blur(12px);display:flex;flex-direction:column;overflow-y:auto;}
+.chat-rp::-webkit-scrollbar{width:4px;}
+.chat-rp::-webkit-scrollbar-thumb{background:rgba(232,193,197,.3);border-radius:4px;}
+.crp-hdr{padding:16px 16px 12px;border-bottom:1px solid rgba(232,193,197,.15);}
+.crp-hdr h4{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:700;color:#1e1a1a;}
+.crp-hdr p{font-size:12px;color:#9e8e8e;margin-top:2px;}
+.crp-body{padding:13px 14px;display:flex;flex-direction:column;gap:13px;}
 
 /* mini widget */
-.mini-widget{background:#fdf0f1;border:1px solid rgba(232,193,197,.25);border-radius:18px;padding:14px;}
-.mw-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#9e8e8e;margin-bottom:10px;display:flex;align-items:center;gap:5px;}
-.mw-streak-num{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:700;color:#1e1a1a;line-height:1;}
-.mw-streak-unit{font-size:14px;font-weight:400;}
-.streak-dots{display:flex;gap:4px;margin-top:8px;}
-.sdot{width:28px;height:6px;border-radius:3px;background:rgba(232,193,197,.3);}
-.sdot.on{background:#c99ea4;}
+.mw{background:#fdf0f1;border:1px solid rgba(232,193,197,.25);border-radius:16px;padding:13px;}
+.mw-lbl{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#9e8e8e;margin-bottom:9px;display:flex;align-items:center;gap:5px;}
+.mw-streak-n{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:700;color:#1e1a1a;line-height:1;}
+.mw-unit{font-size:13px;font-weight:400;}
+.sdots-r{display:flex;gap:3px;margin-top:7px;}
+.sd{width:26px;height:5px;border-radius:3px;background:rgba(232,193,197,.3);}
+.sd.on{background:#c99ea4;}
 
-.today-ch{background:linear-gradient(135deg,#1e1a1a,#3a3030);border-radius:14px;padding:14px;color:white;position:relative;overflow:hidden;}
-.today-ch::before{content:'';position:absolute;top:-30px;right:-20px;width:80px;height:80px;background:radial-gradient(circle,rgba(232,193,197,.3) 0%,transparent 70%);border-radius:50%;}
-.tc-emoji{font-size:22px;margin-bottom:6px;display:block;}
-.tc-name{font-weight:600;font-size:14px;margin-bottom:3px;}
-.tc-desc{font-size:11px;color:rgba(255,255,255,.6);line-height:1.5;}
-.tc-btn{margin-top:10px;background:#e8c1c5;color:#1e1a1a;border:none;padding:7px 14px;border-radius:999px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .25s ease;}
-.tc-btn:hover{transform:scale(1.04);}
+/* active challenge widget */
+.active-ch-widget{background:linear-gradient(135deg,#1e1a1a,#3a3030);border-radius:14px;padding:13px;color:white;position:relative;overflow:hidden;}
+.active-ch-widget::before{content:'';position:absolute;top:-25px;right:-15px;width:70px;height:70px;background:radial-gradient(circle,rgba(232,193,197,.25) 0%,transparent 70%);border-radius:50%;}
+.ach-none{font-size:12px;color:rgba(255,255,255,.5);text-align:center;padding:6px 0;}
+.ach-emoji{font-size:20px;margin-bottom:5px;display:block;}
+.ach-name{font-weight:700;font-size:13px;margin-bottom:3px;}
+.ach-desc{font-size:11px;color:rgba(255,255,255,.55);line-height:1.5;}
+.ach-btn{margin-top:9px;background:#e8c1c5;color:#1e1a1a;border:none;padding:6px 13px;border-radius:999px;font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all .22s ease;}
+.ach-btn:hover{transform:scale(1.04);}
 
-.mood-row{display:flex;gap:6px;justify-content:space-between;}
-.mood-btn{flex:1;padding:8px 4px;border-radius:12px;border:1.5px solid rgba(232,193,197,.3);background:rgba(255,255,255,.6);font-size:18px;cursor:pointer;text-align:center;transition:all .25s ease;}
+/* mood */
+.mood-row{display:flex;gap:5px;justify-content:space-between;}
+.mood-btn{flex:1;padding:7px 3px;border-radius:10px;border:1.5px solid rgba(232,193,197,.3);background:rgba(255,255,255,.6);font-size:17px;cursor:pointer;text-align:center;transition:all .22s ease;}
 .mood-btn:hover{border-color:#c99ea4;transform:scale(1.06);}
-.mood-btn.picked{border-color:#c99ea4;background:#fce4e6;}
+.mood-btn.pk{border-color:#c99ea4;background:#fce4e6;}
 
-@media(max-width:900px){.chat-right-panel{display:none;}}
-@media(max-width:600px){.chat-identity-strip{padding:10px 16px;}.msgs-area{padding:14px 14px;}.chat-input-row{padding:10px 12px;}}
+/* challenge encouragement prompts */
+.enc-prompt{
+  background:linear-gradient(135deg,rgba(122,158,128,.1),rgba(164,148,196,.08));
+  border:1px solid rgba(122,158,128,.25);
+  border-radius:14px;padding:11px 13px;
+  font-size:12px;color:#1e1a1a;cursor:pointer;
+  transition:all .22s ease;margin-bottom:6px;
+}
+.enc-prompt:hover{background:rgba(122,158,128,.15);transform:translateY(-1px);}
+.enc-prompt:last-child{margin-bottom:0;}
+
+@media(max-width:900px){.chat-rp{display:none;}}
+@media(max-width:600px){.chat-id-strip{padding:9px 14px;}.msgs-area{padding:12px 14px;}.chat-input-row{padding:9px 12px;}}
 </style>
 
 <div class="chat-wrap">
 
-  <!-- LEFT: messages -->
+  <!-- LEFT: chat -->
   <div class="chat-msgs-col">
-    <!-- shared symptoms strip -->
-    <div class="chat-identity-strip">
+    <div class="chat-id-strip">
       <span class="ci-label">You both share</span>
       <div id="ci-chips"></div>
     </div>
-
-    <!-- messages -->
     <div class="msgs-area" id="msgs-area">
       <div class="date-pill">Today</div>
-      <!-- system -->
       <div style="align-self:center;font-size:12px;color:#bbb;background:rgba(255,255,255,.6);padding:5px 14px;border-radius:999px;border:1px solid rgba(232,193,197,.2);">
         You matched with <span id="match-name-sys">Aanya</span> ✨
       </div>
     </div>
-
-    <!-- input -->
     <div class="chat-input-row">
-      <textarea class="msg-input" id="msg-input" placeholder="Say something…" rows="1"
+      <textarea class="msg-input" id="msg-input" placeholder="Say something to your Cyster…" rows="1"
         onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg();}"
         oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,110)+'px'"></textarea>
       <button class="send-btn" onclick="sendMsg()">↑</button>
     </div>
   </div>
 
-  <!-- RIGHT: snapshot panel -->
-  <div class="chat-right-panel">
-    <div class="crp-header">
+  <!-- RIGHT: dashboard snapshot -->
+  <div class="chat-rp">
+    <div class="crp-hdr">
       <h4>Quick View</h4>
       <p>Your dashboard snapshot</p>
     </div>
     <div class="crp-body">
 
       <!-- streak -->
-      <div class="mini-widget">
-        <div class="mw-label">🔥 Streak</div>
-        <div class="mw-streak-num" id="chat-streak">0<span class="mw-streak-unit"> days</span></div>
-        <div class="streak-dots" id="chat-streak-dots"></div>
+      <div class="mw">
+        <div class="mw-lbl">🔥 Streak</div>
+        <div class="mw-streak-n" id="chat-streak">0<span class="mw-unit"> days</span></div>
+        <div class="sdots-r" id="chat-sdots"></div>
       </div>
 
-      <!-- today's challenge -->
-      <div class="mini-widget" style="padding:0;background:transparent;border:none;">
-        <div class="mw-label">⚡ Today's Challenge</div>
-        <div class="today-ch">
-          <span class="tc-emoji">🚶‍♀️</span>
-          <div class="tc-name">10-min walk after lunch</div>
-          <div class="tc-desc">Light movement post-meal helps regulate blood sugar.</div>
-          <button class="tc-btn" onclick="window.parent.go&&window.parent.go('challenges')">Log Challenge →</button>
+      <!-- active challenge -->
+      <div class="mw" style="padding:0;background:transparent;border:none;">
+        <div class="mw-lbl">⚡ Active Challenge</div>
+        <div class="active-ch-widget" id="active-ch-widget">
+          <div class="ach-none">No challenge started yet — visit Challenges ⚡</div>
         </div>
       </div>
 
-      <!-- mood check -->
-      <div class="mini-widget">
-        <div class="mw-label">🌊 How are you feeling?</div>
-        <div class="mood-row" id="mood-row">
-          <div class="mood-btn" onclick="pickMood(this)" title="Great">😊</div>
-          <div class="mood-btn" onclick="pickMood(this)" title="Okay">😐</div>
-          <div class="mood-btn" onclick="pickMood(this)" title="Tired">😴</div>
-          <div class="mood-btn" onclick="pickMood(this)" title="Low">😔</div>
-          <div class="mood-btn" onclick="pickMood(this)" title="Anxious">😰</div>
+      <!-- encouragement prompts (shown when challenge active) -->
+      <div id="enc-prompts" style="display:none;">
+        <div class="mw-lbl">💬 Send to Cyster</div>
+        <div id="enc-list"></div>
+      </div>
+
+      <!-- mood -->
+      <div class="mw">
+        <div class="mw-lbl">🌊 How are you feeling?</div>
+        <div class="mood-row">
+          <div class="mood-btn" onclick="pkMood(this)" title="Great">😊</div>
+          <div class="mood-btn" onclick="pkMood(this)" title="Okay">😐</div>
+          <div class="mood-btn" onclick="pkMood(this)" title="Tired">😴</div>
+          <div class="mood-btn" onclick="pkMood(this)" title="Low">😔</div>
+          <div class="mood-btn" onclick="pkMood(this)" title="Anxious">😰</div>
         </div>
       </div>
 
     </div>
   </div>
-
 </div>
 
 <script>
-(function() {
-  /* pull cyster data from parent shell or sessionStorage */
-  let c = null;
-  try { c = JSON.parse(sessionStorage.getItem('matchedCyster')); } catch(e){}
-  c = c || {name:'Aanya',age:22,avatar:'🌸',sharedSymptoms:['Fatigue','Hormonal acne']};
+(function(){
+  /* ── CYSTER DATA ── */
+  let c=null;
+  try{c=JSON.parse(sessionStorage.getItem('matchedCyster'));}catch(e){}
+  c=c||{name:'Aanya',age:22,avatar:'🌸',sharedSymptoms:['Fatigue','Hormonal acne']};
 
-  /* populate shared chips */
-  const chips = document.getElementById('ci-chips');
-  const syms = c.sharedSymptoms || ['Irregular periods'];
-  syms.forEach(s => {
-    const d = document.createElement('div');
-    d.className = 'ci-chip';
-    d.textContent = s;
-    chips.appendChild(d);
+  /* chips */
+  const chips=document.getElementById('ci-chips');
+  (c.sharedSymptoms||['Irregular periods']).forEach(s=>{
+    const d=document.createElement('div');d.className='ci-chip';d.textContent=s;chips.appendChild(d);
+  });
+  const ns=document.getElementById('match-name-sys');
+  if(ns) ns.textContent=c.name;
+
+  /* ── STREAK ── */
+  const streak=parseInt(localStorage.getItem('fyc_streak')||'0');
+  document.getElementById('chat-streak').innerHTML=`${streak}<span class="mw-unit"> days</span>`;
+  const sdots=document.getElementById('chat-sdots');
+  for(let i=0;i<7;i++){const d=document.createElement('div');d.className='sd'+(i<streak?' on':'');sdots.appendChild(d);}
+
+  /* ── ACTIVE CHALLENGE ── */
+  const started=JSON.parse(localStorage.getItem('fyc_started')||'{}');
+  const CH_MAP={
+    walk:{emoji:'🚶‍♀️',name:'Post-Meal Movement',desc:'10 min walk after meals'},
+    protein:{emoji:'🥚',name:'Protein-First Breakfast',desc:'20g protein within 30 min of waking'},
+    spearmint:{emoji:'🫖',name:'Spearmint Tea Ritual',desc:'2 cups per day for 30 days'},
+    mealprep:{emoji:'🥗',name:'Anti-Inflammatory Meal Prep',desc:'3 fresh meals this week'},
+    movement:{emoji:'🏃‍♀️',name:'Gentle Movement Streak',desc:'30 min movement, 5 days/week'},
+    lowgi:{emoji:'🌾',name:'21-Day Low-GI Reset',desc:'Low glycaemic eating for 21 days'},
+    sleep:{emoji:'🌙',name:'30-Day Sleep Reset',desc:'Consistent sleep + no screens before bed'},
+  };
+  const activeId=Object.keys(started)[0];
+  const activeCh=activeId&&CH_MAP[activeId];
+
+  if(activeCh){
+    document.getElementById('active-ch-widget').innerHTML=`
+      <span class="ach-emoji">${activeCh.emoji}</span>
+      <div class="ach-name">${activeCh.name}</div>
+      <div class="ach-desc">${activeCh.desc}</div>
+      <button class="ach-btn" onclick="window.shellNavigate&&shellNavigate('challenges')">Log Progress →</button>`;
+
+    /* encouragement prompts */
+    const prompts=[
+      `How did ${activeCh.name} go today? 💪`,
+      `I just logged my ${activeCh.name} progress! How are you doing?`,
+      `${activeCh.emoji} Day ${streak} of our challenge — still going!`,
+      `Any tips for ${activeCh.name}? Struggling a bit today…`,
+      `Let's check in — how are you feeling with our challenge?`,
+    ];
+    document.getElementById('enc-prompts').style.display='block';
+    const encList=document.getElementById('enc-list');
+    prompts.slice(0,3).forEach(p=>{
+      const div=document.createElement('div');
+      div.className='enc-prompt';
+      div.textContent=p;
+      div.onclick=()=>{document.getElementById('msg-input').value=p;document.getElementById('msg-input').focus();};
+      encList.appendChild(div);
+    });
+  }
+
+  /* ── INITIAL MESSAGES ── */
+  const initMsgs=[
+    {from:'recv',text:`omg hi!! I was so excited when I saw we matched 🌸`,delay:600},
+    {from:'recv',text:`which symptoms hit you hardest rn? for me it's 100% the fatigue and mood swings before my period 😭`,delay:1100},
+  ];
+  initMsgs.forEach(m=>setTimeout(()=>appendMsg(m.from,m.text),m.delay));
+
+  /* ── CHALLENGE EVENT LISTENER ── */
+  /*
+    challenges.html fires events to localStorage key 'fyc_chat_events'
+    We listen here and inject system messages + auto cyster responses
+  */
+  let lastEventCount=JSON.parse(localStorage.getItem('fyc_chat_events')||'[]').length;
+
+  function processChallengeEvents(){
+    const evs=JSON.parse(localStorage.getItem('fyc_chat_events')||'[]');
+    const newEvs=evs.slice(lastEventCount);
+    lastEventCount=evs.length;
+    newEvs.forEach(ev=>{
+      setTimeout(()=>{
+        if(ev.type==='start'){
+          // system message
+          appendSysMsg(ev.emoji,`Challenge Started: ${ev.name}`,`You sent your cyster a challenge invite. Ask them how it's going!`);
+          // auto-inject user's chat message as sent
+          setTimeout(()=>{
+            appendChShareCard('sent',ev.emoji,ev.name,ev.msg,null);
+            // cyster response
+            setTimeout(()=>showTyping(()=>{
+              const cysterResponses=[
+                `Yesss I'm so in!! 🔥 Let's do this together — I'll check in with you every day`,
+                `omg I've been wanting to try this!! Starting today too 🌸`,
+                `you're amazing for starting this — I'll be your accountability partner 💪`,
+                `I literally needed this push — joining you right now! Let's go 🚀`,
+              ];
+              appendMsg('recv',cysterResponses[Math.floor(Math.random()*cysterResponses.length)]);
+            }),2200);
+          },800);
+        } else if(ev.type==='progress'){
+          appendSysMsg('📊','Progress Logged!',`You logged day ${ev.streak} of ${ev.name}. Your cyster can see your progress.`);
+          setTimeout(()=>{
+            appendChShareCard('sent',ev.emoji,ev.name,ev.msg,ev.streak);
+            setTimeout(()=>showTyping(()=>{
+              const progressResponses=[
+                `${ev.streak} DAYS!! 🔥🔥 I'm so proud of you honestly`,
+                `you're literally carrying us both rn 💪 I need to catch up!`,
+                `day ${ev.streak} is huge — the habit is forming, keep going!!`,
+                `omg STREAK 🔥 this is the one that's actually going to help — I can feel it`,
+              ];
+              appendMsg('recv',progressResponses[Math.floor(Math.random()*progressResponses.length)]);
+            }),1800);
+          },600);
+        }
+      },300);
+    });
+  }
+
+  /* listen for storage changes (cross-tab or same-window dispatch) */
+  window.addEventListener('storage',e=>{
+    if(e.key==='fyc_chat_events') processChallengeEvents();
   });
 
-  /* match name */
-  const ns = document.getElementById('match-name-sys');
-  if (ns) ns.textContent = c.name;
+  /* also poll for same-window updates (challenges page dispatches StorageEvent) */
+  setInterval(processChallengeEvents, 1000);
 
-  /* streak dots */
-  const streak = parseInt(localStorage.getItem('fyc_streak')||'0');
-  document.getElementById('chat-streak').innerHTML = `${streak}<span class="mw-streak-unit"> days</span>`;
-  const dots = document.getElementById('chat-streak-dots');
-  for (let i=0;i<7;i++){const d=document.createElement('div');d.className='sdot'+(i<streak?' on':'');dots.appendChild(d);}
-
-  /* initial messages */
-  const initMsgs = [
-    {from:'recv',text:`omg hi!! I was so excited when I saw we matched 🌸`,delay:600},
-    {from:'recv',text:`which symptoms hit you the hardest rn? for me it's the fatigue like no one around me understands 😭`,delay:1100},
-  ];
-  initMsgs.forEach(m => setTimeout(() => appendMsg(m.from, m.text), m.delay));
-
-  /* auto-replies */
-  const replies = [
+  /* ── AUTO REPLIES ── */
+  const replies=[
     "omg yes exactly!! I feel so seen right now 🥺",
     "has anything actually helped you? I've tried SO many things lol",
     "wait tell me more — which one worked for you??",
@@ -224,52 +323,84 @@
     "the worst is when doctors just say 'lose weight' 😤",
     "that's actually really helpful, gonna try that!",
     "we should do the 30-day challenge together 🔥",
+    "can't believe I finally found someone who actually gets the fatigue thing",
+    "have you tried spearmint tea? it actually helped my acne so much",
+    "I was reading about low-GI eating for PCOS — should we try it together?",
   ];
-  let rIdx = 0;
+  let rIdx=0;
 
-  window.sendMsg = function() {
-    const inp = document.getElementById('msg-input');
-    const txt = inp.value.trim();
-    if (!txt) return;
-    appendMsg('sent', txt);
-    inp.value = ''; inp.style.height = 'auto';
-
-    /* typing indicator */
-    setTimeout(() => {
-      const area = document.getElementById('msgs-area');
-      const ti = document.createElement('div');
-      ti.className = 'msg recv'; ti.id = 'typing-ind';
-      ti.innerHTML = '<div class="typing-bub"><div class="td"></div><div class="td"></div><div class="td"></div></div>';
-      area.appendChild(ti); area.scrollTop = area.scrollHeight;
-
-      setTimeout(() => {
-        ti.remove();
-        appendMsg('recv', replies[rIdx % replies.length]);
-        rIdx++;
-      }, 1400 + Math.random()*600);
-    }, 500);
+  window.sendMsg=function(){
+    const inp=document.getElementById('msg-input');
+    const txt=inp.value.trim();
+    if(!txt)return;
+    appendMsg('sent',txt);
+    inp.value='';inp.style.height='auto';
+    setTimeout(()=>showTyping(()=>{
+      appendMsg('recv',replies[rIdx%replies.length]);rIdx++;
+    }),1400+Math.random()*700);
   };
 
-  function appendMsg(from, text) {
-    const area = document.getElementById('msgs-area');
-    const now = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-    const div = document.createElement('div');
-    div.className = `msg ${from}`;
-    div.innerHTML = `<div class="msg-bub">${text}</div><div class="msg-time">${now}</div>`;
-    area.appendChild(div);
-    area.scrollTop = area.scrollHeight;
+  function showTyping(cb){
+    const area=document.getElementById('msgs-area');
+    const ti=document.createElement('div');
+    ti.className='msg recv';ti.id='typing-ind';
+    ti.innerHTML='<div class="typing-bub"><div class="td"></div><div class="td"></div><div class="td"></div></div>';
+    area.appendChild(ti);area.scrollTop=area.scrollHeight;
+    setTimeout(()=>{ti.remove();cb();},1200+Math.random()*600);
   }
 
-  window.pickMood = function(btn) {
-    document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('picked'));
-    btn.classList.add('picked');
-    localStorage.setItem('fyc_mood_today', btn.title);
-  };
-  /* restore today's mood */
-  const savedMood = localStorage.getItem('fyc_mood_today');
-  if (savedMood) {
-    const btn = [...document.querySelectorAll('.mood-btn')].find(b=>b.title===savedMood);
-    if (btn) btn.classList.add('picked');
+  function appendMsg(from,text){
+    const area=document.getElementById('msgs-area');
+    const now=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    const div=document.createElement('div');
+    div.className='msg '+from;
+    div.innerHTML=`<div class="msg-bub">${text}</div><div class="msg-time">${now}</div>`;
+    area.appendChild(div);area.scrollTop=area.scrollHeight;
   }
+
+  /* system message (challenge event) */
+  function appendSysMsg(ico,title,sub){
+    const area=document.getElementById('msgs-area');
+    const div=document.createElement('div');
+    div.className='sys-msg';
+    div.innerHTML=`<span class="sys-msg-ico">${ico}</span><div class="sys-msg-title">${title}</div><div class="sys-msg-sub">${sub}</div>`;
+    area.appendChild(div);area.scrollTop=area.scrollHeight;
+  }
+
+  /* challenge share card in chat */
+  function appendChShareCard(from,emoji,name,msg,streakNum){
+    const area=document.getElementById('msgs-area');
+    const now=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    const wrap=document.createElement('div');
+    wrap.className='msg '+from;
+    const card=document.createElement('div');
+    card.className='ch-share-card';
+    card.innerHTML=`
+      <span class="csc-emoji">${emoji}</span>
+      <div class="csc-label">CycleSync Challenge</div>
+      <div class="csc-name">${name}</div>
+      <div class="csc-msg">${msg}</div>
+      ${streakNum?`<div class="csc-streak">🔥 ${streakNum}-day streak!</div>`:''}`;
+    card.onclick=()=>window.shellNavigate&&shellNavigate('challenges');
+    wrap.appendChild(card);
+    const time=document.createElement('div');
+    time.className='msg-time';time.textContent=now;
+    wrap.appendChild(time);
+    area.appendChild(wrap);area.scrollTop=area.scrollHeight;
+  }
+
+  window.pkMood=function(btn){
+    document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('pk'));
+    btn.classList.add('pk');
+    localStorage.setItem('fyc_mood_today',btn.title);
+  };
+  const savedMood=localStorage.getItem('fyc_mood_today');
+  if(savedMood){
+    const btn=[...document.querySelectorAll('.mood-btn')].find(b=>b.title===savedMood);
+    if(btn) btn.classList.add('pk');
+  }
+
+  /* check events already in storage on load */
+  processChallengeEvents();
 })();
 </script>

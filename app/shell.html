@@ -84,16 +84,6 @@ body {
   overflow: hidden;
   position: relative;
   background: var(--petal);
-  margin-left: var(--sb-w);
-  transition: margin-left 0.32s cubic-bezier(0.22, 1, 0.36, 1);
-}
-body.sb-open #content {
-  margin-left: var(--sb-open);
-}
-@media (max-width: 768px) {
-  #content {
-    margin-left: 0;
-  }
 }
 
 /* page slots */
@@ -991,6 +981,14 @@ async function loadPage(route) {
     const res = await fetch(`pages/${route}.html`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     slot.innerHTML = await res.text();
+    slot.querySelectorAll('script').forEach(oldScript => {
+      const newScript = document.createElement('script');
+      Array.from(oldScript.attributes).forEach(attr =>
+        newScript.setAttribute(attr.name, attr.value)
+      );
+      newScript.textContent = oldScript.textContent;
+      oldScript.parentNode.replaceChild(newScript, oldScript);
+    });
     /* run page init if defined */
     if (window[`init_${route}`]) window[`init_${route}`]();
   } catch (err) {

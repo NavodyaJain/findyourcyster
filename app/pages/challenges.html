@@ -1,266 +1,476 @@
-<!-- pages/challenges.html · FindYourCyster Challenges -->
+<!-- pages/challenges.html · CycleSync Challenges · FindYourCyster -->
 <style>
-.ch-wrap{padding:28px 28px 48px;max-width:1000px;margin:0 auto;}
-.ch-hero{background:linear-gradient(135deg,#1e1a1a 0%,#3a3030 100%);border-radius:28px;padding:32px 36px;color:white;margin-bottom:28px;position:relative;overflow:hidden;}
-.ch-hero::before{content:'';position:absolute;top:-60px;right:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(232,193,197,.25) 0%,transparent 70%);border-radius:50%;}
-.ch-hero::after{content:'';position:absolute;bottom:-40px;left:40px;width:150px;height:150px;background:radial-gradient(circle,rgba(232,193,197,.15) 0%,transparent 70%);border-radius:50%;}
-.ch-hero h2{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:700;margin-bottom:6px;position:relative;z-index:1;}
-.ch-hero p{font-size:15px;color:rgba(255,255,255,.7);position:relative;z-index:1;margin-bottom:20px;}
-.streak-display{display:flex;align-items:center;gap:20px;position:relative;z-index:1;}
-.streak-big{font-family:'Cormorant Garamond',serif;font-size:56px;font-weight:700;line-height:1;}
-.streak-flames{font-size:24px;letter-spacing:-2px;}
-.streak-week{display:flex;gap:6px;margin-top:4px;}
-.sw-day{width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:14px;border:1.5px solid rgba(255,255,255,.15);transition:all .3s ease;}
-.sw-day.on{background:#e8c1c5;border-color:#e8c1c5;animation:dayPop .4s cubic-bezier(.34,1.56,.64,1);}
-@keyframes dayPop{from{transform:scale(.5)}to{transform:scale(1)}}
-
-/* challenge cards grid */
-.ch-section-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:#1e1a1a;margin-bottom:18px;}
-.ch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:32px;}
-
-.ch-card{
-  background:white;border-radius:22px;padding:22px;
-  border:1px solid rgba(232,193,197,.25);
-  box-shadow:0 4px 16px rgba(30,26,26,.06);
-  transition:all .28s ease;
-  position:relative;overflow:hidden;
-}
-.ch-card:hover{box-shadow:0 10px 28px rgba(30,26,26,.10);transform:translateY(-3px);}
-.ch-card.done{border-color:#7a9e80;background:rgba(122,158,128,.04);}
-.ch-card-cat{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#9e8e8e;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
-.ch-card-emoji{font-size:32px;margin-bottom:10px;display:block;}
-.ch-card-name{font-weight:700;font-size:16px;color:#1e1a1a;margin-bottom:5px;}
-.ch-card-desc{font-size:13px;color:#5a4f4f;line-height:1.6;margin-bottom:16px;}
-.ch-card-meta{display:flex;align-items:center;justify-content:space-between;}
-.ch-diff{font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px;}
-.diff-easy{background:#c8deca;color:#4a7a55;}
-.diff-med{background:#fce4e6;color:#c99ea4;}
-.diff-hard{background:#faebd7;color:#d4956a;}
-.ch-btn{padding:8px 18px;border-radius:999px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all .25s ease;}
-.ch-btn-start{background:#1e1a1a;color:white;}
-.ch-btn-start:hover{background:#3a3030;transform:scale(1.04);}
-.ch-btn-done{background:#c8deca;color:#4a7a55;cursor:default;}
-
-/* progress bar on card */
-.ch-progress{height:4px;background:rgba(232,193,197,.2);border-radius:2px;margin-bottom:14px;overflow:hidden;}
-.ch-progress-fill{height:100%;background:linear-gradient(90deg,#c99ea4,#e8c1c5);border-radius:2px;transition:width 1s ease;}
-
-/* done badge */
-.done-badge{position:absolute;top:14px;right:14px;background:#7a9e80;color:white;font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px;}
-
-/* upload modal */
-.ch-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s ease;padding:20px;}
-.ch-modal-overlay.open{opacity:1;pointer-events:all;}
-.ch-modal{background:white;border-radius:28px;padding:36px;width:min(380px,100%);text-align:center;box-shadow:0 40px 80px rgba(0,0,0,.25);transform:scale(.9) translateY(16px);transition:transform .4s cubic-bezier(.34,1.56,.64,1);}
-.ch-modal-overlay.open .ch-modal{transform:scale(1) translateY(0);}
-.ch-modal-emoji{font-size:52px;margin-bottom:14px;display:block;}
-.ch-modal-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;margin-bottom:6px;}
-.ch-modal-sub{font-size:14px;color:#9e8e8e;margin-bottom:24px;line-height:1.6;}
-.upload-zone{border:2px dashed rgba(232,193,197,.6);border-radius:18px;padding:28px;margin-bottom:18px;cursor:pointer;transition:all .25s ease;position:relative;overflow:hidden;}
-.upload-zone:hover{border-color:#c99ea4;background:rgba(232,193,197,.05);}
-.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;}
-.uz-icon{font-size:32px;margin-bottom:8px;display:block;}
-.uz-lbl{font-size:13px;color:#9e8e8e;}
-.ch-upload-btn{width:100%;padding:14px;border-radius:999px;background:#1e1a1a;color:white;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;border:none;cursor:pointer;transition:all .28s ease;margin-bottom:10px;}
-.ch-upload-btn:hover{background:#3a3030;transform:translateY(-2px);}
-.ch-cancel{font-size:13px;color:#9e8e8e;cursor:pointer;}
-.ch-cancel:hover{color:#1e1a1a;}
-/* celebration */
-.ch-celeb{display:none;text-align:center;}
-.ch-celeb.show{display:block;}
-.celeb-big{font-size:64px;display:block;animation:celebBounce .6s cubic-bezier(.34,1.56,.64,1);}
-@keyframes celebBounce{from{transform:scale(0) rotate(-10deg)}to{transform:scale(1) rotate(0)}}
-.celeb-msg{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;margin:10px 0 6px;}
-.celeb-sub{font-size:14px;color:#9e8e8e;}
-.ch-close-btn{margin-top:20px;padding:12px 28px;border-radius:999px;background:#e8c1c5;color:#1e1a1a;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all .25s ease;}
-.ch-close-btn:hover{transform:scale(1.04);}
-
-#confetti-ch{position:fixed;inset:0;pointer-events:none;z-index:600;}
-
-@media(max-width:600px){.ch-wrap{padding:16px 14px 40px;}.ch-hero{padding:24px 22px;}.ch-hero h2{font-size:26px;}.streak-big{font-size:42px;}}
+.cyc-pg *{box-sizing:border-box;margin:0;padding:0;}
+.cyc-pg{font-family:'Outfit',sans-serif;color:#1e1a1a;width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;background:#fdf0f1;}
+.cyc-hero{background:linear-gradient(135deg,#1e1a1a 0%,#2e2020 100%);padding:24px 32px 18px;flex-shrink:0;position:relative;overflow:hidden;width:100%;}
+.cyc-hero::before{content:'';position:absolute;top:-60px;right:-40px;width:240px;height:240px;background:radial-gradient(circle,rgba(232,193,197,.22) 0%,transparent 70%);border-radius:50%;}
+.cyc-hero-inner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;position:relative;z-index:1;}
+.cyc-hero-left h1{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:700;color:white;margin-bottom:4px;}
+.cyc-hero-left p{font-size:13px;color:rgba(255,255,255,.55);max-width:420px;}
+.ch-streak-pill{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);padding:12px 20px;border-radius:20px;}
+.ch-sp-num{font-family:'Cormorant Garamond',serif;font-size:40px;font-weight:700;color:white;line-height:1;}
+.ch-sp-right{display:flex;flex-direction:column;}
+.ch-sp-label{font-size:10px;color:rgba(255,255,255,.4);letter-spacing:.5px;text-transform:uppercase;}
+.ch-sp-flames{font-size:18px;letter-spacing:-2px;margin-top:2px;}
+.ch-week-dots{display:flex;gap:5px;margin-top:10px;margin-bottom:0;position:relative;z-index:1;}
+.ch-wdot{width:30px;height:5px;border-radius:3px;background:rgba(255,255,255,.1);}
+.ch-wdot.on{background:#e8c1c5;}
+.cyc-tabs{display:flex;align-items:center;gap:0;background:white;border-bottom:1px solid rgba(232,193,197,.25);flex-shrink:0;width:100%;position:relative;z-index:2;padding:0 16px;margin:0;margin-top:-1px;}
+.cyc-tab{padding:14px 22px;font-size:14px;font-weight:600;color:#9e8e8e;cursor:pointer;border-bottom:2px solid transparent;transition:all .22s ease;white-space:nowrap;user-select:none;display:flex;align-items:center;gap:7px;font-family:'Outfit',sans-serif;}
+.cyc-tab:hover{color:#1e1a1a;background:rgba(232,193,197,.06);}
+.cyc-tab.on{color:#1e1a1a;border-bottom-color:#c99ea4;}
+.cyc-tab-badge{background:#c99ea4;color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;}
+.cyc-tab.on .cyc-tab-badge{background:#1e1a1a;}
+.cyc-filter-btn{margin-left:auto;display:none;align-items:center;gap:7px;padding:8px 14px;border-radius:999px;border:1.5px solid rgba(232,193,197,.5);background:white;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;color:#5a4f4f;cursor:pointer;transition:all .22s ease;}
+.cyc-filter-btn:hover{background:#fce4e6;border-color:#c99ea4;}
+.cyc-body{flex:1;display:grid;grid-template-columns:1fr 300px;overflow:hidden;width:100%;}
+.cyc-cards-col{overflow-y:auto;padding:24px 28px;}
+.cyc-cards-col::-webkit-scrollbar{width:5px;}
+.cyc-cards-col::-webkit-scrollbar-thumb{background:rgba(232,193,197,.4);border-radius:4px;}
+.cyc-section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:8px;}
+.cyc-section-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:#1e1a1a;}
+.cyc-section-sub{font-size:13px;color:#9e8e8e;}
+.cyc-cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;margin-bottom:32px;}
+.ch-card{background:white;border-radius:24px;border:1.5px solid rgba(232,193,197,.2);box-shadow:0 4px 20px rgba(30,26,26,.06);overflow:hidden;cursor:pointer;transition:all .28s cubic-bezier(.22,1,.36,1);position:relative;display:flex;flex-direction:column;}
+.ch-card:hover{box-shadow:0 16px 40px rgba(30,26,26,.12);transform:translateY(-4px);border-color:rgba(232,193,197,.5);}
+.ch-card.ch-done{border-color:#7a9e80;background:rgba(122,158,128,.03);}
+.ch-card-accent{height:4px;flex-shrink:0;}
+.ch-card.diff-hard .ch-card-accent{background:linear-gradient(90deg,#d4956a,#e8b88a);}
+.ch-card.diff-med  .ch-card-accent{background:linear-gradient(90deg,#c99ea4,#e8c1c5);}
+.ch-card.diff-easy .ch-card-accent{background:linear-gradient(90deg,#7a9e80,#c8deca);}
+.ch-card.ch-done   .ch-card-accent{background:linear-gradient(90deg,#7a9e80,#c8deca);}
+.ch-card-body{padding:20px 22px;flex:1;display:flex;flex-direction:column;}
+.ch-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:12px;}
+.ch-card-emoji-wrap{width:52px;height:52px;border-radius:16px;background:#fdf0f1;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;}
+.ch-card.diff-hard .ch-card-emoji-wrap{background:#faebd7;}
+.ch-card.diff-easy .ch-card-emoji-wrap{background:rgba(200,222,202,.3);}
+.ch-card-badges{display:flex;flex-wrap:wrap;gap:5px;justify-content:flex-end;}
+.ch-bdg{font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:3px 9px;border-radius:999px;}
+.ch-bdg-res{background:rgba(122,158,128,.15);color:#7a9e80;}
+.ch-bdg-easy{background:#c8deca;color:#3d6b46;}
+.ch-bdg-med{background:#fce4e6;color:#c99ea4;}
+.ch-bdg-hard{background:#faebd7;color:#d4956a;}
+.ch-bdg-done{background:#c8deca;color:#3d6b46;}
+.ch-card-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:#1e1a1a;margin-bottom:6px;line-height:1.2;}
+.ch-card-tag{font-size:13px;color:#5a4f4f;line-height:1.6;margin-bottom:14px;}
+.ch-res-bar-wrap{margin-bottom:5px;}
+.ch-res-track{background:#f0f0f0;border-radius:999px;height:6px;overflow:hidden;margin-bottom:5px;}
+.ch-res-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#7a9e80,#c8deca);transition:width 1.2s cubic-bezier(.22,1,.36,1);}
+.ch-res-label{font-size:11px;color:#9e8e8e;}
+.ch-card-benefits{display:flex;flex-direction:column;gap:5px;margin-bottom:16px;margin-top:12px;}
+.ch-card-benefit{display:flex;align-items:center;gap:7px;font-size:12px;color:#5a4f4f;}
+.ch-ben-dot{width:5px;height:5px;border-radius:50%;background:#c99ea4;flex-shrink:0;}
+.ch-card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:14px;border-top:1px solid rgba(232,193,197,.18);}
+.ch-card-stats{display:flex;gap:16px;}
+.ch-stat{text-align:center;}
+.ch-stat-n{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:#1e1a1a;}
+.ch-stat-l{font-size:10px;color:#9e8e8e;text-transform:uppercase;letter-spacing:.4px;}
+.ch-card-cta{padding:9px 20px;border-radius:999px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all .25s ease;white-space:nowrap;}
+.ch-cta-view{background:#1e1a1a;color:white;box-shadow:0 6px 16px rgba(30,26,26,.2);}
+.ch-cta-view:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(30,26,26,.28);}
+.ch-cta-done{background:#c8deca;color:#3d6b46;cursor:default;}
+.ch-done-badge{position:absolute;top:14px;left:14px;background:#7a9e80;color:white;font-size:10px;font-weight:700;padding:3px 10px;border-radius:999px;letter-spacing:.5px;}
+.ch-dur-chip{display:inline-flex;align-items:center;gap:5px;background:#f5f5f5;border-radius:999px;padding:4px 12px;font-size:11px;font-weight:600;color:#5a4f4f;margin-bottom:12px;}
+.cyc-sidebar{border-left:1px solid rgba(232,193,197,.2);background:rgba(255,255,255,.7);overflow-y:auto;padding:20px 18px;display:flex;flex-direction:column;gap:12px;}
+.cyc-sidebar::-webkit-scrollbar{width:4px;}
+.cyc-sidebar::-webkit-scrollbar-thumb{background:rgba(232,193,197,.3);border-radius:4px;}
+.cyc-sidebar-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:#1e1a1a;margin-bottom:4px;}
+.ch-cat-block{background:white;border-radius:16px;border:1px solid rgba(232,193,197,.2);overflow:hidden;box-shadow:0 3px 12px rgba(30,26,26,.04);margin-bottom:10px;}
+.ch-cat-hdr{display:flex;align-items:center;gap:10px;padding:13px 16px;cursor:pointer;transition:background .2s ease;}
+.ch-cat-hdr:hover{background:#fdf0f1;}
+.ch-cat-hdr.active{background:#fce4e6;}
+.ch-cat-ico{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.ch-cat-name{font-weight:600;font-size:14px;color:#1e1a1a;}
+.ch-cat-count{margin-left:auto;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:#fce4e6;color:#c99ea4;}
+.ch-streak-widget{background:linear-gradient(135deg,#1e1a1a,#3a3030);border-radius:18px;padding:16px;color:white;}
+.ch-sw-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:8px;}
+.ch-sw-num{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:700;line-height:1;color:white;}
+.ch-sw-sub{font-size:12px;color:rgba(255,255,255,.45);margin-top:3px;}
+.ch-sw-week{display:flex;gap:4px;margin-top:12px;}
+.ch-sw-day{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.1);}
+.ch-sw-day.on{background:#e8c1c5;}
+.ch-tip{background:#fdf0f1;border:1px solid rgba(232,193,197,.3);border-radius:14px;padding:13px 14px;}
+.ch-tip-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#c99ea4;margin-bottom:6px;}
+.ch-tip-text{font-size:13px;color:#5a4f4f;line-height:1.6;}
+.cyc-filter-drawer{display:none;position:fixed;inset:0;z-index:900;}
+.cyc-filter-drawer.open{display:flex;}
+.cyc-fd-backdrop{position:absolute;inset:0;background:rgba(30,26,26,.4);}
+.cyc-fd-panel{position:absolute;bottom:0;left:0;right:0;background:white;border-radius:24px 24px 0 0;padding:24px 20px 36px;max-height:80vh;overflow-y:auto;transform:translateY(100%);transition:transform .35s cubic-bezier(.22,1,.36,1);}
+.cyc-filter-drawer.open .cyc-fd-panel{transform:translateY(0);}
+.cyc-fd-handle{width:40px;height:4px;background:rgba(232,193,197,.5);border-radius:2px;margin:0 auto 18px;}
+.cyc-fd-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:#1e1a1a;margin-bottom:16px;}
+.ch-drawer-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;cursor:pointer;font-size:14px;font-weight:500;color:#5a4f4f;transition:all .18s ease;margin-bottom:6px;}
+.ch-drawer-item:hover{background:#fdf0f1;color:#1e1a1a;}
+.ch-drawer-item.active{background:#fce4e6;color:#1e1a1a;font-weight:600;}
+.ch-drawer-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.ch-det-ov{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(10px);z-index:800;display:flex;align-items:flex-start;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s ease;overflow-y:auto;padding:24px 16px 40px;}
+.ch-det-ov.open{opacity:1;pointer-events:all;}
+.ch-det-modal{width:min(680px,100%);background:white;border-radius:30px;box-shadow:0 40px 100px rgba(0,0,0,.25);overflow:hidden;transform:translateY(20px) scale(.97);transition:transform .4s cubic-bezier(.34,1.56,.64,1);margin:auto;}
+.ch-det-ov.open .ch-det-modal{transform:translateY(0) scale(1);}
+.ch-dm-hdr{position:relative;}
+.ch-dm-accent-bar{height:6px;}
+.ch-dm-hdr-inner{padding:26px 32px 20px;}
+.ch-dm-close{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;border:1.5px solid rgba(232,193,197,.4);background:rgba(255,255,255,.9);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;color:#9e8e8e;transition:all .2s ease;font-family:'Outfit',sans-serif;}
+.ch-dm-close:hover{background:#fce4e6;color:#1e1a1a;}
+.ch-dm-emoji{font-size:48px;margin-bottom:12px;display:block;}
+.ch-dm-badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.ch-dm-name{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:700;color:#1e1a1a;margin-bottom:8px;line-height:1.15;}
+.ch-dm-tag{font-size:15px;color:#5a4f4f;line-height:1.7;}
+.ch-dm-body{padding:0 32px 32px;display:flex;flex-direction:column;gap:22px;}
+.ch-dm-sec-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#9e8e8e;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.ch-dm-sec-label::after{content:'';flex:1;height:1px;background:rgba(232,193,197,.3);}
+.ch-ben-chips{display:flex;flex-wrap:wrap;gap:8px;}
+.ch-ben-chip{background:#c8deca;color:#3d6b46;padding:6px 14px;border-radius:999px;font-size:12px;font-weight:600;}
+.ch-how-steps{display:flex;flex-direction:column;gap:10px;}
+.ch-how-step{display:flex;gap:12px;align-items:flex-start;}
+.ch-how-num{width:26px;height:26px;border-radius:50%;background:#fce4e6;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#c99ea4;flex-shrink:0;margin-top:1px;}
+.ch-how-txt{font-size:14px;color:#5a4f4f;line-height:1.6;}
+.ch-exp-timeline{display:flex;flex-direction:column;gap:0;}
+.ch-exp-item{display:flex;gap:14px;align-items:flex-start;position:relative;padding-bottom:14px;}
+.ch-exp-item:last-child{padding-bottom:0;}
+.ch-exp-item:not(:last-child)::before{content:'';position:absolute;left:15px;top:28px;bottom:0;width:2px;background:rgba(232,193,197,.3);}
+.ch-exp-circle{width:32px;height:32px;border-radius:50%;background:#fdf0f1;border:2px solid rgba(232,193,197,.4);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.ch-exp-right{padding-top:4px;}
+.ch-exp-time{font-size:11px;font-weight:700;color:#c99ea4;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;}
+.ch-exp-text{font-size:13px;color:#5a4f4f;line-height:1.5;}
+.ch-rc{background:linear-gradient(135deg,#fdf0f1,white);border:1px solid rgba(232,193,197,.3);border-radius:18px;padding:18px;}
+.ch-rc-quote{font-size:13px;color:#5a4f4f;line-height:1.75;font-style:italic;margin-bottom:16px;padding-left:14px;border-left:3px solid #e8c1c5;}
+.ch-rc-stat{display:flex;align-items:center;gap:16px;}
+.ch-rc-ring-wrap{position:relative;width:72px;height:72px;flex-shrink:0;}
+.ch-rc-ring-wrap svg{transform:rotate(-90deg);}
+.ch-rc-ring-bg{fill:none;stroke:rgba(232,193,197,.2);stroke-width:7;}
+.ch-rc-ring-fill{fill:none;stroke:#7a9e80;stroke-width:7;stroke-linecap:round;stroke-dasharray:172;stroke-dashoffset:172;transition:stroke-dashoffset 1.4s cubic-bezier(.22,1,.36,1);}
+.ch-rc-ring-num{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:#1e1a1a;}
+.ch-rc-pct-text{font-size:13px;color:#5a4f4f;line-height:1.6;}
+.ch-rc-source{font-size:11px;color:#9e8e8e;margin-top:4px;}
+.ch-form-q{margin-bottom:16px;}
+.ch-form-label{font-size:13px;font-weight:600;color:#1e1a1a;margin-bottom:8px;display:block;}
+.ch-form-input{width:100%;border:1.5px solid rgba(232,193,197,.4);border-radius:13px;padding:10px 15px;font-family:'Outfit',sans-serif;font-size:13px;color:#1e1a1a;outline:none;background:rgba(255,255,255,.8);}
+.ch-form-input:focus{border-color:#c99ea4;box-shadow:0 0 0 3px rgba(232,193,197,.14);}
+.ch-form-select{width:100%;border:1.5px solid rgba(232,193,197,.4);border-radius:13px;padding:10px 15px;font-family:'Outfit',sans-serif;font-size:13px;color:#1e1a1a;outline:none;background:white;cursor:pointer;}
+.ch-sl-wrap{display:flex;align-items:center;gap:12px;}
+.ch-sl-input{flex:1;appearance:none;height:5px;border-radius:3px;background:rgba(232,193,197,.3);outline:none;}
+.ch-sl-input::-webkit-slider-thumb{appearance:none;width:18px;height:18px;border-radius:50%;background:#c99ea4;cursor:pointer;}
+.ch-sl-val{font-weight:700;font-size:15px;color:#1e1a1a;min-width:40px;text-align:center;}
+.ch-yn-row{display:flex;gap:8px;}
+.ch-yn-btn{flex:1;padding:9px;border-radius:12px;border:1.5px solid rgba(232,193,197,.35);background:rgba(255,255,255,.6);font-size:13px;font-weight:600;cursor:pointer;text-align:center;transition:all .2s ease;font-family:'Outfit',sans-serif;}
+.ch-yn-btn:hover,.ch-yn-btn.on{border-color:#c99ea4;background:#fce4e6;}
+.ch-emo-opts{display:flex;gap:7px;flex-wrap:wrap;}
+.ch-emo-opt{padding:7px 13px;border-radius:999px;border:1.5px solid rgba(232,193,197,.35);background:rgba(255,255,255,.6);font-size:13px;cursor:pointer;transition:all .2s ease;font-family:'Outfit',sans-serif;}
+.ch-emo-opt:hover,.ch-emo-opt.on{border-color:#c99ea4;background:#fce4e6;}
+.ch-star-row{display:flex;gap:5px;}
+.ch-star{font-size:22px;cursor:pointer;opacity:.2;transition:opacity .18s ease;}
+.ch-star.on{opacity:1;}
+.ch-mc-opts{display:flex;flex-wrap:wrap;gap:7px;}
+.ch-mc-opt{padding:6px 13px;border-radius:999px;border:1.5px solid rgba(232,193,197,.35);background:rgba(255,255,255,.6);font-size:12px;font-weight:500;cursor:pointer;transition:all .18s ease;font-family:'Outfit',sans-serif;}
+.ch-mc-opt:hover,.ch-mc-opt.on{border-color:#c99ea4;background:#fce4e6;}
+.ch-dm-actions{display:flex;gap:10px;flex-wrap:wrap;}
+.ch-dm-btn{padding:13px 26px;border-radius:999px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all .25s ease;display:flex;align-items:center;gap:7px;}
+.ch-db-start{background:#1e1a1a;color:white;flex:1;justify-content:center;box-shadow:0 8px 20px rgba(30,26,26,.2);}
+.ch-db-start:hover{background:#3a3030;transform:translateY(-2px);}
+.ch-db-back{background:transparent;border:1.5px solid rgba(232,193,197,.4);color:#5a4f4f;}
+.ch-db-back:hover{background:#fce4e6;}
+.ch-db-submit{background:#7a9e80;color:white;flex:1;justify-content:center;}
+.ch-db-submit:hover{background:#5d8763;transform:translateY(-2px);}
+.ch-cel-ov{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);z-index:900;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .3s ease;}
+.ch-cel-ov.open{opacity:1;pointer-events:all;}
+.ch-cel-card{background:white;border-radius:26px;padding:36px;width:min(360px,100%);text-align:center;box-shadow:0 40px 80px rgba(0,0,0,.25);transform:scale(.9);transition:transform .4s cubic-bezier(.34,1.56,.64,1);}
+.ch-cel-ov.open .ch-cel-card{transform:scale(1);}
+.ch-cel-big{font-size:64px;display:block;animation:chCelB .6s cubic-bezier(.34,1.56,.64,1);}
+@keyframes chCelB{from{transform:scale(0) rotate(-12deg)}to{transform:scale(1) rotate(0)}}
+.ch-cel-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;margin:12px 0 6px;color:#1e1a1a;}
+.ch-cel-sub{font-size:14px;color:#9e8e8e;margin-bottom:24px;line-height:1.6;}
+.ch-cel-close{padding:12px 28px;border-radius:999px;background:#e8c1c5;color:#1e1a1a;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all .22s ease;}
+.ch-cel-close:hover{transform:scale(1.04);}
+.ch-toast{position:fixed;bottom:24px;right:24px;background:#1e1a1a;color:white;padding:13px 20px;border-radius:16px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;box-shadow:0 10px 30px rgba(30,26,26,.3);z-index:850;opacity:0;transform:translateY(12px);transition:all .4s cubic-bezier(.34,1.56,.64,1);pointer-events:none;display:flex;align-items:center;gap:10px;max-width:300px;}
+.ch-toast.show{opacity:1;transform:translateY(0);}
+.ch-toast-dot{width:8px;height:8px;border-radius:50%;background:#e8c1c5;flex-shrink:0;animation:chPulse 1.5s infinite;}
+@keyframes chPulse{0%,100%{opacity:1}50%{opacity:.4}}
+#ch-conf{position:fixed;inset:0;pointer-events:none;z-index:850;}
+@media(max-width:900px){.cyc-body{grid-template-columns:1fr;}.cyc-sidebar{display:none;}.cyc-filter-btn{display:flex;}.cyc-cards-col{padding:18px 16px;}.cyc-cards-grid{grid-template-columns:1fr;}}
+@media(max-width:600px){.cyc-hero{padding:18px 20px 14px;}.cyc-hero-left h1{font-size:24px;}.ch-dm-hdr-inner{padding:20px 20px 16px;}.ch-dm-body{padding:0 20px 24px;}.ch-dm-name{font-size:26px;}.cyc-tab{padding:11px 12px;font-size:12px;}}
 </style>
 
-<canvas id="confetti-ch"></canvas>
+<canvas id="ch-conf"></canvas>
+<div class="ch-toast" id="ch-toast"><div class="ch-toast-dot"></div><span id="ch-toast-txt">Shared!</span></div>
 
-<!-- Upload modal -->
-<div class="ch-modal-overlay" id="ch-modal">
-  <div class="ch-modal">
-    <div id="ch-upload-view">
-      <span class="ch-modal-emoji">📸</span>
-      <h3 class="ch-modal-title">Log your challenge</h3>
-      <p class="ch-modal-sub">Upload a photo or screenshot to count today toward your streak!</p>
-      <div class="upload-zone" onclick="completeChallenge()">
-        <input type="file" accept="image/*" onchange="completeChallenge()">
-        <span class="uz-icon">🌿</span>
-        <p class="uz-lbl">Tap to upload · or drag & drop</p>
+<div class="ch-det-ov" id="ch-det-ov">
+  <div class="ch-det-modal">
+    <div class="ch-dm-hdr">
+      <div class="ch-dm-accent-bar" id="ch-dm-accent-bar"></div>
+      <div class="ch-dm-hdr-inner">
+        <button class="ch-dm-close" onclick="chCloseDet()">✕</button>
+        <span class="ch-dm-emoji" id="ch-dm-emoji">🌿</span>
+        <div class="ch-dm-badges" id="ch-dm-badges"></div>
+        <div class="ch-dm-name" id="ch-dm-name">Challenge</div>
+        <div class="ch-dm-tag" id="ch-dm-tag"></div>
       </div>
-      <button class="ch-upload-btn" onclick="completeChallenge()">Upload & Log Streak 🔥</button>
-      <div class="ch-cancel" onclick="closeModal()">Cancel</div>
     </div>
-    <div class="ch-celeb" id="ch-celeb-view">
-      <span class="celeb-big">🔥</span>
-      <div class="celeb-msg" id="celeb-msg">Streak Started!</div>
-      <p class="celeb-sub" id="celeb-sub">Come back tomorrow to keep it going.</p>
-      <button class="ch-close-btn" onclick="closeModal()">Back to challenges</button>
-    </div>
+    <div class="ch-dm-body" id="ch-dm-body"></div>
   </div>
 </div>
 
-<div class="ch-wrap">
+<div class="ch-cel-ov" id="ch-cel-ov">
+  <div class="ch-cel-card">
+    <span class="ch-cel-big" id="ch-cel-ico">🔥</span>
+    <div class="ch-cel-title" id="ch-cel-title">Started!</div>
+    <p class="ch-cel-sub" id="ch-cel-sub">Your cyster has been notified.</p>
+    <button class="ch-cel-close" onclick="chCloseCel()">Back to Challenges</button>
+  </div>
+</div>
 
-  <!-- hero streak banner -->
-  <div class="ch-hero">
-    <h2>30-Day Challenges ⚡</h2>
-    <p>Small daily actions that add up. Your cyster is doing them too.</p>
-    <div class="streak-display">
-      <div>
-        <div class="streak-big" id="ch-streak-num">0</div>
-        <div style="font-size:13px;color:rgba(255,255,255,.5);margin-top:2px;">day streak</div>
+<div class="cyc-filter-drawer" id="ch-filter-drawer">
+  <div class="cyc-fd-backdrop" onclick="chCloseFilter()"></div>
+  <div class="cyc-fd-panel">
+    <div class="cyc-fd-handle"></div>
+    <div class="cyc-fd-title">Filter by Category</div>
+    <div id="ch-drawer-cats"></div>
+  </div>
+</div>
+
+<div class="cyc-pg">
+  <div class="cyc-hero">
+    <div class="cyc-hero-inner">
+      <div class="cyc-hero-left">
+        <h1>CycleSync Challenges ⚡</h1>
+        <p>Research-backed daily rituals. Small, consistent actions that compound. Your cyster is doing them too.</p>
       </div>
-      <div class="streak-flames" id="ch-flames"></div>
+      <div class="ch-streak-pill">
+        <div class="ch-sp-num" id="ch-sp-num">0</div>
+        <div class="ch-sp-right"><span class="ch-sp-label">day streak</span><span class="ch-sp-flames" id="ch-sp-flames"></span></div>
+      </div>
     </div>
-    <div class="streak-week" id="ch-week"></div>
+    <div class="ch-week-dots" id="ch-week-dots"></div>
   </div>
 
-  <!-- today's challenge -->
-  <div class="ch-section-title">Today's Challenge</div>
-  <div class="ch-grid" id="today-grid"></div>
+  <div class="cyc-tabs">
+    <div class="cyc-tab on" data-tab="daily" onclick="chSwitchTab('daily',this)">📅 Daily <span class="cyc-tab-badge" id="ch-badge-daily">3</span></div>
+    <div class="cyc-tab" data-tab="weekly" onclick="chSwitchTab('weekly',this)">📆 Weekly <span class="cyc-tab-badge" id="ch-badge-weekly">2</span></div>
+    <div class="cyc-tab" data-tab="monthly" onclick="chSwitchTab('monthly',this)">🗓️ Monthly <span class="cyc-tab-badge" id="ch-badge-monthly">2</span></div>
+    <button class="cyc-filter-btn" onclick="chOpenFilter()">⚙️ Filter</button>
+  </div>
 
-  <!-- all challenges -->
-  <div class="ch-section-title">All Challenges</div>
-  <div class="ch-grid" id="all-grid"></div>
-
+  <div class="cyc-body">
+    <div class="cyc-cards-col" id="ch-cards-col">
+      <div class="cyc-section-hdr">
+        <div>
+          <div class="cyc-section-title" id="ch-section-title">Daily Challenges</div>
+          <div class="cyc-section-sub" id="ch-section-sub">Small daily rituals. Consistent over perfect.</div>
+        </div>
+      </div>
+      <div class="cyc-cards-grid" id="ch-grid"></div>
+    </div>
+    <div class="cyc-sidebar" id="ch-sidebar">
+      <div class="cyc-sidebar-title">Filter by Category</div>
+      <div id="ch-sidebar-cats"></div>
+      <div class="ch-streak-widget">
+        <div class="ch-sw-label">🔥 Your Streak</div>
+        <div class="ch-sw-num" id="ch-sw-num">0</div>
+        <div class="ch-sw-sub" id="ch-sw-sub">days in a row</div>
+        <div class="ch-sw-week" id="ch-sw-week"></div>
+      </div>
+      <div class="ch-tip">
+        <div class="ch-tip-label">💡 Cyster Tip</div>
+        <div class="ch-tip-text" id="ch-tip-text">Start with ONE challenge. Doing one thing consistently beats doing five things sporadically.</div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-(function() {
-  const CHALLENGES = [
-    {id:'walk',   emoji:'🚶‍♀️', name:'10-min walk after lunch',       cat:'Metabolic',  diff:'easy',  desc:'Light movement post-meal is one of the most effective tools for managing insulin resistance. Just 10 minutes makes a measurable difference.',   today:true},
-    {id:'sun',    emoji:'☀️',  name:'10-min morning sunlight',       cat:'Energy',     diff:'easy',  desc:'Stand outside within 30 minutes of waking. Sets your circadian clock, reduces cortisol, and fights the 2pm crash.',                            today:false},
-    {id:'protein',emoji:'🥚',  name:'Protein-first breakfast',       cat:'Metabolic',  diff:'easy',  desc:'Eat 20–30g protein within 30 min of waking. Stabilises blood sugar through the morning and reduces cravings.',                                 today:false},
-    {id:'water',  emoji:'💧',  name:'500ml water before each meal',  cat:'Hydration',  diff:'easy',  desc:'Drinking water before meals improves metabolism and reduces overeating driven by thirst mistaken for hunger.',                                  today:false},
-    {id:'journal',emoji:'📔',  name:'3-minute mood journal',         cat:'Mental',     diff:'easy',  desc:'Write 3 sentences about how you feel. No judgment. Patterns from journaling reduce anxiety significantly over time.',                           today:false},
-    {id:'rosemary',emoji:'🌿', name:'5-min rosemary scalp massage',  cat:'Hair',       diff:'med',   desc:'Warm a few drops of rosemary oil, massage into scalp for 5 minutes. Clinical trials show it rivals minoxidil for hair thinning.',              today:false},
-    {id:'logi',   emoji:'📊',  name:'Log your cycle today',          cat:'Cycle',      diff:'easy',  desc:'Open any period tracker and log today\'s data. 3 months of consistent logging reveals your true pattern.',                                       today:false},
-    {id:'lowgi',  emoji:'🥗',  name:'Low-GI meal swap',              cat:'Metabolic',  diff:'med',   desc:'Replace one high-GI food today — white rice → millet, cornflakes → oats, white bread → roti. One swap compounds over time.',                   today:false},
-    {id:'tea',    emoji:'🫖',  name:'Spearmint tea (twice today)',   cat:'Hormonal',   diff:'easy',  desc:'Spearmint tea twice daily shows evidence for reducing androgen levels linked to acne and irregular cycles.',                                    today:false},
-    {id:'sleep',  emoji:'🌛',  name:'Screens off 1hr before bed',   cat:'Sleep',      diff:'med',   desc:'Melatonin suppression from screens directly disrupts your already-stressed hormonal system. One screen-free hour changes sleep quality measurably.', today:false},
-    {id:'breath', emoji:'🧘',  name:'4-7-8 breathing (3 rounds)',   cat:'Mental',     diff:'easy',  desc:'Inhale 4s, hold 7s, exhale 8s. Three rounds activates the parasympathetic nervous system and lowers cortisol within minutes.',                  today:false},
-    {id:'berb',   emoji:'💊',  name:'Take your supplement today',   cat:'Metabolic',  diff:'easy',  desc:'Berberine, inositol, or whatever your doctor has recommended. Log it here to build the habit. Consistency > perfection.',                        today:false},
-  ];
+(function(){
+var TIPS=['Start with ONE challenge from the Daily tab. Doing one thing consistently beats doing five things sporadically.','Post-meal walks are the single most studied intervention for insulin-resistant PCOS. Just 10 minutes changes everything.','Your cyster is doing these challenges too — check in with her when you log progress.','Spearmint tea works best when taken consistently for 30+ days. The compound effect is real.','Low-GI eating does not mean restriction — it means swapping. Millet instead of white rice. Roti instead of white bread.','Sleep and cortisol are deeply linked. Fixing sleep often fixes half of PCOS symptoms without any other change.'];
+var CH_DATA=[{id:'walk',type:'daily',emoji:'🚶‍♀️',cat:'Exercise',name:'Post-Meal Movement',diff:'easy',dur:'10 min/day',tag:'The most studied insulin intervention for PCOS — free, immediate, and stackable after every meal.',ben:['Lowers post-meal glucose spike by up to 22%','Reduces insulin resistance measurably','Improves afternoon energy within 3 days','Reduces bloating and digestive discomfort'],how:['After lunch or dinner, step outside for a walk','Walk at a comfortable conversational pace — no gym needed','Do this for 10 minutes minimum after each meal','Avoid sitting for 30 minutes after eating','Log your walk below each day you complete it'],exp:[{i:'⚡',t:'Day 3',x:'Reduced afternoon energy crash'},{i:'🩺',t:'Week 2',x:'Lower fasting glucose markers'},{i:'🌀',t:'Week 4',x:'Improved hormonal balance signals'},{i:'💪',t:'Month 2',x:'Measurable insulin sensitivity improvement'}],res:{q:'In a 2021 Nutrients study of 94 women with insulin-resistant PCOS, 10-minute post-meal walks reduced 2-hour postprandial glucose by 22% — comparable to low-dose metformin in effect magnitude.',pct:78,src:'Nutrients Journal, 2021 · n=94',txt:'of PCOS women with insulin resistance saw improved fasting glucose within 2 weeks of daily post-meal walks.'},form:'exercise',msg:'I\'ve accepted the Post-Meal Movement challenge 🚶‍♀️ — 10 mins after every meal. Will you support me?'},{id:'protein',type:'daily',emoji:'🥚',cat:'Diet',name:'Protein-First Breakfast',diff:'easy',dur:'15 min/day',tag:'The single dietary change with the most evidence for PCOS blood sugar and androgen stability throughout the day.',ben:['Stabilises morning cortisol spike','Reduces sugar cravings by ~40%','Prevents morning insulin surge','Supports hair growth over time'],how:['Within 30 minutes of waking, eat 20–30g protein','Try: 3 eggs, 200g Greek yoghurt, paneer bhurji, or a protein shake','Do not start with only carbs (chai + biscuit is not breakfast)','Add a healthy fat: ghee, nuts, avocado, or seeds','Log what you ate each morning to build consistency'],exp:[{i:'🧠',t:'Day 2',x:'Sharper morning focus, reduced brain fog'},{i:'🍬',t:'Day 5',x:'Noticeably fewer mid-morning sugar cravings'},{i:'⚖️',t:'Week 3',x:'Reduced tendency to overeat at lunch'},{i:'💇‍♀️',t:'Month 2',x:'Hair shedding may reduce with sustained protein'}],res:{q:'A 2022 study in the Journal of Clinical Endocrinology found high-protein breakfasts (35g+) reduced free androgen levels by 36% and insulin response by 65% in women with PCOS over 12 weeks.',pct:82,src:'J Clinical Endocrinology, 2022 · n=60',txt:'of PCOS participants reported reduced cravings and improved energy within 2 weeks of protein-first breakfast.'},form:'diet',msg:'Starting the Protein-First Breakfast challenge 🥚 — 20g protein before 9am every day. Support me?'},{id:'spearmint',type:'daily',emoji:'🫖',cat:'Hormonal',name:'Spearmint Tea Ritual',diff:'easy',dur:'5 min/day',tag:'Double-blind RCTs show spearmint reduces free testosterone — the hormone behind acne, hair thinning, and hirsutism.',ben:['Reduces free testosterone significantly','Clears hormonal acne over time','Reduces excess hair growth rate','Calms androgens without medication'],how:['Brew 1 teaspoon dried spearmint in 250ml hot water for 5 minutes','Drink one cup after breakfast and one after dinner','Use consistently for minimum 30 days for measurable results','Avoid refined sugar — a small amount of honey is fine','Note any skin, hair, or mood changes in your daily log'],exp:[{i:'🌿',t:'Week 2',x:'Mild reduction in skin oiliness'},{i:'🔴',t:'Week 4',x:'Fewer new hormonal breakouts'},{i:'💇‍♀️',t:'Month 2',x:'Reduced excess hair growth speed'},{i:'📊',t:'Month 3',x:'Measurable drop in free testosterone on bloodwork'}],res:{q:'A double-blind RCT in Phytotherapy Research found twice-daily spearmint tea reduced free testosterone by 51% and LH by 7.6% over 30 days in women with confirmed PCOS and hyperandrogenism.',pct:71,src:'Phytotherapy Research, 2010/2019 · n=42',txt:'of participants with hormonal acne reported visible improvement within 6 weeks of twice-daily spearmint tea.'},form:'stress',msg:'Starting the Spearmint Tea Ritual 🫖 — twice daily for 30 days. Research-backed testosterone reduction. Join me?'},{id:'mealprep',type:'weekly',emoji:'🥗',cat:'Diet',name:'Anti-Inflammatory Meal Prep',diff:'med',dur:'3× per week',tag:'Chronic inflammation is now understood as a root driver of PCOS — and diet is the most direct lever.',ben:['Reduces systemic inflammation (CRP) by up to 35%','Improves insulin sensitivity','Supports regular ovulation','Reduces bloating and joint pain'],how:['Choose 3 meals this week to cook fresh from scratch','Include: oily fish, dark leafy greens, turmeric, ginger, berries','Avoid: refined sugar, trans fats, ultra-processed snacks','Batch cook lentils or chickpeas as your base protein','Log each anti-inflammatory meal and how you felt after it'],exp:[{i:'🫧',t:'Week 1',x:'Reduced bloating and digestive discomfort'},{i:'🔴',t:'Week 2',x:'Calmer hormonal acne flares'},{i:'😴',t:'Week 3',x:'Better sleep quality and duration'},{i:'📅',t:'Month 2',x:'More predictable cycle length emerging'}],res:{q:'Women with PCOS following an anti-inflammatory Mediterranean-style diet for 12 weeks showed 35% reduction in CRP, 29% reduction in testosterone, and improved ovulation frequency.',pct:73,src:'Hormones Journal, 2022 · n=88',txt:'of PCOS women following anti-inflammatory eating for 8 weeks reported improved energy, skin clarity, and cycle regularity.'},form:'diet',msg:'Starting the Anti-Inflammatory Meal Prep weekly challenge 🥗 — 3 fresh meals this week. Cook with me?'},{id:'movement',type:'weekly',emoji:'🏃‍♀️',cat:'Exercise',name:'Gentle Movement Streak',diff:'med',dur:'5 days/week',tag:'PCOS responds better to consistent moderate movement than occasional HIIT — this is evidence-supported.',ben:['Reduces cortisol (unlike HIIT which spikes it)','Improves insulin sensitivity','Supports mood stability','Aids weight management without stress hormones'],how:['Aim for 30 minutes of movement 5 days this week','Choose: walking, yoga, swimming, cycling, or dancing','Actively avoid high-intensity HIIT if experiencing fatigue','Track your minutes with the slider below each day','Rest 2 days intentionally — rest is built into the challenge'],exp:[{i:'😊',t:'Day 3',x:'Mood improvement from endorphin release'},{i:'😴',t:'Week 1',x:'Better sleep onset speed'},{i:'⚡',t:'Week 2',x:'Sustained energy through the afternoon'},{i:'📊',t:'Month 2',x:'Improved fasting insulin on labs'}],res:{q:'A 2020 meta-analysis of 16 RCTs found moderate-intensity exercise produced superior outcomes for PCOS women on insulin resistance, androgen levels, and mental health markers across all studies.',pct:85,src:'J Clin Med, 2020 · Meta-analysis, n=587',txt:'of PCOS women in exercise intervention studies reported improved mood and energy within the first week of consistent moderate movement.'},form:'exercise',msg:'Starting the Gentle Movement Streak this week 🏃‍♀️ — 30 min, 5 days. Push me to keep going?'},{id:'lowgi',type:'monthly',emoji:'🌾',cat:'Diet',name:'21-Day Low-Glycaemic Reset',diff:'hard',dur:'21 days',tag:'The most evidence-supported dietary intervention for PCOS — directly targets insulin resistance at the root.',ben:['Reduces insulin resistance at source','Regulates androgen levels over time','Supports cycle regularity','Permanently reduces sugar cravings'],how:['Replace all high-GI foods with low-GI alternatives for 21 consecutive days','White rice → millets, red rice, or quinoa','White bread → roti, sourdough, or oat bread','Sugary drinks → water, herbal tea, coconut water, or lassi','Check in with your cyster every 3 days for accountability'],exp:[{i:'🍬',t:'Day 5',x:'Sugar cravings begin meaningfully reducing'},{i:'⚡',t:'Week 1',x:'More stable energy through the day'},{i:'🔴',t:'Week 2',x:'Skin starts visibly clearing'},{i:'📅',t:'Week 3',x:'Hormonal signals begin normalising'},{i:'🌙',t:'Month 2',x:'More regular cycle by next period'}],res:{q:'The 2023 ESHRE PCOS Clinical Guidelines explicitly recommend low-GI diet as a first-line lifestyle intervention, citing Level A evidence of improved insulin sensitivity, androgen reduction, and ovulation rate.',pct:91,src:'ESHRE PCOS Guidelines 2023 — Level A Evidence',txt:'of women with PCOS on a consistent low-GI diet for 3 months showed improved cycle regularity and reduced androgen markers.'},form:'diet',msg:'Starting the 21-Day Low-GI Reset 🌾 — the most evidence-backed dietary change for PCOS. 21 days together?'},{id:'sleep',type:'monthly',emoji:'🌙',cat:'Sleep',name:'30-Day Sleep Architecture Reset',diff:'med',dur:'30 days',tag:'Poor sleep dysregulates cortisol, insulin, and reproductive hormones simultaneously — fixing sleep fixes almost everything.',ben:['Reduces cortisol — the driver of weight gain','Improves insulin sensitivity overnight','Stabilises mood and anxiety across cycle','Directly supports ovulation regularity'],how:['Set a consistent sleep and wake time — same every day','No screens 60 minutes before bed (blue light suppresses melatonin by 50%)','Add a 10-minute wind-down ritual: stretching, journaling, or herbal tea','Keep bedroom cool (18–20°C) and as dark as possible','Log sleep hours and quality each morning for 30 consecutive days'],exp:[{i:'😴',t:'Day 4',x:'Faster sleep onset and less night waking'},{i:'😊',t:'Week 1',x:'Morning mood noticeably improved'},{i:'🍬',t:'Week 2',x:'Reduced evening sugar cravings'},{i:'⚡',t:'Week 3',x:'Sustained daytime energy without crashes'},{i:'📊',t:'Month 1',x:'Measurable cortisol reduction'}],res:{q:'A 2021 Sleep Medicine study found PCOS women who improved sleep from 6 to 8 hours showed 32% lower cortisol and 28% better insulin sensitivity after 4 weeks — without any other lifestyle changes.',pct:79,src:'Sleep Medicine, 2021 · n=112',txt:'of PCOS women who established consistent sleep schedules reported reduced anxiety and improved cycle predictability within 30 days.'},form:'stress',msg:'Starting the 30-Day Sleep Reset 🌙 — consistent bedtime, no screens, wind-down ritual. Will you sleep-coach me?'}];
+var CATS=[{id:'all',n:'All Challenges',i:'✨',bg:'#f5f5f5'},{id:'Diet',n:'Diet',i:'🥗',bg:'#faebd7'},{id:'Exercise',n:'Exercise',i:'🏃‍♀️',bg:'#c8deca'},{id:'Hormonal',n:'Hormonal',i:'⚡',bg:'#ece8f6'},{id:'Sleep',n:'Sleep',i:'🌙',bg:'#ddeef7'}];
+var TAB_META={daily:{title:'Daily Challenges',sub:'Small daily rituals. Consistent over perfect.'},weekly:{title:'Weekly Challenges',sub:'Bigger actions, done 3–5 times this week.'},monthly:{title:'Monthly Challenges',sub:'30-day commitments. The ones that actually change things.'}};
+var chActiveTab='daily',chActiveCat='all';
+var chStarted=JSON.parse(localStorage.getItem('fyc_started')||'{}');
+var chStreak=parseInt(localStorage.getItem('fyc_streak')||'0');
 
-  const streak = parseInt(localStorage.getItem('fyc_streak')||'0');
-  const done   = JSON.parse(localStorage.getItem('fyc_done')||'{}');
+// INIT
+document.getElementById('ch-sp-num').textContent=chStreak;
+document.getElementById('ch-sp-flames').textContent='🔥'.repeat(Math.min(chStreak,5));
+var wdEl=document.getElementById('ch-week-dots');
+['M','T','W','T','F','S','S'].forEach(function(d,i){var dot=document.createElement('div');dot.className='ch-wdot'+(i<chStreak?' on':'');wdEl.appendChild(dot);});
+document.getElementById('ch-sw-num').textContent=chStreak;
+document.getElementById('ch-sw-sub').textContent=chStreak===1?'1 day in a row':chStreak+' days in a row';
+var swW=document.getElementById('ch-sw-week');
+for(var i=0;i<7;i++){var d=document.createElement('div');d.className='ch-sw-day'+(i<chStreak?' on':'');swW.appendChild(d);}
+document.getElementById('ch-tip-text').textContent=TIPS[Math.floor(Math.random()*TIPS.length)];
+['daily','weekly','monthly'].forEach(function(t){var el=document.getElementById('ch-badge-'+t);if(el)el.textContent=CH_DATA.filter(function(c){return c.type===t;}).length;});
+buildCatFilters('ch-sidebar-cats',false);
+buildCatFilters('ch-drawer-cats',true);
+renderCards();
 
-  /* hero */
-  document.getElementById('ch-streak-num').textContent = streak;
-  document.getElementById('ch-flames').textContent = '🔥'.repeat(Math.min(streak,5));
-  const week = document.getElementById('ch-week');
-  ['M','T','W','T','F','S','S'].forEach((d,i) => {
-    const el = document.createElement('div');
-    el.className = 'sw-day' + (i < streak ? ' on' : '');
-    el.textContent = i < streak ? '🔥' : d;
-    week.appendChild(el);
-  });
-
-  /* render card */
-  function renderCard(ch, container) {
-    const isDone = !!done[ch.id];
-    const progress = isDone ? 100 : Math.floor(Math.random()*40);
-    const div = document.createElement('div');
-    div.className = 'ch-card' + (isDone ? ' done' : '');
-    div.innerHTML = `
-      ${isDone ? '<div class="done-badge">✓ Done today</div>' : ''}
-      <div class="ch-card-cat">${{'Metabolic':'⚡','Energy':'☀️','Hydration':'💧','Mental':'🧘','Hair':'🌿','Cycle':'📅','Hormonal':'🌸','Sleep':'🌛'}[ch.cat]||'·'} ${ch.cat}</div>
-      <span class="ch-card-emoji">${ch.emoji}</span>
-      <div class="ch-card-name">${ch.name}</div>
-      <div class="ch-progress"><div class="ch-progress-fill" style="width:${progress}%"></div></div>
-      <div class="ch-card-desc">${ch.desc}</div>
-      <div class="ch-card-meta">
-        <span class="ch-diff diff-${ch.diff}">${ch.diff}</span>
-        <button class="ch-btn ${isDone?'ch-btn-done':'ch-btn-start'}" onclick="${isDone?'':'openModal(\''+ch.id+'\')'}" ${isDone?'disabled':''}>
-          ${isDone ? '✓ Completed' : 'Start Challenge'}
-        </button>
-      </div>`;
-    container.appendChild(div);
-  }
-
-  /* today */
-  const todayGrid = document.getElementById('today-grid');
-  CHALLENGES.filter(c => c.today).forEach(c => renderCard(c, todayGrid));
-
-  /* all */
-  const allGrid = document.getElementById('all-grid');
-  CHALLENGES.filter(c => !c.today).forEach(c => renderCard(c, allGrid));
-
-  /* modal */
-  let activeId = null;
-  window.openModal = function(id) {
-    activeId = id;
-    document.getElementById('ch-upload-view').style.display = 'block';
-    document.getElementById('ch-celeb-view').className = 'ch-celeb';
-    document.getElementById('ch-modal').classList.add('open');
-  };
-  window.closeModal = function() {
-    document.getElementById('ch-modal').classList.remove('open');
-    if (activeId) location.reload(); // refresh to show updated state
-  };
-
-  window.completeChallenge = function() {
-    if (!activeId) return;
-    /* update streak */
-    const newStreak = streak + 1;
-    localStorage.setItem('fyc_streak', newStreak);
-    /* mark done */
-    done[activeId] = true;
-    localStorage.setItem('fyc_done', JSON.stringify(done));
-    /* celebration messages */
-    const msgs = [
-      ['Streak Started! 🌱','You\'re on your way. Come back tomorrow!'],
-      ['2-Day Streak! 🔥','Two days running — habit forming!'],
-      ['3 Days Strong! 🔥🔥','Three in a row. Your cyster is proud!'],
-      ['4 Days! 🔥🔥','Four days! The hardest part is done.'],
-      ['5 Days! 🌟','Five-day streak! You\'re an inspiration.'],
-      ['6 Days!! 💪','One more and you\'ve got a full week!'],
-      ['FULL WEEK! 🎉','A complete 7-day streak! Legend 🌸'],
-    ];
-    const [msg,sub] = msgs[Math.min(newStreak-1,6)];
-    document.getElementById('celeb-msg').textContent = msg;
-    document.getElementById('celeb-sub').textContent = sub;
-    document.querySelector('.celeb-big').textContent = newStreak>=7?'🎉':'🔥';
-    document.getElementById('ch-upload-view').style.display = 'none';
-    document.getElementById('ch-celeb-view').className = 'ch-celeb show';
-    launchConfetti();
-  };
-
-  function launchConfetti() {
-    const canvas = document.getElementById('confetti-ch');
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-    const colors=['#e8c1c5','#fce4e6','#1e1a1a','#7a9e80','#f0d0d4','#fff'];
-    const parts = Array.from({length:80},()=>({
-      x:Math.random()*canvas.width, y:-20-Math.random()*100,
-      w:5+Math.random()*8, h:3+Math.random()*5,
-      color:colors[Math.floor(Math.random()*colors.length)],
-      vx:-2+Math.random()*4, vy:2+Math.random()*4,
-      rot:Math.random()*360, vr:-3+Math.random()*6, opacity:1,
-    }));
-    let frame;
-    function draw(){
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      let alive=false;
-      parts.forEach(p=>{
-        p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;p.vy+=.06;
-        if(p.y<canvas.height+20) alive=true;
-        if(p.y>canvas.height-150) p.opacity=Math.max(0,p.opacity-.018);
-        ctx.save();ctx.globalAlpha=p.opacity;ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);
-        ctx.fillStyle=p.color;ctx.beginPath();ctx.roundRect(-p.w/2,-p.h/2,p.w,p.h,2);ctx.fill();ctx.restore();
-      });
-      if(alive) frame=requestAnimationFrame(draw);
-      else ctx.clearRect(0,0,canvas.width,canvas.height);
+function buildCatFilters(cid,isDrawer){
+  var el=document.getElementById(cid);if(!el)return;el.innerHTML='';
+  CATS.forEach(function(cat){
+    if(isDrawer){
+      var item=document.createElement('div');item.className='ch-drawer-item'+(chActiveCat===cat.id?' active':'');item.dataset.catId=cat.id;
+      var ico=document.createElement('div');ico.className='ch-drawer-ico';ico.style.background=cat.bg;ico.textContent=cat.i;item.appendChild(ico);
+      item.appendChild(document.createTextNode(cat.n));
+      item.addEventListener('click',function(){chSetCat(cat.id);chCloseFilter();});el.appendChild(item);
+    } else {
+      var cnt=cat.id==='all'?CH_DATA.length:CH_DATA.filter(function(c){return c.cat===cat.id;}).length;
+      var block=document.createElement('div');block.className='ch-cat-block';block.dataset.catId=cat.id;
+      var hdr=document.createElement('div');hdr.className='ch-cat-hdr'+(chActiveCat===cat.id?' active':'');
+      var ico2=document.createElement('div');ico2.className='ch-cat-ico';ico2.style.background=cat.bg;ico2.textContent=cat.i;hdr.appendChild(ico2);
+      var nm=document.createElement('span');nm.className='ch-cat-name';nm.textContent=cat.n;hdr.appendChild(nm);
+      var ct=document.createElement('span');ct.className='ch-cat-count';ct.textContent=cnt;hdr.appendChild(ct);
+      hdr.addEventListener('click',function(){chSetCat(cat.id);});block.appendChild(hdr);el.appendChild(block);
     }
-    frame=requestAnimationFrame(draw);
-    setTimeout(()=>{cancelAnimationFrame(frame);ctx.clearRect(0,0,canvas.width,canvas.height);},4000);
+  });
+}
+
+function chSetCat(catId) {
+  chActiveCat = catId;
+
+  // If a specific category is selected (not 'all'),
+  // check if the current tab has any challenges for it.
+  // If not, find the first tab that does and switch to it automatically.
+  if (catId !== 'all') {
+    var currentTabHasMatches = CH_DATA.some(function(c) {
+      return c.type === chActiveTab && c.cat === catId;
+    });
+
+    if (!currentTabHasMatches) {
+      // Find which tab has challenges for this category
+      var tabsToCheck = ['daily', 'weekly', 'monthly'];
+      for (var i = 0; i < tabsToCheck.length; i++) {
+        var tabHasMatches = CH_DATA.some(function(c) {
+          return c.type === tabsToCheck[i] && c.cat === catId;
+        });
+        if (tabHasMatches) {
+          // Switch to this tab
+          chActiveTab = tabsToCheck[i];
+          // Update tab UI — remove 'on' from all tabs, add to correct one
+          document.querySelectorAll('.cyc-tab').forEach(function(t) {
+            t.classList.remove('on');
+            if (t.dataset.tab === chActiveTab) t.classList.add('on');
+          });
+          // Update section title and subtitle
+          var meta = TAB_META[chActiveTab];
+          var titleEl = document.getElementById('ch-section-title');
+          var subEl = document.getElementById('ch-section-sub');
+          if (titleEl) titleEl.textContent = meta.title;
+          if (subEl) subEl.textContent = meta.sub;
+          // Scroll cards column to top
+          var col = document.getElementById('ch-cards-col');
+          if (col) col.scrollTop = 0;
+          break;
+        }
+      }
+    }
   }
+
+  // Render cards with updated tab + category
+  renderCards();
+
+  // Update active state on all category filter elements (sidebar + drawer)
+  document.querySelectorAll('[data-cat-id]').forEach(function(el) {
+    var h = el.querySelector('.ch-cat-hdr');
+    if (h) h.className = 'ch-cat-hdr' + (el.dataset.catId === catId ? ' active' : '');
+    if (el.classList.contains('ch-drawer-item')) el.classList.toggle('active', el.dataset.catId === catId);
+  });
+}
+
+window.chSwitchTab=function(tab,el){chActiveTab=tab;document.querySelectorAll('.cyc-tab').forEach(function(t){t.classList.remove('on');});if(el)el.classList.add('on');var meta=TAB_META[tab];document.getElementById('ch-section-title').textContent=meta.title;document.getElementById('ch-section-sub').textContent=meta.sub;var col=document.getElementById('ch-cards-col');if(col)col.scrollTop=0;renderCards();};
+
+function renderCards(){
+  var grid=document.getElementById('ch-grid');if(!grid)return;grid.innerHTML='';
+  var filtered=CH_DATA.filter(function(c){return c.type===chActiveTab;});
+  if(chActiveCat!=='all')filtered=filtered.filter(function(c){return c.cat===chActiveCat;});
+  if(filtered.length===0){var empty=document.createElement('div');empty.style.cssText='grid-column:1/-1;text-align:center;padding:48px 20px;color:#9e8e8e;font-size:14px;';empty.innerHTML='<div style="font-size:48px;margin-bottom:12px;">🔍</div><div style="font-weight:600;color:#1e1a1a;margin-bottom:6px;font-size:16px;">No challenges in this category</div><div>Try "All" or switch tabs</div>';grid.appendChild(empty);return;}
+  filtered.forEach(function(ch){grid.appendChild(buildCard(ch));});
+}
+
+function buildCard(ch){
+  var done=!!chStarted[ch.id];
+  var card=document.createElement('div');card.className='ch-card diff-'+ch.diff+(done?' ch-done':'');
+  card.addEventListener('click',function(){chOpenDet(ch.id);});
+  var accent=document.createElement('div');accent.className='ch-card-accent';card.appendChild(accent);
+  if(done){var db=document.createElement('div');db.className='ch-done-badge';db.textContent='✓ In Progress';card.appendChild(db);}
+  var body=document.createElement('div');body.className='ch-card-body';
+  var top=document.createElement('div');top.className='ch-card-top';
+  var ew=document.createElement('div');ew.className='ch-card-emoji-wrap';ew.textContent=ch.emoji;top.appendChild(ew);
+  var bdgs=document.createElement('div');bdgs.className='ch-card-badges';
+  function mkB(cls,txt){var b=document.createElement('span');b.className='ch-bdg '+cls;b.textContent=txt;bdgs.appendChild(b);}
+  mkB('ch-bdg-res','📊 Research-backed');mkB('ch-bdg-'+(done?'done':ch.diff),done?'✓ Active':ch.diff);
+  top.appendChild(bdgs);body.appendChild(top);
+  var dur=document.createElement('div');dur.className='ch-dur-chip';dur.textContent='⏱ '+ch.dur;body.appendChild(dur);
+  var nm=document.createElement('div');nm.className='ch-card-name';nm.textContent=ch.name;body.appendChild(nm);
+  var tg=document.createElement('div');tg.className='ch-card-tag';tg.textContent=ch.tag;body.appendChild(tg);
+  var rbw=document.createElement('div');rbw.className='ch-res-bar-wrap';
+  var rbt=document.createElement('div');rbt.className='ch-res-track';
+  var rbf=document.createElement('div');rbf.className='ch-res-fill';rbf.style.width='0%';rbt.appendChild(rbf);rbw.appendChild(rbt);
+  var rbl=document.createElement('div');rbl.className='ch-res-label';rbl.textContent=ch.res.pct+'% effective · '+ch.res.src;rbw.appendChild(rbl);body.appendChild(rbw);
+  setTimeout(function(){rbf.style.width=ch.res.pct+'%';},80);
+  var bens=document.createElement('div');bens.className='ch-card-benefits';
+  ch.ben.slice(0,3).forEach(function(b){var row=document.createElement('div');row.className='ch-card-benefit';var dot=document.createElement('div');dot.className='ch-ben-dot';row.appendChild(dot);row.appendChild(document.createTextNode(b));bens.appendChild(row);});
+  body.appendChild(bens);
+  var footer=document.createElement('div');footer.className='ch-card-footer';
+  var stats=document.createElement('div');stats.className='ch-card-stats';
+  function mkS(n,l){var s=document.createElement('div');s.className='ch-stat';var sn=document.createElement('div');sn.className='ch-stat-n';sn.textContent=n;s.appendChild(sn);var sl=document.createElement('div');sl.className='ch-stat-l';sl.textContent=l;s.appendChild(sl);stats.appendChild(s);}
+  mkS(ch.how.length,'Steps');mkS(ch.exp.length,'Milestones');footer.appendChild(stats);
+  var cta=document.createElement('button');cta.className='ch-card-cta '+(done?'ch-cta-done':'ch-cta-view');cta.textContent=done?'✓ Active':'View Details →';
+  cta.addEventListener('click',function(e){e.stopPropagation();if(!done)chOpenDet(ch.id);});footer.appendChild(cta);
+  body.appendChild(footer);card.appendChild(body);return card;
+}
+
+window.chOpenDet=function(id){
+  var ch=CH_DATA.find(function(c){return c.id===id;});if(!ch)return;
+  var done=!!chStarted[id];
+  document.getElementById('ch-dm-emoji').textContent=ch.emoji;
+  document.getElementById('ch-dm-name').textContent=ch.name;
+  document.getElementById('ch-dm-tag').textContent=ch.tag;
+  var ab=document.getElementById('ch-dm-accent-bar');
+  if(ab){var ac={easy:'linear-gradient(90deg,#7a9e80,#c8deca)',med:'linear-gradient(90deg,#c99ea4,#e8c1c5)',hard:'linear-gradient(90deg,#d4956a,#e8b88a)'};ab.style.background=ac[ch.diff]||ac.med;}
+  var br=document.getElementById('ch-dm-badges');br.innerHTML='';
+  [['ch-bdg-res','📊 Peer-reviewed'],['ch-bdg-'+ch.diff,ch.diff],['ch-bdg-res',ch.cat],['ch-bdg-res','⏱ '+ch.dur]].forEach(function(p){var b=document.createElement('span');b.className='ch-bdg '+p[0];b.textContent=p[1];br.appendChild(b);});
+  var body=document.getElementById('ch-dm-body');body.innerHTML='';
+  function mkSec(lbl){var sec=document.createElement('div');var l=document.createElement('div');l.className='ch-dm-sec-label';l.textContent=lbl;sec.appendChild(l);body.appendChild(sec);return sec;}
+  var bs=mkSec('Benefits for your symptoms');var bc=document.createElement('div');bc.className='ch-ben-chips';
+  ch.ben.forEach(function(b){var c=document.createElement('div');c.className='ch-ben-chip';c.textContent='✓ '+b;bc.appendChild(c);});bs.appendChild(bc);
+  var hs=mkSec('How to complete');var hst=document.createElement('div');hst.className='ch-how-steps';
+  ch.how.forEach(function(s,i){var row=document.createElement('div');row.className='ch-how-step';var num=document.createElement('div');num.className='ch-how-num';num.textContent=i+1;var txt=document.createElement('div');txt.className='ch-how-txt';txt.textContent=s;row.appendChild(num);row.appendChild(txt);hst.appendChild(row);});hs.appendChild(hst);
+  var es=mkSec('What to expect');var tl=document.createElement('div');tl.className='ch-exp-timeline';
+  ch.exp.forEach(function(e){var item=document.createElement('div');item.className='ch-exp-item';var circ=document.createElement('div');circ.className='ch-exp-circle';circ.textContent=e.i;var right=document.createElement('div');right.className='ch-exp-right';var tm=document.createElement('div');tm.className='ch-exp-time';tm.textContent=e.t;var tx=document.createElement('div');tx.className='ch-exp-text';tx.textContent=e.x;right.appendChild(tm);right.appendChild(tx);item.appendChild(circ);item.appendChild(right);tl.appendChild(item);});es.appendChild(tl);
+  var rs=mkSec('Research evidence');var rc=document.createElement('div');rc.className='ch-rc';
+  var rq=document.createElement('div');rq.className='ch-rc-quote';rq.textContent=ch.res.q;rc.appendChild(rq);
+  var rcs=document.createElement('div');rcs.className='ch-rc-stat';
+  var circ2=172,offset=circ2*(1-ch.res.pct/100);
+  var rw=document.createElement('div');rw.className='ch-rc-ring-wrap';
+  var svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('width','72');svg.setAttribute('height','72');svg.setAttribute('viewBox','0 0 72 72');
+  var bgC=document.createElementNS('http://www.w3.org/2000/svg','circle');bgC.setAttribute('class','ch-rc-ring-bg');bgC.setAttribute('cx','36');bgC.setAttribute('cy','36');bgC.setAttribute('r','27');
+  var fillC=document.createElementNS('http://www.w3.org/2000/svg','circle');fillC.setAttribute('class','ch-rc-ring-fill');fillC.setAttribute('cx','36');fillC.setAttribute('cy','36');fillC.setAttribute('r','27');fillC.setAttribute('stroke-dasharray',String(circ2));fillC.setAttribute('stroke-dashoffset',String(circ2));fillC.id='ch-rcf-'+id;
+  svg.appendChild(bgC);svg.appendChild(fillC);rw.appendChild(svg);
+  var rn=document.createElement('div');rn.className='ch-rc-ring-num';rn.textContent=ch.res.pct+'%';rw.appendChild(rn);rcs.appendChild(rw);
+  var ri=document.createElement('div');var rpt=document.createElement('div');rpt.className='ch-rc-pct-text';rpt.textContent=ch.res.pct+'% '+ch.res.txt;var rsc=document.createElement('div');rsc.className='ch-rc-source';rsc.textContent='Source: '+ch.res.src;ri.appendChild(rpt);ri.appendChild(rsc);rcs.appendChild(ri);rc.appendChild(rcs);rs.appendChild(rc);
+  if(done){var fs=mkSec("Log Today's Progress");var fd=document.createElement('div');fd.innerHTML=buildFormHTML(ch);fs.appendChild(fd);}
+  var acts=document.createElement('div');acts.className='ch-dm-actions';
+  var back=document.createElement('button');back.className='ch-dm-btn ch-db-back';back.textContent='← Back';back.addEventListener('click',chCloseDet);acts.appendChild(back);
+  if(done){var sub=document.createElement('button');sub.className='ch-dm-btn ch-db-submit';sub.textContent='✓ Submit Today\'s Log';sub.addEventListener('click',function(){chSubmitLog(id);});acts.appendChild(sub);}
+  else{var start=document.createElement('button');start.className='ch-dm-btn ch-db-start';start.textContent='✨ Start This Challenge';start.addEventListener('click',function(){chStartCh(id);});acts.appendChild(start);}
+  body.appendChild(acts);
+  document.getElementById('ch-det-ov').classList.add('open');
+  setTimeout(function(){var fe=document.getElementById('ch-rcf-'+id);if(fe)fe.style.strokeDashoffset=String(offset);},350);
+};
+
+window.chCloseDet=function(){document.getElementById('ch-det-ov').classList.remove('open');};
+
+function buildFormHTML(ch){
+  if(ch.form==='diet')return '<div class="ch-form-q"><label class="ch-form-label">What did you eat / prepare today?</label><input class="ch-form-input" type="text" placeholder="e.g. Oats with nuts, lentil dal, grilled fish…"></div><div class="ch-form-q"><label class="ch-form-label">Did you follow the guidelines?</label><div class="ch-yn-row"><div class="ch-yn-btn" onclick="this.closest(\'.ch-yn-row\').querySelectorAll(\'.ch-yn-btn\').forEach(b=>b.classList.remove(\'on\'));this.classList.add(\'on\')">✓ Yes</div><div class="ch-yn-btn" onclick="this.closest(\'.ch-yn-row\').querySelectorAll(\'.ch-yn-btn\').forEach(b=>b.classList.remove(\'on\'));this.classList.add(\'on\')">✕ Not fully</div></div></div><div class="ch-form-q"><label class="ch-form-label">How did you feel after eating?</label><div class="ch-emo-opts"><div class="ch-emo-opt" onclick="this.closest(\'.ch-emo-opts\').querySelectorAll(\'.ch-emo-opt\').forEach(b=>b.classList.remove(\'on\'));this.classList.add(\'on\')">😊 Great</div><div class="ch-emo-opt" onclick="this.closest(\'.ch-emo-opts\').querySelectorAll(\'.ch-emo-opt\').forEach(b=>b.classList.remove(\'on\'));this.classList.add(\'on\')">😐 Okay</div><div class="ch-emo-opt" onclick="this.closest(\'.ch-emo-opts\').querySelectorAll(\'.ch-emo-opt\').forEach(b=>b.classList.remove(\'on\'));this.classList.add(\'on\')">😴 Tired</div><div class="ch-emo-opt" onclick="this.closest(\'.ch-emo-opts\').querySelectorAll(\'.ch-emo-opt\').forEach(b=>b.classList.remove(\'on\'));this.classList.add(\'on\')">⚡ Energised</div></div></div>';
+  if(ch.form==='exercise')return '<div class="ch-form-q"><label class="ch-form-label">Minutes exercised today</label><div class="ch-sl-wrap"><input class="ch-sl-input" type="range" min="0" max="60" value="30" oninput="this.nextElementSibling.textContent=this.value+\'min\'"><div class="ch-sl-val">30min</div></div></div><div class="ch-form-q"><label class="ch-form-label">What activity?</label><select class="ch-form-select"><option>Walking</option><option>Yoga</option><option>Swimming</option><option>Cycling</option><option>Dancing</option><option>Strength training</option><option>Other</option></select></div><div class="ch-form-q"><label class="ch-form-label">Energy level after?</label><div class="ch-star-row"><span class="ch-star" onclick="[...this.parentNode.children].forEach((s,i)=>s.classList.toggle(\'on\',i<=0))">⭐</span><span class="ch-star" onclick="[...this.parentNode.children].forEach((s,i)=>s.classList.toggle(\'on\',i<=1))">⭐</span><span class="ch-star" onclick="[...this.parentNode.children].forEach((s,i)=>s.classList.toggle(\'on\',i<=2))">⭐</span><span class="ch-star" onclick="[...this.parentNode.children].forEach((s,i)=>s.classList.toggle(\'on\',i<=3))">⭐</span><span class="ch-star" onclick="[...this.parentNode.children].forEach((s,i)=>s.classList.toggle(\'on\',i<=4))">⭐</span></div></div><div class="ch-form-q"><label class="ch-form-label">How did your body feel?</label><div class="ch-mc-opts"><div class="ch-mc-opt" onclick="this.classList.toggle(\'on\')">Energised</div><div class="ch-mc-opt" onclick="this.classList.toggle(\'on\')">Tired</div><div class="ch-mc-opt" onclick="this.classList.toggle(\'on\')">Sore</div><div class="ch-mc-opt" onclick="this.classList.toggle(\'on\')">Strong</div><div class="ch-mc-opt" onclick="this.classList.toggle(\'on\')">Calm</div><div class="ch-mc-opt" onclick="this.classList.toggle(\'on\')">Proud</div></div></div>';
+  return '<div class="ch-form-q"><label class="ch-form-label">Hours of sleep last night?</label><div class="ch-sl-wrap"><input class="ch-sl-input" type="range" min="4" max="10" value="7" step=".5" oninput="this.nextElementSibling.textContent=this.value+\'h\'"><div class="ch-sl-val">7h</div></div></div><div class="ch-form-q"><label class="ch-form-label">Stress level before bed (1–10)?</label><div class="ch-sl-wrap"><input class="ch-sl-input" type="range" min="1" max="10" value="5" oninput="this.nextElementSibling.textContent=this.value"><div class="ch-sl-val">5</div></div></div><div class="ch-form-q"><label class="ch-form-label">Did you do the wind-down ritual?</label><div class="ch-yn-row"><div class="ch-yn-btn" onclick="this.closest(\'.ch-yn-row\').querySelectorAll(\'.ch-yn-btn\').forEach(b=>b.classList.remove(\'on\'));this.classList.add(\'on\')">✓ Yes</div><div class="ch-yn-btn" onclick="this.closest(\'.ch-yn-row\').querySelectorAll(\'.ch-yn-btn\').forEach(b=>b.classList.remove(\'on\'));this.classList.add(\'on\')">✕ Not today</div></div></div><div class="ch-form-q"><label class="ch-form-label">How are you feeling overall?</label><div class="ch-emo-opts"><div class="ch-emo-opt" onclick="this.closest(\'.ch-emo-opts\').querySelectorAll(\'.ch-emo-opt\').forEach(b=>b.classList.remove(\'on\'));this.classList.add(\'on\')">😊 Good</div><div class="ch-emo-opt" onclick="this.closest(\'.ch-emo-opts\').querySelectorAll(\'.ch-emo-opt\').forEach(b=>b.classList.remove(\'on\'));this.classList.add(\'on\')">😐 Neutral</div><div class="ch-emo-opt" onclick="this.closest(\'.ch-emo-opts\').querySelectorAll(\'.ch-emo-opt\').forEach(b=>b.classList.remove(\'on\'));this.classList.add(\'on\')">😔 Low</div><div class="ch-emo-opt" onclick="this.closest(\'.ch-emo-opts\').querySelectorAll(\'.ch-emo-opt\').forEach(b=>b.classList.remove(\'on\'));this.classList.add(\'on\')">🌿 Peaceful</div></div></div>';
+}
+
+window.chStartCh=function(id){var ch=CH_DATA.find(function(c){return c.id===id;});if(!ch)return;chStarted[id]={at:Date.now()};localStorage.setItem('fyc_started',JSON.stringify(chStarted));fireChatEv({type:'start',name:ch.name,emoji:ch.emoji,msg:ch.msg});chCloseDet();showCel(ch.emoji,ch.name+' Started! 🎉','Your cyster has been notified. Check your chat for her reaction! 💬');launchConf();renderCards();};
+window.chSubmitLog=function(id){var ch=CH_DATA.find(function(c){return c.id===id;});if(!ch)return;var ns=chStreak+1;localStorage.setItem('fyc_streak',ns);fireChatEv({type:'progress',name:ch.name,emoji:ch.emoji,streak:ns,msg:'Just logged day '+ns+' of the '+ch.name+' challenge '+ch.emoji+' 🔥 Streak: '+ns+' days!'});chCloseDet();var msgs=[['Day 1 Done! 🌱','Your journey starts now. See you tomorrow!'],['2-Day Streak! 🔥','Two in a row — the habit is forming!'],['3 Days! 🔥🔥','Three strong. Your cyster is proud!'],['4 Days! 🔥🔥','Four days — momentum is building!'],['5 Days! 🌟','Five days! You\'re an inspiration.'],['6 Days! 💪','One more for a full week!'],['FULL WEEK! 🎉','Seven days complete. Legend 🌸']];var pair=msgs[Math.min(ns-1,6)];showCel(ns>=7?'🎉':'🔥',pair[0],pair[1]);launchConf();};
+function showCel(ico,title,sub){document.getElementById('ch-cel-ico').textContent=ico;document.getElementById('ch-cel-title').textContent=title;document.getElementById('ch-cel-sub').textContent=sub;document.getElementById('ch-cel-ov').classList.add('open');}
+window.chCloseCel=function(){document.getElementById('ch-cel-ov').classList.remove('open');location.reload();};
+window.chOpenFilter=function(){document.getElementById('ch-filter-drawer').classList.add('open');};
+window.chCloseFilter=function(){document.getElementById('ch-filter-drawer').classList.remove('open');};
+function fireChatEv(data){var evs=JSON.parse(localStorage.getItem('fyc_chat_events')||'[]');evs.push(Object.assign({},data,{ts:Date.now()}));localStorage.setItem('fyc_chat_events',JSON.stringify(evs));var t=document.getElementById('ch-toast');var tt=document.getElementById('ch-toast-txt');if(t&&tt){tt.textContent='Sent to your Cyster → open Chat to see her reply!';t.classList.add('show');setTimeout(function(){t.classList.remove('show');},3500);}try{window.dispatchEvent(new StorageEvent('storage',{key:'fyc_chat_events',newValue:JSON.stringify(evs)}));}catch(e){}}
+function launchConf(){var cv=document.getElementById('ch-conf');if(!cv)return;var ctx=cv.getContext('2d');cv.width=window.innerWidth;cv.height=window.innerHeight;var cols=['#e8c1c5','#fce4e6','#1e1a1a','#7a9e80','#a494c4','#f0d0d4','#fff','#c8deca'];var pts=[];for(var i=0;i<100;i++)pts.push({x:Math.random()*cv.width,y:-20-Math.random()*120,w:5+Math.random()*9,h:3+Math.random()*6,c:cols[Math.floor(Math.random()*cols.length)],vx:-2+Math.random()*4,vy:2+Math.random()*5,r:Math.random()*360,vr:-4+Math.random()*8,o:1});var fr;function draw(){ctx.clearRect(0,0,cv.width,cv.height);var alive=false;pts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;p.vy+=.07;if(p.y<cv.height+20)alive=true;if(p.y>cv.height-160)p.o=Math.max(0,p.o-.016);ctx.save();ctx.globalAlpha=p.o;ctx.translate(p.x,p.y);ctx.rotate(p.r*Math.PI/180);ctx.fillStyle=p.c;ctx.beginPath();ctx.roundRect(-p.w/2,-p.h/2,p.w,p.h,2);ctx.fill();ctx.restore();});if(alive)fr=requestAnimationFrame(draw);else ctx.clearRect(0,0,cv.width,cv.height);}fr=requestAnimationFrame(draw);setTimeout(function(){cancelAnimationFrame(fr);ctx.clearRect(0,0,cv.width,cv.height);},4500);}
 })();
 </script>
